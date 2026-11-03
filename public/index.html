@@ -104,13 +104,13 @@ section + section { border-top: 1px solid var(--gold-soft); }
 .date { font-family: var(--font-num); font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: .14em; color: var(--ink); }
 .hero .actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .art {
-  justify-self: center; width: min(100%, 400px); border-radius: 24px; overflow: hidden;
-  box-shadow: 0 30px 60px -25px rgba(122, 90, 23, .45), 0 0 0 6px #fff, 0 0 0 7px var(--gold-soft);
+  justify-self: center; width: min(100%, 440px); aspect-ratio: 1; border-radius: 50%;
+  filter: drop-shadow(0 26px 34px rgba(122, 90, 23, .35));
 }
 @media (max-width: 860px) {
   .hero { padding-top: 28px; }
   .hero .wrap { grid-template-columns: 1fr; gap: 32px; }
-  .art { order: -1; width: min(100%, 320px); }
+  .art { order: -1; width: min(82%, 320px); }
 }
 
 /* Contagem regressiva */
@@ -291,8 +291,8 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
           <a class="btn ghost" href="#historia">Nossos 50 anos</a>
         </div>
       </div>
-      <img class="art" src="assets/arte-reveillon.jpg" width="900" height="1600"
-           alt="Arte oficial: selo dourado com o texto O Réveillon da Nossa História, 50 anos, 31.12.2026, cercado de balões dourados e confetes.">
+      <img class="art" src="assets/selo-50-anos.webp" width="600" height="600"
+           alt="Selo dourado: O Réveillon da Nossa História, 50 anos.">
     </div>
   </section>
 
