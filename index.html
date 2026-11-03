@@ -6,7 +6,7 @@
 <title>Réveillon AABB 50 Anos</title>
 <meta name="description" content="O Réveillon da Nossa História: a virada de 2026 para 2027 na sede da AABB Balsas, celebrando os 50 anos do clube.">
 <meta property="og:title" content="O Réveillon da Nossa História · AABB Balsas 50 anos">
-<meta property="og:description" content="31.12.2026 na sede da AABB Balsas. Música, bar e queima de fogos na virada para os 50 anos do clube.">
+<meta property="og:description" content="31.12.2026 na sede da AABB Balsas. Show de Jamilson Jackson, bar e queima de fogos na virada para os 50 anos do clube.">
 <meta property="og:image" content="assets/arte-reveillon.jpg">
 <meta name="theme-color" content="#F5EFE4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -124,24 +124,45 @@ section + section { border-top: 1px solid var(--gold-soft); }
 .countdown-done { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; color: var(--gold-deep); }
 
 /* Destaques confirmados */
-.facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.facts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
 .fact { background: var(--surface); border: 1px solid var(--gold-soft); border-radius: var(--radius); padding: 18px; display: grid; gap: 4px; }
 .fact b { font-family: var(--font-display); font-size: 1rem; }
 .fact span { font-size: .92rem; color: var(--muted); }
-@media (max-width: 860px) { .facts { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 1000px) { .facts { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 760px) { .facts { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 420px) { .facts { grid-template-columns: 1fr; } }
 
 /* Atrações */
-.lineup { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-.act { background: var(--surface); border: 1px solid var(--gold-soft); border-radius: var(--radius); overflow: hidden; display: grid; }
+.lineup { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 18px; }
+
+/* Atração principal em destaque */
+.star {
+  background: var(--surface); border: 1px solid var(--gold); border-radius: 22px; overflow: hidden;
+  display: grid; grid-template-columns: .95fr 1.05fr; box-shadow: 0 24px 50px -30px rgba(122, 90, 23, .5);
+}
+.star .photos { display: grid; grid-template-columns: 1.4fr 1fr; gap: 6px; background: var(--gold-soft); }
+.star .photos img { width: 100%; height: 100%; aspect-ratio: 2 / 3; object-fit: cover; object-position: top; }
+.star .body { padding: clamp(22px, 4vw, 40px); display: grid; gap: 16px; align-content: center; }
+.star .tag {
+  justify-self: start; font-size: .74rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  background: var(--gold); color: #fff; padding: 5px 12px; border-radius: 999px;
+}
+.star h3 { font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 800; color: var(--gold-deep); text-transform: uppercase; letter-spacing: .01em; }
+.star .sub { font-family: var(--font-display); font-weight: 700; color: var(--gold); font-size: 1.05rem; text-transform: uppercase; letter-spacing: .04em; }
+.star p { color: var(--muted); }
+.star .mission { color: var(--ink); font-weight: 600; border-left: 4px solid var(--gold); padding-left: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips span { font-size: .85rem; font-weight: 600; color: var(--gold-deep); border: 1px solid var(--gold-soft); border-radius: 999px; padding: 4px 12px; background: var(--paper); }
+@media (max-width: 860px) { .star { grid-template-columns: 1fr; } .star .photos img { aspect-ratio: 3 / 4; } }
+.act { background: var(--surface); border: 1px solid var(--gold-soft); border-radius: var(--radius); overflow: hidden; display: grid; grid-template-columns: 96px 1fr; }
 .act .photo {
-  aspect-ratio: 4 / 3; display: grid; place-items: center; color: var(--gold);
-  font-family: var(--font-num); font-size: 3.2rem;
+  display: grid; place-items: center; color: var(--gold);
+  font-family: var(--font-num); font-size: 2.2rem;
   background: repeating-linear-gradient(135deg, #F1E7D2 0 14px, #EBDFC4 14px 28px);
 }
 .act .body { padding: 18px; display: grid; gap: 6px; }
 .act .body p { color: var(--muted); font-size: .95rem; }
-@media (max-width: 860px) { .lineup { grid-template-columns: 1fr; } .act { grid-template-columns: 140px 1fr; } .act .photo { aspect-ratio: auto; font-size: 2.4rem; } }
+@media (max-width: 700px) { .lineup { grid-template-columns: 1fr; } }
 
 /* Ingressos */
 .tickets { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
@@ -258,7 +279,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
         <p class="eyebrow">AABB Balsas · 1977–2027</p>
         <h1><span>O Réveillon</span>da Nossa História</h1>
         <p class="date">31.12.2026</p>
-        <p class="lead">Na virada para 2027, a AABB completa 50 anos. Vem celebrar com a gente na sede do clube, com música, bar e queima de fogos à meia-noite.</p>
+        <p class="lead">Na virada para 2027, a AABB completa 50 anos. Vem celebrar com a gente na sede do clube, com o show de <strong>Jamilson Jackson</strong>, bar e queima de fogos à meia-noite.</p>
         <div class="countdown" id="countdown" aria-live="polite" aria-label="Contagem regressiva para a virada do ano">
           <div><b id="cd-d">--</b><span>dias</span></div>
           <div><b id="cd-h">--</b><span>horas</span></div>
@@ -283,6 +304,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
         <h2 id="t-festa">O que você já pode anotar</h2>
       </div>
       <div class="facts">
+        <div class="fact"><b>Show de Jamilson Jackson</b><span>Pop, disco, soul e flashbacks</span></div>
         <div class="fact"><b>Sede da AABB</b><span>Rua Isaac Martins, Centro · Balsas/MA</span></div>
         <div class="fact"><b>Queima de fogos</b><span>Na virada, à meia-noite</span></div>
         <div class="fact"><b>Bar no local</b><span>Funcionando durante a festa, com venda à parte</span></div>
@@ -297,20 +319,35 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
       <div class="head">
         <p class="eyebrow">Atrações</p>
         <h2 id="t-atracoes">Música para virar o ano</h2>
-        <p class="lead">As atrações estão sendo fechadas. Acompanhe o Instagram <a href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener">@aabb.balsas</a> para saber em primeira mão.</p>
+        <p class="lead">A primeira atração já está confirmada, e outras ainda podem ser anunciadas. Acompanhe o Instagram <a href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener">@aabb.balsas</a> para saber em primeira mão.</p>
       </div>
+      <article class="star" aria-labelledby="t-jamilson">
+        <div class="photos">
+          <img src="assets/jamilson-jackson-palco.jpg" width="800" height="1200" loading="lazy"
+               alt="Jamilson Jackson de blazer prateado com lapela preta, sorrindo, em estúdio.">
+          <img src="assets/jamilson-jackson.jpg" width="800" height="1202" loading="lazy"
+               alt="Jamilson Jackson de casaco longo preto e tênis branco, com as mãos nos bolsos.">
+        </div>
+        <div class="body">
+          <span class="tag">Atração confirmada</span>
+          <div>
+            <h3 id="t-jamilson">Jamilson Jackson</h3>
+            <p class="sub">O Rei do Pop e dos grandes flashbacks</p>
+          </div>
+          <p>Com mais de 30 anos de carreira, o artista maranhense é reconhecido pelas performances eletrizantes e pelos tributos ao eterno Rei do Pop, Michael Jackson. No show, grandes sucessos do pop internacional, disco music, soul e os flashbacks que marcaram gerações.</p>
+          <p>Já se apresentou em programas de TV nacionais e junta voz, presença de palco, coreografias e muita energia para fazer o público cantar e dançar do início ao fim.</p>
+          <div class="chips" aria-label="Estilos do show"><span>Pop internacional</span><span>Disco music</span><span>Soul</span><span>Flashbacks</span></div>
+          <p class="mission">Nesta noite histórica, a missão dele é especial: embalar a chegada de 2027 e celebrar os 50 anos da AABB Balsas.</p>
+        </div>
+      </article>
       <div class="lineup">
         <article class="act">
-          <div class="photo" aria-hidden="true">01</div>
-          <div class="body"><h3>Atração principal</h3><p>Banda ou artista <span class="pend">a confirmar</span></p></div>
+          <div class="photo" aria-hidden="true">+</div>
+          <div class="body"><h3>Mais atrações</h3><p>Banda ou DJ <span class="pend">a confirmar</span></p></div>
         </article>
         <article class="act">
-          <div class="photo" aria-hidden="true">02</div>
-          <div class="body"><h3>Banda convidada</h3><p>Nome e estilo <span class="pend">a confirmar</span></p></div>
-        </article>
-        <article class="act">
-          <div class="photo" aria-hidden="true">03</div>
-          <div class="body"><h3>DJ da virada</h3><p>Nome <span class="pend">a confirmar</span></p></div>
+          <div class="photo" aria-hidden="true">+</div>
+          <div class="body"><h3>Mais atrações</h3><p>Banda ou DJ <span class="pend">a confirmar</span></p></div>
         </article>
       </div>
     </div>
