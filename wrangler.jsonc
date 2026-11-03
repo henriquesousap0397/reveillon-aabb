@@ -1,13 +1,16 @@
 {
-  // Configuração do Cloudflare: publica só a pasta public/ (o site).
-  // README e este arquivo não vão para o ar.
+  // Configuração do Cloudflare.
+  // - Publica só a pasta public/ (o site e o painel). README e este arquivo não vão para o ar.
+  // - src/worker.js responde em /api/estatisticas com os números do painel (/painel/).
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "reveillon",
+  "main": "src/worker.js",
   "compatibility_date": "2026-11-03",
   "observability": {
     "enabled": true
   },
   "assets": {
-    "directory": "./public"
+    "directory": "./public",
+    "binding": "ASSETS"
   }
 }

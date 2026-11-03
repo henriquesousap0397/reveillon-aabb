@@ -5,7 +5,9 @@ Hotsite oficial de **O Réveillon da Nossa História**, a festa da virada de 31/
 - `public/`: o site, que é a única pasta publicada
   - `public/index.html`: o site inteiro (página única)
   - `public/assets/`: imagens
-- `wrangler.jsonc`: configuração do Cloudflare (diz para publicar só a pasta `public/`)
+  - `public/painel/`: painel de visitas em português
+- `src/worker.js`: busca os números no Cloudflare Web Analytics para o painel (`/api/estatisticas`)
+- `wrangler.jsonc`: configuração do Cloudflare (publica só a pasta `public/` e liga o `src/worker.js`)
 
 ## Publicação
 
@@ -22,3 +24,12 @@ Endereço: https://reveillon.aabbbalsas.workers.dev/
 ## Estatísticas
 
 Visitas medidas pelo **Cloudflare Web Analytics** (gratuito, sem cookies e sem dados pessoais). O código fica no fim do `public/index.html`. Painel: Cloudflare → Analytics & Logs → Web Analytics → `reveillon.aabbbalsas.workers.dev`.
+
+## Painel de visitas
+
+- Endereço: https://reveillon.aabbbalsas.workers.dev/painel/ (sem senha; não aparece no Google)
+- Prévia com dados de exemplo: https://reveillon.aabbbalsas.workers.dev/painel/?demo=1
+- Precisa de dois **Secrets** no projeto `reveillon` do Cloudflare (Settings → Variables and Secrets):
+  - `CF_API_TOKEN`: chave de API só de leitura, com a permissão **Account → Account Analytics → Read**
+  - `ACCOUNT_ID`: ID da conta do Cloudflare
+- Os números ficam guardados por 5 minutos para não sobrecarregar a API.
