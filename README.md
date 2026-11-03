@@ -18,3 +18,7 @@ Configuração do projeto no Cloudflare (Settings → Build):
 - Root directory: `/`
 
 Endereço: https://reveillon.aabbbalsas.workers.dev/
+
+## Estatísticas
+
+Visitas medidas pelo **Cloudflare Web Analytics** (gratuito, sem cookies e sem dados pessoais). O código fica no fim do `public/index.html`. Painel: Cloudflare → Analytics & Logs → Web Analytics → `reveillon.aabbbalsas.workers.dev`.
