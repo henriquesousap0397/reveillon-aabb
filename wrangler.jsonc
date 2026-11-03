@@ -1,0 +1,13 @@
+{
+  // Configuração do Cloudflare: publica só a pasta public/ (o site).
+  // README e este arquivo não vão para o ar.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "reveillon",
+  "compatibility_date": "2026-11-03",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "./public"
+  }
+}
