@@ -172,6 +172,16 @@ section + section { border-top: 1px solid var(--gold-soft); }
 .ticket-note { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
 @media (max-width: 700px) { .tickets { grid-template-columns: 1fr; } }
 
+/* Chamada das barracas */
+.tents { display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; align-items: center; background: var(--surface); border: 1px solid var(--gold); border-radius: 22px; padding: clamp(20px, 4vw, 36px); }
+.tents .txt { display: grid; gap: 14px; }
+.tents .facts2 { display: flex; flex-wrap: wrap; gap: 10px; }
+.tents .facts2 span { font-family: var(--font-num); font-size: 1.5rem; color: var(--gold-deep); border: 1px solid var(--gold-soft); border-radius: 12px; padding: 4px 14px; background: var(--paper); }
+.tents .facts2 small { font-family: var(--font-body); font-size: .8rem; font-weight: 700; color: var(--muted); margin-left: 6px; text-transform: uppercase; letter-spacing: .06em; }
+.tents .pics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tents .pics img { border-radius: 12px; aspect-ratio: 4 / 5; object-fit: cover; width: 100%; }
+@media (max-width: 760px) { .tents { grid-template-columns: 1fr; } }
+
 /* Linha do tempo */
 .timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 28px; position: relative; }
 .timeline::before { content: ""; position: absolute; left: 66px; top: 6px; bottom: 6px; width: 2px; background: var(--gold-soft); }
@@ -257,6 +267,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
     <nav aria-label="Seções">
       <a href="#atracoes">Atrações</a>
       <a href="#ingressos">Ingressos</a>
+      <a href="barracas/">Barracas</a>
       <a href="#historia">50 anos</a>
       <a href="#local">Local</a>
       <a href="#duvidas">Dúvidas</a>
@@ -376,6 +387,25 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
       <div class="ticket-note">
         <a class="btn" aria-disabled="true" href="#ingressos" title="Link de venda ainda não definido">Comprar ingresso (em breve)</a>
         <a class="btn ghost" href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener">Seguir @aabb.balsas</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Barracas -->
+  <section id="barracas" aria-labelledby="t-barracas">
+    <div class="wrap">
+      <div class="tents">
+        <div class="txt">
+          <p class="eyebrow">Reserva de barracas</p>
+          <h2 id="t-barracas">Uma festa dentro da festa!</h2>
+          <p class="lead">Reúna sua família, prepare sua ceia, faça seu churrasco e decore seu espaço, com acesso a toda a programação do Réveillon.</p>
+          <div class="facts2"><span>R$ 800<small>por barraca</small></span><span>20<small>passes</small></span></div>
+          <div><a class="btn" href="barracas/">Escolher minha barraca</a></div>
+        </div>
+        <div class="pics">
+          <img src="barracas/fotos/aabb-04.jpg" width="600" height="750" loading="lazy" alt="Barraca 04, de frente para o Rio Balsas.">
+          <img src="barracas/fotos/aabb-14.jpg" width="600" height="750" loading="lazy" alt="Barraca 14, azul, com churrasqueira e vista para o rio.">
+        </div>
       </div>
     </div>
   </section>
@@ -501,6 +531,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
         <details><summary>Quem não é sócio pode ir?</summary><p>As regras de venda para convidados e não associados serão divulgadas junto com os ingressos. <span class="pend">a confirmar</span></p></details>
         <details><summary>Criança pode entrar? Tem idade mínima?</summary><p>Ainda estamos definindo. <span class="pend">a confirmar</span></p></details>
         <details><summary>Tem traje?</summary><p>Ainda não há traje oficial. Pela tradição do Réveillon, a sugestão é vir de branco. <span class="pend">a confirmar</span></p></details>
+        <details><summary>Como reservo uma barraca?</summary><p>Escolha a barraca na <a href="barracas/">página de barracas</a>. Cada barraca custa R$ 800 e inclui 20 passes. O pagamento é por Pix ou cartão em até 3x, e a reserva é confirmada depois que a administração valida o comprovante.</p></details>
         <details><summary>A bebida está inclusa?</summary><p>Não. O bar do clube funciona normalmente durante a festa, com venda à parte.</p></details>
         <details><summary>Vai ter queima de fogos?</summary><p>Sim! A queima de fogos acontece na virada, à meia-noite.</p></details>
         <details><summary>Tem estacionamento?</summary><p>Informação a ser divulgada. <span class="pend">a confirmar</span></p></details>

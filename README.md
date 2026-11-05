@@ -5,6 +5,7 @@ Hotsite oficial de **O Réveillon da Nossa História**, a festa da virada de 31/
 - `public/`: o site, que é a única pasta publicada
   - `public/index.html`: o site inteiro (página única)
   - `public/assets/`: imagens
+  - `public/barracas/`: página de reserva de barracas (lista e fotos em `public/barracas/fotos/`)
   - `public/painel/`: painel de visitas em português
 - `src/worker.js`: busca os números no Cloudflare Web Analytics para o painel (`/api/estatisticas`)
 - `wrangler.jsonc`: configuração do Cloudflare (publica só a pasta `public/` e liga o `src/worker.js`)
@@ -33,3 +34,9 @@ Visitas medidas pelo **Cloudflare Web Analytics** (gratuito, sem cookies e sem d
   - `CF_API_TOKEN`: chave de API só de leitura, com a permissão **Account → Account Analytics → Read**
   - `ACCOUNT_ID`: ID da conta do Cloudflare
 - Os números ficam guardados por 5 minutos para não sobrecarregar a API.
+
+## Barracas
+
+- Página: https://reveillon.aabbbalsas.workers.dev/barracas/
+- Para marcar uma barraca como reservada, edite a lista `BARRACAS` no fim de `public/barracas/index.html` e troque `"disponivel"` por `"reservada"`.
+- Link direto para uma barraca: `/barracas/#aabb-07` ou `/barracas/#metal-03`.
