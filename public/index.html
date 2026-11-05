@@ -6,7 +6,7 @@
 <title>Réveillon AABB 50 Anos</title>
 <meta name="description" content="O Réveillon da Nossa História: a virada de 2026 para 2027 na sede da AABB Balsas, celebrando os 50 anos do clube.">
 <meta property="og:title" content="O Réveillon da Nossa História · AABB Balsas 50 anos">
-<meta property="og:description" content="31.12.2026 na sede da AABB Balsas. Show de Jamilson Jackson, bar e queima de fogos na virada para os 50 anos do clube.">
+<meta property="og:description" content="31.12.2026 na sede da AABB Balsas. Banda Vértigo às 20h, Jamilson Jackson na virada, bar e queima de fogos na virada para os 50 anos do clube.">
 <meta property="og:image" content="assets/arte-reveillon.jpg">
 <meta name="theme-color" content="#F5EFE4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -149,7 +149,17 @@ section + section { border-top: 1px solid var(--gold-soft); }
 .star .mission { color: var(--ink); font-weight: 600; border-left: 4px solid var(--gold); padding-left: 14px; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chips span { font-size: .85rem; font-weight: 600; color: var(--gold-deep); border: 1px solid var(--gold-soft); border-radius: 999px; padding: 4px 12px; background: var(--paper); }
-@media (max-width: 860px) { .star { grid-template-columns: 1fr; } .star .photos img { aspect-ratio: 3 / 4; } }
+.star + .star { margin-top: 22px; }
+.star.solo .photos { grid-template-columns: 1fr; background: #fff; }
+.star.solo .photos img { object-fit: contain; object-position: center; }
+.star.rev { grid-template-columns: 1.05fr .95fr; }
+.star.rev .photos { order: 2; }
+@media (max-width: 860px) {
+  .star, .star.rev { grid-template-columns: 1fr; }
+  .star.rev .photos { order: 0; }
+  .star .photos img { aspect-ratio: 3 / 4; }
+  .star.solo .photos img { aspect-ratio: 4 / 5; max-height: 520px; }
+}
 .act { background: var(--surface); border: 1px solid var(--gold-soft); border-radius: var(--radius); overflow: hidden; display: grid; grid-template-columns: 96px 1fr; }
 .act .photo {
   display: grid; place-items: center; color: var(--gold);
@@ -284,7 +294,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
         <p class="eyebrow">AABB Balsas · 1977–2027</p>
         <h1><span>O Réveillon</span>da Nossa História</h1>
         <p class="date">31.12.2026</p>
-        <p class="lead">Na virada para 2027, a AABB completa 50 anos. Vem celebrar com a gente na sede do clube, com o show de <strong>Jamilson Jackson</strong>, bar e queima de fogos à meia-noite.</p>
+        <p class="lead">Na virada para 2027, a AABB completa 50 anos. Vem celebrar com a gente na sede do clube, com os shows da <strong>Banda Vértigo</strong> e de <strong>Jamilson Jackson</strong>, bar e queima de fogos à meia-noite.</p>
         <div class="countdown" id="countdown" aria-live="polite" aria-label="Contagem regressiva para a virada do ano">
           <div><b id="cd-d">--</b><span>dias</span></div>
           <div><b id="cd-h">--</b><span>horas</span></div>
@@ -309,11 +319,11 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
         <h2 id="t-festa">O que você já pode anotar</h2>
       </div>
       <div class="facts">
-        <div class="fact"><b>Show de Jamilson Jackson</b><span>Pop, disco, soul e flashbacks</span></div>
+        <div class="fact"><b>Dois shows</b><span>Banda Vértigo às 20h e Jamilson Jackson na virada</span></div>
         <div class="fact"><b>Sede da AABB</b><span>Rua Isaac Martins, Centro · Balsas/MA</span></div>
         <div class="fact"><b>Queima de fogos</b><span>Na virada, à meia-noite</span></div>
         <div class="fact"><b>Bar no local</b><span>Funcionando durante a festa, com venda à parte</span></div>
-        <div class="fact"><b>Horário</b><span>Abertura dos portões <span class="pend">a confirmar</span></span></div>
+        <div class="fact"><b>Música a partir das 20h</b><span>Abertura dos portões <span class="pend">a confirmar</span></span></div>
       </div>
     </div>
   </section>
@@ -324,9 +334,26 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
       <div class="head">
         <p class="eyebrow">Atrações</p>
         <h2 id="t-atracoes">Música para virar o ano</h2>
-        <p class="lead">A primeira atração já está confirmada, e outras ainda podem ser anunciadas. Acompanhe o Instagram <a href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener">@aabb.balsas</a> para saber em primeira mão.</p>
+        <p class="lead">Duas atrações confirmadas para uma noite que atravessa gerações. Outras ainda podem ser anunciadas. Acompanhe o Instagram <a href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener">@aabb.balsas</a> para saber em primeira mão.</p>
       </div>
-      <article class="star" aria-labelledby="t-jamilson">
+      <article class="star solo" aria-labelledby="t-vertigo">
+        <div class="photos">
+          <img src="assets/banda-vertigo.jpg" width="800" height="1191" loading="lazy"
+               alt="Os quatro integrantes da Banda Vértigo, de roupas pretas, dois sentados e dois em pé, em estúdio.">
+        </div>
+        <div class="body">
+          <span class="tag">20h · Abertura</span>
+          <div>
+            <h3 id="t-vertigo">Banda Vértigo</h3>
+            <p class="sub">Dos clássicos inesquecíveis aos sucessos atuais</p>
+          </div>
+          <p>Direto de São Luís do Maranhão, a Vértigo abre a programação musical dos 50 anos da AABB com o melhor do pop rock, do flashback e dos grandes sucessos nacionais e internacionais.</p>
+          <p>O repertório revive artistas como A-ha, Queen, U2, Bon Jovi e Pink Floyd, com o clima das décadas de 70, 80 e 90, sem deixar de fora as músicas que estão nas playlists e nas pistas de hoje.</p>
+          <div class="chips" aria-label="Estilos do show"><span>Pop rock</span><span>Flashback</span><span>Anos 70, 80 e 90</span><span>Sucessos atuais</span></div>
+          <p class="mission">Às 20h, a Banda Vértigo sobe ao palco para dar início à noite: uma viagem musical que conecta passado, presente e futuro.</p>
+        </div>
+      </article>
+      <article class="star rev" aria-labelledby="t-jamilson">
         <div class="photos">
           <img src="assets/jamilson-jackson-palco.jpg" width="800" height="1200" loading="lazy"
                alt="Jamilson Jackson de blazer prateado com lapela preta, sorrindo, em estúdio.">
@@ -334,7 +361,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
                alt="Jamilson Jackson de casaco longo preto e tênis branco, com as mãos nos bolsos.">
         </div>
         <div class="body">
-          <span class="tag">Atração confirmada</span>
+          <span class="tag">Na virada</span>
           <div>
             <h3 id="t-jamilson">Jamilson Jackson</h3>
             <p class="sub">O Rei do Pop e dos grandes flashbacks</p>
@@ -345,16 +372,6 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
           <p class="mission">Nesta noite histórica, a missão dele é especial: embalar a chegada de 2027 e celebrar os 50 anos da AABB Balsas.</p>
         </div>
       </article>
-      <div class="lineup">
-        <article class="act">
-          <div class="photo" aria-hidden="true">+</div>
-          <div class="body"><h3>Mais atrações</h3><p>Banda ou DJ <span class="pend">a confirmar</span></p></div>
-        </article>
-        <article class="act">
-          <div class="photo" aria-hidden="true">+</div>
-          <div class="body"><h3>Mais atrações</h3><p>Banda ou DJ <span class="pend">a confirmar</span></p></div>
-        </article>
-      </div>
     </div>
   </section>
 
@@ -526,7 +543,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
         <h2 id="t-faq">Tire suas dúvidas</h2>
       </div>
       <div class="faq">
-        <details open><summary>Quando e onde é a festa?</summary><p>Dia 31 de dezembro de 2026, na sede da AABB Balsas (Rua Isaac Martins, Centro). O horário de abertura dos portões será divulgado em breve.</p></details>
+        <details open><summary>Quando e onde é a festa?</summary><p>Dia 31 de dezembro de 2026, na sede da AABB Balsas (Rua Isaac Martins, Centro). A programação musical começa às 20h, com a Banda Vértigo. O horário de abertura dos portões será divulgado em breve.</p></details>
         <details><summary>Como compro meu ingresso?</summary><p>As vendas ainda não começaram. Valores, lotes e o link de compra serão publicados aqui e no Instagram @aabb.balsas.</p></details>
         <details><summary>Quem não é sócio pode ir?</summary><p>As regras de venda para convidados e não associados serão divulgadas junto com os ingressos. <span class="pend">a confirmar</span></p></details>
         <details><summary>Criança pode entrar? Tem idade mínima?</summary><p>Ainda estamos definindo. <span class="pend">a confirmar</span></p></details>
