@@ -182,6 +182,28 @@ section + section { border-top: 1px solid var(--gold-soft); }
 .ticket-note { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
 @media (max-width: 700px) { .tickets { grid-template-columns: 1fr; } }
 
+/* Queima de fogos */
+.fogos { position: relative; overflow: hidden; background: #0B0A12; color: #fff; padding: 0; border-top: 0; }
+.fogos img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% center; }
+.fogos::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,7,14,.1) 0%, rgba(8,7,14,.45) 35%, rgba(8,7,14,.85) 55%, rgba(8,7,14,.92) 100%); }
+.fogos .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr minmax(0, 520px); padding-block: clamp(80px, 12vw, 150px); }
+.fogos .txt { grid-column: 2; display: grid; gap: 16px; }
+.fogos .eyebrow { color: #F1D58E; }
+.fogos h2 { color: #fff; }
+.fogos h2 span { display: block; color: #F1D58E; }
+.fogos p { color: #EDE6D8; }
+.fogos .hora { font-family: var(--font-num); font-size: clamp(2.6rem, 7vw, 4rem); line-height: 1; color: #fff; letter-spacing: .04em; }
+.fogos .hora small { font-family: var(--font-body); font-size: .9rem; letter-spacing: .08em; text-transform: uppercase; color: #F1D58E; margin-left: 10px; }
+.fogos .ilus { position: absolute; left: 14px; bottom: 10px; z-index: 1; font-size: .72rem; color: rgba(255,255,255,.7); }
+@media (max-width: 760px) {
+  .fogos img { position: relative; height: auto; aspect-ratio: 16 / 9; object-position: center; }
+  .fogos::after { display: none; }
+  .fogos .wrap { grid-template-columns: 1fr; padding-block: 36px 56px; }
+  .fogos .txt { grid-column: 1; }
+  .fogos .ilus { position: static; display: block; padding: 6px 20px 0; }
+}
+section.fogos + section { border-top: 0; }
+
 /* Chamada das barracas */
 .tents { display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; align-items: center; background: var(--surface); border: 1px solid var(--gold); border-radius: 22px; padding: clamp(20px, 4vw, 36px); }
 .tents .txt { display: grid; gap: 14px; }
@@ -321,7 +343,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
       <div class="facts">
         <div class="fact"><b>Dois shows</b><span>Banda Vértigo às 20h e Jamilson Jackson na virada</span></div>
         <div class="fact"><b>Sede da AABB</b><span>Rua Isaac Martins, Centro · Balsas/MA</span></div>
-        <div class="fact"><b>Queima de fogos</b><span>Na virada, à meia-noite</span></div>
+        <div class="fact"><b>Queima de fogos</b><span>À meia-noite, às margens do Rio Balsas</span></div>
         <div class="fact"><b>Bar no local</b><span>Funcionando durante a festa, com venda à parte</span></div>
         <div class="fact"><b>Música a partir das 20h</b><span>Abertura dos portões <span class="pend">a confirmar</span></span></div>
       </div>
@@ -372,6 +394,22 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
           <p class="mission">Nesta noite histórica, a missão dele é especial: embalar a chegada de 2027 e celebrar os 50 anos da AABB Balsas.</p>
         </div>
       </article>
+    </div>
+  </section>
+
+  <!-- Queima de fogos -->
+  <section class="fogos" id="fogos" aria-labelledby="t-fogos">
+    <img src="assets/queima-de-fogos.jpg" width="1600" height="900" loading="lazy"
+         alt="Ilustração de fogos de artifício coloridos sobre um rio à noite, com coqueiros iluminados na margem.">
+    <span class="ilus">Imagem ilustrativa</span>
+    <div class="wrap">
+      <div class="txt">
+        <p class="eyebrow">Queima de fogos</p>
+        <h2 id="t-fogos">A grande virada<span>dos 50 anos!</span></h2>
+        <p class="hora">00h<small>31 para 1º de janeiro</small></p>
+        <p>À meia-noite, o céu de Balsas vira palco de um espetáculo inesquecível. Para celebrar a chegada de 2027 e os 50 anos da AABB, uma grande queima de fogos às margens do Rio Balsas vai iluminar a noite com cores, brilho e emoção.</p>
+        <p>Um momento para reunir a família e os amigos, renovar as esperanças e brindar o ano novo, tendo como cenário um dos maiores símbolos naturais da nossa cidade. Mais do que uma virada, a celebração de cinco décadas de histórias, conquistas e amizades.</p>
+      </div>
     </div>
   </section>
 
@@ -550,7 +588,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
         <details><summary>Tem traje?</summary><p>Ainda não há traje oficial. Pela tradição do Réveillon, a sugestão é vir de branco. <span class="pend">a confirmar</span></p></details>
         <details><summary>Como reservo uma barraca?</summary><p>Escolha a barraca na <a href="barracas/">página de barracas</a>. Cada barraca custa R$ 800 e inclui 20 passes. O pagamento é por Pix ou cartão em até 3x, e a reserva é confirmada depois que a administração valida o comprovante.</p></details>
         <details><summary>A bebida está inclusa?</summary><p>Não. O bar do clube funciona normalmente durante a festa, com venda à parte.</p></details>
-        <details><summary>Vai ter queima de fogos?</summary><p>Sim! A queima de fogos acontece na virada, à meia-noite.</p></details>
+        <details><summary>Vai ter queima de fogos?</summary><p>Sim! À meia-noite, uma grande queima de fogos às margens do Rio Balsas celebra a chegada de 2027 e os 50 anos da AABB.</p></details>
         <details><summary>Tem estacionamento?</summary><p>Informação a ser divulgada. <span class="pend">a confirmar</span></p></details>
       </div>
     </div>
