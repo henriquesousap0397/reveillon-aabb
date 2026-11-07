@@ -276,6 +276,9 @@ section.fogos + section { border-top: 0; }
   aspect-ratio: 3 / 2; border: 2px dashed var(--gold-soft); border-radius: var(--radius);
   display: grid; place-items: center; text-align: center; color: var(--muted); font-size: .88rem; font-weight: 600; padding: 10px;
 }
+.sponsor { aspect-ratio: 3 / 2; border-radius: var(--radius); overflow: hidden; background: #000; display: block; border: 1px solid var(--gold-soft); transition: transform .2s, box-shadow .2s; }
+.sponsor img { width: 100%; height: 100%; object-fit: contain; }
+.sponsor:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -12px rgba(0,0,0,.4); }
 @media (max-width: 700px) { .sponsors { grid-template-columns: 1fr 1fr; } }
 
 /* Local */
@@ -605,7 +608,9 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
         <h2 id="t-patro">Quem celebra com a gente</h2>
       </div>
       <div class="sponsors">
-        <div class="slot">Espaço para patrocinador</div>
+        <a class="sponsor" href="https://www.instagram.com/espetibarbls/" target="_blank" rel="noopener" title="Espetibar no Instagram (@espetibarbls)">
+          <img src="assets/patrocinador-espetibar.jpg" width="600" height="401" loading="lazy" alt="Espetibar, patrocinador do Réveillon. Abre o Instagram @espetibarbls.">
+        </a>
         <div class="slot">Espaço para patrocinador</div>
         <div class="slot">Espaço para patrocinador</div>
         <div class="slot">Espaço para patrocinador</div>
