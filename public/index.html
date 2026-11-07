@@ -6,7 +6,7 @@
 <title>Réveillon AABB 50 Anos</title>
 <meta name="description" content="O Réveillon da Nossa História: a virada de 2026 para 2027 na sede da AABB Balsas, celebrando os 50 anos do clube.">
 <meta property="og:title" content="O Réveillon da Nossa História · AABB Balsas 50 anos">
-<meta property="og:description" content="31.12.2026 na sede da AABB Balsas. Banda Vértigo às 20h, Jamilson Jackson na virada, bar e queima de fogos na virada para os 50 anos do clube.">
+<meta property="og:description" content="31.12.2026 na sede da AABB Balsas. Banda Vértigo às 20h, Jamilson Jackson na virada, DJ Waguim, teatro infantil e queima de fogos na virada para os 50 anos do clube.">
 <meta property="og:image" content="assets/arte-reveillon.jpg">
 <meta name="theme-color" content="#F5EFE4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -181,6 +181,24 @@ section + section { border-top: 1px solid var(--gold-soft); }
 .ticket-note { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
 @media (max-width: 700px) { .tickets { grid-template-columns: 1fr; } }
 
+/* DJ */
+.dj { margin-top: 22px; background: var(--surface); border: 1px solid var(--gold); border-radius: 22px; overflow: hidden; display: grid; grid-template-columns: 220px 1fr; }
+.dj .mark {
+  display: grid; place-items: center; align-content: center; gap: 4px; color: #fff; padding: 24px;
+  background: radial-gradient(circle at 30% 20%, #D6AE52 0%, var(--gold) 45%, var(--gold-deep) 100%);
+}
+.dj .mark b { font-family: var(--font-num); font-weight: 500; font-size: 4.2rem; line-height: 1; letter-spacing: .06em; }
+.dj .mark span { font-size: .74rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; opacity: .9; }
+.dj .bars { display: flex; gap: 4px; align-items: flex-end; height: 34px; margin-top: 10px; }
+.dj .bars i { width: 6px; background: rgba(255,255,255,.85); border-radius: 3px; }
+.dj .body { padding: clamp(22px, 4vw, 36px); display: grid; gap: 14px; align-content: center; }
+.dj .tag { justify-self: start; font-size: .74rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; background: var(--gold); color: #fff; padding: 5px 12px; border-radius: 999px; }
+.dj h3 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; color: var(--gold-deep); text-transform: uppercase; }
+.dj .sub { font-family: var(--font-display); font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .04em; font-size: .98rem; }
+.dj p { color: var(--muted); }
+.dj .mission { color: var(--ink); font-weight: 600; border-left: 4px solid var(--gold); padding-left: 14px; }
+@media (max-width: 700px) { .dj { grid-template-columns: 1fr; } .dj .mark { padding: 20px; grid-auto-flow: column; justify-content: start; gap: 16px; } .dj .mark b { font-size: 2.8rem; } .dj .bars { margin-top: 0; } }
+
 /* Teatro infantil */
 .kids { margin-top: 22px; background: var(--surface); border: 1px solid var(--gold-soft); border-radius: 22px; overflow: hidden; display: grid; grid-template-columns: 1.1fr .9fr; }
 .kids figure { margin: 0; position: relative; }
@@ -330,7 +348,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
         <p class="eyebrow">AABB Balsas · 1977–2027</p>
         <h1><span>O Réveillon</span>da Nossa História</h1>
         <p class="date">31.12.2026</p>
-        <p class="lead">Na virada para 2027, a AABB completa 50 anos. Vem celebrar com a gente na sede do clube, com os shows da <strong>Banda Vértigo</strong> e de <strong>Jamilson Jackson</strong>, teatro infantil para os pequenos, bar e queima de fogos à meia-noite.</p>
+        <p class="lead">Na virada para 2027, a AABB completa 50 anos. Vem celebrar com a gente na sede do clube, com os shows da <strong>Banda Vértigo</strong> e de <strong>Jamilson Jackson</strong>, o <strong>DJ Waguim</strong>, teatro infantil para os pequenos, bar e queima de fogos à meia-noite.</p>
         <div class="countdown" id="countdown" aria-live="polite" aria-label="Contagem regressiva para a virada do ano">
           <div><b id="cd-d">--</b><span>dias</span></div>
           <div><b id="cd-h">--</b><span>horas</span></div>
@@ -355,7 +373,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
         <h2 id="t-festa">O que você já pode anotar</h2>
       </div>
       <div class="facts">
-        <div class="fact"><b>Dois shows</b><span>Banda Vértigo às 20h e Jamilson Jackson na virada</span></div>
+        <div class="fact"><b>Shows e DJ</b><span>Banda Vértigo às 20h, Jamilson Jackson na virada e DJ Waguim animando a noite</span></div>
         <div class="fact"><b>Sede da AABB</b><span>Rua Isaac Martins, Centro · Balsas/MA</span></div>
         <div class="fact"><b>Queima de fogos</b><span>À meia-noite, às margens do Rio Balsas</span></div>
         <div class="fact"><b>Bar no local</b><span>Funcionando durante a festa, com venda à parte</span></div>
@@ -407,6 +425,21 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
           <p>Já se apresentou em programas de TV nacionais e junta voz, presença de palco, coreografias e muita energia para fazer o público cantar e dançar do início ao fim.</p>
           <div class="chips" aria-label="Estilos do show"><span>Pop internacional</span><span>Disco music</span><span>Soul</span><span>Flashbacks</span></div>
           <p class="mission">Nesta noite histórica, a missão dele é especial: embalar a chegada de 2027 e celebrar os 50 anos da AABB Balsas.</p>
+        </div>
+      </article>
+      <article class="dj" aria-labelledby="t-dj">
+        <div class="mark" aria-hidden="true">
+          <b>DJ</b><span>Imperatriz · MA</span>
+          <div class="bars"><i style="height:40%"></i><i style="height:80%"></i><i style="height:55%"></i><i style="height:100%"></i><i style="height:65%"></i><i style="height:85%"></i><i style="height:45%"></i></div>
+        </div>
+        <div class="body">
+          <span class="tag">A noite toda</span>
+          <div>
+            <h3 id="t-dj">DJ Waguim</h3>
+            <p class="sub">A energia que vai embalar o Réveillon</p>
+          </div>
+          <p>Direto de Imperatriz, o DJ Waguim traz experiência de grandes eventos: já integrou programações ao lado de Gusttavo Lima, Claudia Leitte, Jonas Esticado e Henry Freitas, e animou festas tradicionais da região, como a Expoimp e o Lava-Pratos de Imperatriz.</p>
+          <p class="mission">A missão dele é manter a energia lá em cima, conectando as atrações com grandes sucessos e batidas para ninguém ficar parado.</p>
         </div>
       </article>
       <article class="kids" aria-labelledby="t-kids">
