@@ -182,22 +182,17 @@ section + section { border-top: 1px solid var(--gold-soft); }
 @media (max-width: 700px) { .tickets { grid-template-columns: 1fr; } }
 
 /* DJ */
-.dj { margin-top: 22px; background: var(--surface); border: 1px solid var(--gold); border-radius: 22px; overflow: hidden; display: grid; grid-template-columns: 220px 1fr; }
-.dj .mark {
-  display: grid; place-items: center; align-content: center; gap: 4px; color: #fff; padding: 24px;
-  background: radial-gradient(circle at 30% 20%, #D6AE52 0%, var(--gold) 45%, var(--gold-deep) 100%);
-}
-.dj .mark b { font-family: var(--font-num); font-weight: 500; font-size: 4.2rem; line-height: 1; letter-spacing: .06em; }
-.dj .mark span { font-size: .74rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; opacity: .9; }
-.dj .bars { display: flex; gap: 4px; align-items: flex-end; height: 34px; margin-top: 10px; }
-.dj .bars i { width: 6px; background: rgba(255,255,255,.85); border-radius: 3px; }
-.dj .body { padding: clamp(22px, 4vw, 36px); display: grid; gap: 14px; align-content: center; }
+.dj { margin-top: 22px; background: var(--surface); border: 1px solid var(--gold); border-radius: 22px; overflow: hidden; display: grid; grid-template-columns: .8fr 1.2fr; box-shadow: 0 24px 50px -30px rgba(122, 90, 23, .5); }
+.dj figure { margin: 0; position: relative; background: #1B2A4A; }
+.dj figure img { width: 100%; height: 100%; object-fit: cover; object-position: center 62%; aspect-ratio: 3 / 4; }
+.dj figure span { position: absolute; left: 12px; bottom: 12px; background: rgba(255,253,248,.92); color: var(--ink); font-size: .74rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+.dj .body { padding: clamp(22px, 4vw, 40px); display: grid; gap: 14px; align-content: center; }
 .dj .tag { justify-self: start; font-size: .74rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; background: var(--gold); color: #fff; padding: 5px 12px; border-radius: 999px; }
-.dj h3 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; color: var(--gold-deep); text-transform: uppercase; }
+.dj h3 { font-size: clamp(1.8rem, 4.4vw, 2.8rem); font-weight: 800; color: var(--gold-deep); text-transform: uppercase; }
 .dj .sub { font-family: var(--font-display); font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .04em; font-size: .98rem; }
 .dj p { color: var(--muted); }
 .dj .mission { color: var(--ink); font-weight: 600; border-left: 4px solid var(--gold); padding-left: 14px; }
-@media (max-width: 700px) { .dj { grid-template-columns: 1fr; } .dj .mark { padding: 20px; grid-auto-flow: column; justify-content: start; gap: 16px; } .dj .mark b { font-size: 2.8rem; } .dj .bars { margin-top: 0; } }
+@media (max-width: 860px) { .dj { grid-template-columns: 1fr; } .dj figure img { aspect-ratio: 4 / 5; max-height: 520px; object-position: center 58%; } }
 
 /* Teatro infantil */
 .kids { margin-top: 22px; background: var(--surface); border: 1px solid var(--gold-soft); border-radius: 22px; overflow: hidden; display: grid; grid-template-columns: 1.1fr .9fr; }
@@ -428,10 +423,11 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
         </div>
       </article>
       <article class="dj" aria-labelledby="t-dj">
-        <div class="mark" aria-hidden="true">
-          <b>DJ</b><span>Imperatriz · MA</span>
-          <div class="bars"><i style="height:40%"></i><i style="height:80%"></i><i style="height:55%"></i><i style="height:100%"></i><i style="height:65%"></i><i style="height:85%"></i><i style="height:45%"></i></div>
-        </div>
+        <figure>
+          <img src="assets/dj-waguim.jpg" width="800" height="1067" loading="lazy"
+               alt="DJ Waguim de camiseta branca e óculos, tocando numa controladora à beira de um rio, ao pôr do sol.">
+          <span>Imperatriz · MA</span>
+        </figure>
         <div class="body">
           <span class="tag">A noite toda</span>
           <div>
