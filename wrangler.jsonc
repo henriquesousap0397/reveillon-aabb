@@ -2,6 +2,7 @@
   // Configuração do Cloudflare.
   // - Publica só a pasta public/ (o site e o painel). README e este arquivo não vão para o ar.
   // - src/worker.js responde em /api/estatisticas com os números do painel (/painel/).
+  // - /ir/<patrocinador> conta o clique no anúncio e redireciona; /api/cliques alimenta /painel/anuncios/.
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "reveillon",
   "main": "src/worker.js",
@@ -9,6 +10,9 @@
   "observability": {
     "enabled": true
   },
+  "analytics_engine_datasets": [
+    { "binding": "CLIQUES", "dataset": "reveillon_cliques" }
+  ],
   "assets": {
     "directory": "./public",
     "binding": "ASSETS"

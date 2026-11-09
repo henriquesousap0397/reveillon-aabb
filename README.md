@@ -7,6 +7,7 @@ Hotsite oficial de **O Réveillon da Nossa História**, a festa da virada de 31/
   - `public/assets/`: imagens
   - `public/barracas/`: página de reserva de barracas (lista e fotos em `public/barracas/fotos/`)
   - `public/painel/`: painel de visitas em português
+  - `public/painel/anuncios/`: painel de cliques nos anúncios dos patrocinadores
 - `src/worker.js`: busca os números no Cloudflare Web Analytics para o painel (`/api/estatisticas`)
 - `wrangler.jsonc`: configuração do Cloudflare (publica só a pasta `public/` e liga o `src/worker.js`)
 
@@ -40,3 +41,10 @@ Visitas medidas pelo **Cloudflare Web Analytics** (gratuito, sem cookies e sem d
 - Página: https://reveillon.aabbbalsas.workers.dev/barracas/
 - Para marcar uma barraca como reservada, edite a lista `BARRACAS` no fim de `public/barracas/index.html` e troque `"disponivel"` por `"reservada"`.
 - Link direto para uma barraca: `/barracas/#aabb-07` ou `/barracas/#metal-03`.
+
+## Cliques nos anúncios
+
+- Painel: https://reveillon.aabbbalsas.workers.dev/painel/anuncios/ (prévia: `?demo=1`)
+- Cada logo de patrocinador aponta para `/ir/<nome>`. O Worker conta o clique no Cloudflare Analytics Engine (dataset `reveillon_cliques`, sem cookies) e redireciona para o destino.
+- Para incluir um patrocinador: adicione em `PATROCINADORES` no `src/worker.js` (nome e destino) e use `href="/ir/<nome>"` no logo.
+- Usa os mesmos Secrets do painel de visitas (`CF_API_TOKEN`, `ACCOUNT_ID`).
