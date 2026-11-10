@@ -4,31 +4,39 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Réveillon AABB 50 Anos</title>
-<meta name="description" content="O Réveillon da Nossa História: a virada de 2026 para 2027 na sede da AABB Balsas, celebrando os 50 anos do clube.">
+<meta name="description" content="O Réveillon da Nossa História: a virada de 2026 para 2027 na sede da AABB Balsas, celebrando os 50 anos do clube. Shows, teatro infantil, queima de fogos e barracas.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://reveillon.aabbbalsas.workers.dev/">
 <meta property="og:title" content="O Réveillon da Nossa História · AABB Balsas 50 anos">
-<meta property="og:description" content="31.12.2026 na sede da AABB Balsas. Banda Vértigo às 20h, Jamilson Jackson na virada, DJ Waguim, teatro infantil e queima de fogos na virada para os 50 anos do clube.">
-<meta property="og:image" content="assets/arte-reveillon.jpg">
-<meta name="theme-color" content="#F5EFE4">
+<meta property="og:description" content="31.12.2026 na sede da AABB Balsas. Banda Vértigo, Jamilson Jackson, DJ Waguim, teatro infantil e queima de fogos às margens do Rio Balsas.">
+<meta property="og:image" content="https://reveillon.aabbbalsas.workers.dev/assets/arte-reveillon.jpg">
+<meta property="og:image:width" content="900">
+<meta property="og:image:height" content="1600">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<meta name="theme-color" content="#F6F1E7">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Oswald:wght@400;500&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: segue a arte oficial do evento. Papel champanhe, dourado como cor de destaque,
-   raios dourados ao fundo da abertura. Tema único (claro), como a arte. */
+/* Direção: convite de gala. Dia champanhe (seções claras) e noite de gala (seções escuras),
+   títulos em serifada fina, dourado com acabamento metálico usado com moderação, poucos contornos e muito respiro. */
 :root {
-  --paper: #F5EFE4;        /* fundo champanhe da arte */
-  --surface: #FFFDF8;      /* cartões */
-  --ink: #3A2E1C;          /* texto principal, marrom bem escuro */
-  --muted: #6E5E45;        /* texto secundário */
-  --gold: #A9802C;         /* dourado do selo, usado em títulos e botões */
-  --gold-deep: #7A5A17;    /* dourado escuro, para texto sobre claro e hover */
-  --gold-soft: #E8D9B5;    /* linhas e bordas */
-  --pend-bg: #FBF1CF;      /* marcação de informação a confirmar */
-  --pend-fg: #6B5310;
-  --font-display: "Montserrat", "Segoe UI", system-ui, sans-serif;
-  --font-num: "Oswald", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --paper: #F6F1E7;          /* champanhe da arte oficial */
+  --paper-2: #EFE7D7;        /* faixas alternadas */
+  --ink: #2B2418;            /* texto principal */
+  --muted: #6F624E;          /* texto secundário */
+  --gold: #A8822F;           /* dourado base */
+  --gold-hi: #D9B661;        /* brilho do dourado */
+  --gold-lo: #7C5C1B;        /* sombra do dourado */
+  --night: #0F1322;          /* noite de gala */
+  --night-2: #171C30;
+  --night-ink: #EEE6D4;
+  --night-muted: #B7AD97;
+  --line: rgba(168, 130, 47, .35);
+  --gold-metal: linear-gradient(100deg, var(--gold-lo) 0%, var(--gold) 22%, var(--gold-hi) 48%, var(--gold) 70%, var(--gold-lo) 100%);
+  --font-display: "Cormorant Garamond", "Cormorant", Garamond, "Times New Roman", serif;
   --font-body: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --radius: 16px;
   --wrap: 1120px;
   color-scheme: light;
 }
@@ -36,677 +44,554 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-body {
-  margin: 0; background: var(--paper); color: var(--ink);
-  font-family: var(--font-body); font-size: 17px; line-height: 1.6;
-}
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.65; font-variant-numeric: lining-nums; }
 img { max-width: 100%; height: auto; display: block; }
 a { color: inherit; }
-:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
-h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; text-wrap: balance; margin: 0; }
-h2 { font-size: clamp(1.8rem, 4.2vw, 2.6rem); font-weight: 800; color: var(--gold-deep); text-transform: uppercase; letter-spacing: .02em; }
-h3 { font-size: 1.15rem; font-weight: 700; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; line-height: 1.05; margin: 0; text-wrap: balance; letter-spacing: -.005em; }
 p { margin: 0; }
 .wrap { max-width: var(--wrap); margin-inline: auto; padding-inline: 20px; }
-.eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
-.lead { font-size: 1.08rem; color: var(--muted); max-width: 62ch; }
-.head { display: grid; gap: 10px; margin-bottom: 32px; }
-section { padding-block: 72px; }
-section + section { border-top: 1px solid var(--gold-soft); }
 
-/* Marcação de pendência (só no protótipo) */
-.pend {
-  display: inline-block; background: var(--pend-bg); color: var(--pend-fg);
-  font-size: .8em; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap;
-}
+/* Detalhes tipográficos */
+.eyebrow { font-size: .72rem; font-weight: 600; letter-spacing: .32em; text-transform: uppercase; color: var(--gold); }
+.metal { background: var(--gold-metal); -webkit-background-clip: text; background-clip: text; color: transparent; }
+h2 { font-size: clamp(2.3rem, 5.4vw, 3.6rem); }
+h2 em { font-style: italic; }
+.lead { font-size: 1.08rem; color: var(--muted); max-width: 58ch; }
+.head { display: grid; gap: 14px; justify-items: center; text-align: center; margin-bottom: clamp(36px, 6vw, 64px); }
+.head .lead { text-align: center; }
+
+/* Fio dourado com ornamento */
+.rule { display: flex; align-items: center; gap: 14px; color: var(--gold); width: min(240px, 60%); }
+.rule::before, .rule::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
+.rule::after { background: linear-gradient(270deg, transparent, var(--gold)); }
+.rule span { font-size: .8rem; line-height: 1; }
+
+section { padding-block: clamp(72px, 11vw, 128px); }
 
 /* Botões */
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  font-family: var(--font-display); font-weight: 700; font-size: .95rem; letter-spacing: .03em;
-  text-decoration: none; padding: 13px 24px; border-radius: 999px; border: 2px solid var(--gold);
-  background: var(--gold); color: #fff; transition: background .2s, border-color .2s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  font: 600 .82rem var(--font-body); letter-spacing: .18em; text-transform: uppercase; text-decoration: none;
+  padding: 16px 28px; border-radius: 2px; border: 1px solid var(--gold); color: var(--ink); background: transparent;
+  transition: background .3s, color .3s, border-color .3s;
 }
-.btn:hover { background: var(--gold-deep); border-color: var(--gold-deep); }
-.btn.ghost { background: transparent; color: var(--gold-deep); }
-.btn.ghost:hover { background: var(--surface); }
-.btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+.btn:hover { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.btn.solid { background: var(--gold-metal); background-size: 200% 100%; border-color: transparent; color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,.2); }
+.btn.solid:hover { background-position: 100% 0; color: #fff; }
+.night .btn { color: var(--night-ink); }
+.night .btn:hover { background: var(--night-ink); color: var(--night); border-color: var(--night-ink); }
+
+/* Seções noturnas */
+.night { background: radial-gradient(ellipse at 50% 0%, var(--night-2) 0%, var(--night) 70%); color: var(--night-ink); }
+.night .lead, .night p { color: var(--night-muted); }
+.night .eyebrow { color: var(--gold-hi); }
 
 /* Cabeçalho */
-.top {
-  position: sticky; top: 0; z-index: 10; background: rgba(245, 239, 228, .94);
-  backdrop-filter: blur(8px); border-bottom: 1px solid var(--gold-soft);
+.top { position: sticky; top: 0; z-index: 20; background: rgba(246, 241, 231, .9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; gap: 24px; min-height: 68px; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand img { height: 30px; width: auto; }
+.brand span { font-family: var(--font-display); font-size: 1.05rem; font-style: italic; color: var(--muted); border-left: 1px solid var(--line); padding-left: 12px; line-height: 1.1; }
+.menu { margin-left: auto; display: flex; gap: 26px; align-items: center; }
+.menu a { font-size: .74rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; text-decoration: none; color: var(--muted); }
+.menu a:hover { color: var(--gold-lo); }
+.menu .btn { padding: 11px 18px; color: var(--ink); }
+.burger { display: none; margin-left: auto; background: none; border: 1px solid var(--line); border-radius: 2px; width: 44px; height: 44px; cursor: pointer; color: var(--ink); }
+.burger svg { width: 20px; height: 20px; }
+@media (max-width: 900px) {
+  .burger { display: grid; place-items: center; }
+  .menu { display: none; position: absolute; left: 0; right: 0; top: 100%; background: var(--paper); border-bottom: 1px solid var(--line);
+    flex-direction: column; align-items: stretch; gap: 0; padding: 8px 20px 20px; }
+  .menu.open { display: flex; }
+  .menu a { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .menu .btn { margin-top: 14px; border-bottom: 1px solid var(--gold); }
+  .brand span { display: none; }
 }
-.top .wrap { display: flex; align-items: center; gap: 20px; min-height: 60px; }
-.brand { font-family: var(--font-display); font-weight: 800; text-decoration: none; color: var(--gold-deep); line-height: 1.1; }
-.brand small { display: block; font-size: .68rem; letter-spacing: .14em; font-weight: 700; color: var(--muted); }
-.top nav { display: flex; gap: 18px; margin-left: auto; font-size: .92rem; font-weight: 600; }
-.top nav a { text-decoration: none; color: var(--muted); }
-.top nav a:hover { color: var(--gold-deep); }
-.top .btn { padding: 9px 18px; font-size: .85rem; }
-@media (max-width: 860px) { .top nav { display: none; } .top .btn { margin-left: auto; } }
 
 /* Abertura */
-.hero {
-  position: relative; overflow: hidden; padding-block: 48px 64px;
-  background:
-    repeating-conic-gradient(from 0deg at 72% 45%, rgba(169,128,44,.10) 0deg 1.2deg, transparent 1.2deg 12deg),
-    radial-gradient(circle at 72% 45%, #FFFDF8 0%, var(--paper) 60%);
-}
-.hero .wrap { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
-.hero-text { display: grid; gap: 22px; }
-.hero h1 { font-size: clamp(2.4rem, 6vw, 4.2rem); font-weight: 800; color: var(--gold-deep); text-transform: uppercase; }
-.hero h1 span { display: block; font-size: .5em; letter-spacing: .08em; color: var(--gold); }
-.date { font-family: var(--font-num); font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: .14em; color: var(--ink); }
-.hero .actions { display: flex; flex-wrap: wrap; gap: 12px; }
-.art {
-  justify-self: center; width: min(100%, 440px); aspect-ratio: 1; border-radius: 50%;
-  filter: drop-shadow(0 26px 34px rgba(122, 90, 23, .35));
-}
-@media (max-width: 860px) {
-  .hero { padding-top: 28px; }
-  .hero .wrap { grid-template-columns: 1fr; gap: 32px; }
-  .art { order: -1; width: min(82%, 320px); }
-}
+.hero { position: relative; overflow: hidden; padding-block: clamp(48px, 8vw, 96px); text-align: center;
+  background: radial-gradient(ellipse at 50% 38%, #FFFDF8 0%, var(--paper) 62%); }
+.hero::before { content: ""; position: absolute; inset: 0;
+  background: repeating-conic-gradient(from 0deg at 50% 36%, rgba(168,130,47,.07) 0deg .6deg, transparent .6deg 9deg);
+  -webkit-mask-image: radial-gradient(circle at 50% 36%, #000 0%, transparent 70%); mask-image: radial-gradient(circle at 50% 36%, #000 0%, transparent 70%); }
+.hero .wrap { position: relative; display: grid; justify-items: center; gap: 22px; }
+.seal { position: relative; width: min(64vw, 300px); aspect-ratio: 1; }
+.seal img { width: 100%; filter: drop-shadow(0 24px 30px rgba(124, 92, 27, .32)); animation: float 7s ease-in-out infinite; }
+.seal canvas { position: absolute; inset: -30%; width: 160%; height: 160%; pointer-events: none; }
+@keyframes float { 50% { transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .seal img { animation: none; } }
+.hero h1 { font-size: clamp(2.8rem, 7.4vw, 5.2rem); font-weight: 500; }
+.hero h1 em { display: block; font-size: .5em; font-style: italic; color: var(--muted); letter-spacing: .02em; margin-bottom: 6px; }
+.hero .when { font-family: var(--font-display); font-size: clamp(1.3rem, 3vw, 1.7rem); font-style: italic; color: var(--muted); }
+.hero .lead { margin-inline: auto; text-align: center; }
 
 /* Contagem regressiva */
-.countdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 460px; }
-.countdown div {
-  background: var(--surface); border: 1px solid var(--gold-soft); border-radius: 14px;
-  padding: 12px 6px; text-align: center;
-}
-.countdown b { display: block; font-family: var(--font-num); font-weight: 500; font-size: clamp(1.8rem, 5vw, 2.4rem); line-height: 1; color: var(--gold-deep); font-variant-numeric: tabular-nums; }
-.countdown span { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.countdown-done { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; color: var(--gold-deep); }
+.count { display: flex; gap: clamp(14px, 4vw, 36px); align-items: flex-start; justify-content: center; margin-top: 6px; }
+.count div { display: grid; justify-items: center; min-width: 64px; }
+.count b { font-family: var(--font-display); font-weight: 500; font-size: clamp(2.6rem, 7vw, 3.8rem); line-height: 1; font-variant-numeric: tabular-nums lining-nums; display: inline-block; }
+.count b.tick { animation: tick .45s ease; }
+@keyframes tick { 0% { opacity: .2; transform: translateY(-8px); } 100% { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .count b.tick { animation: none; } }
+.count span { font-size: .66rem; font-weight: 600; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+.count i { font-family: var(--font-display); font-size: 2.4rem; color: var(--gold); font-style: normal; line-height: 1.1; }
+.count-done { font-family: var(--font-display); font-size: 2rem; font-style: italic; }
+.hero .actions { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 10px; }
 
-/* Destaques confirmados */
-.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.fact { background: var(--surface); border: 1px solid var(--gold-soft); border-radius: var(--radius); padding: 18px; display: grid; gap: 4px; }
-.fact b { font-family: var(--font-display); font-size: 1rem; }
-.fact span { font-size: .92rem; color: var(--muted); }
-@media (max-width: 760px) { .facts { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 420px) { .facts { grid-template-columns: 1fr; } }
+/* Informações rápidas com ícones */
+.info { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.info div { display: grid; gap: 6px; justify-items: center; text-align: center; padding: 26px 14px; }
+.info div + div { border-left: 1px solid var(--line); }
+.info svg { width: 30px; height: 30px; stroke: var(--gold); fill: none; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.info b { font-family: var(--font-display); font-weight: 600; font-size: 1.25rem; }
+.info span { font-size: .88rem; color: var(--muted); }
+@media (max-width: 760px) { .info { grid-template-columns: 1fr 1fr; } .info div:nth-child(3) { border-left: 0; } .info div:nth-child(n+3) { border-top: 1px solid var(--line); } }
 
-/* Atrações */
-.lineup { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 18px; }
+/* Programação da noite */
+.agenda { list-style: none; margin: 0 auto; padding: 0; max-width: 820px; display: grid; }
+.agenda li { display: grid; grid-template-columns: 140px 1fr; gap: 28px; align-items: baseline; padding: 26px 0; border-bottom: 1px solid rgba(217, 182, 97, .22); }
+.agenda li:first-child { border-top: 1px solid rgba(217, 182, 97, .22); }
+.agenda .t { font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 3rem); line-height: 1; text-align: right; }
+.agenda h3 { font-size: clamp(1.6rem, 3.6vw, 2.1rem); color: var(--night-ink); }
+.agenda p { font-size: .95rem; margin-top: 4px; }
+.agenda .where { font-size: .7rem; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; color: var(--gold-hi); }
+@media (max-width: 600px) { .agenda li { grid-template-columns: 1fr; gap: 6px; } .agenda .t { text-align: left; } }
 
-/* Atração principal em destaque */
-.star {
-  background: var(--surface); border: 1px solid var(--gold); border-radius: 22px; overflow: hidden;
-  display: grid; grid-template-columns: .95fr 1.05fr; box-shadow: 0 24px 50px -30px rgba(122, 90, 23, .5);
+/* Atrações em formato editorial */
+.acts { display: grid; gap: clamp(64px, 10vw, 110px); }
+.act { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 6vw, 72px); align-items: center; }
+.act:nth-child(even) .pic { order: 2; }
+.pic { position: relative; }
+.pic img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; filter: sepia(.14) saturate(1.04) contrast(1.03) brightness(1.01); }
+.pic::after { content: ""; position: absolute; inset: 14px; border: 1px solid rgba(255, 253, 248, .75); pointer-events: none; }
+.pic figcaption { position: absolute; right: 22px; bottom: 20px; font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+.act .txt { display: grid; gap: 16px; align-content: center; }
+.act .time { font-family: var(--font-display); font-size: 1.15rem; font-style: italic; color: var(--gold-lo); display: flex; align-items: center; gap: 12px; }
+.act .time::after { content: ""; width: 48px; height: 1px; background: var(--gold); }
+.act h3 { font-size: clamp(2.6rem, 6vw, 4rem); }
+.act .sub { font-family: var(--font-display); font-style: italic; font-size: 1.35rem; color: var(--muted); line-height: 1.3; }
+.act p { color: var(--muted); }
+.act details summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 10px; font-size: .74rem; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: var(--gold-lo); }
+.act details summary::-webkit-details-marker { display: none; }
+.act details summary::after { content: "+"; font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0; line-height: 1; }
+.act details[open] summary::after { content: "–"; }
+.act details p { margin-top: 12px; }
+@media (max-width: 800px) { .act { grid-template-columns: 1fr; } .act:nth-child(even) .pic { order: 0; } .pic img { aspect-ratio: 4 / 4.4; } }
+
+/* Fogos */
+.fireworks { position: relative; overflow: hidden; padding: 0; min-height: 560px; display: grid; align-items: center; }
+.fireworks > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 28% center; }
+.fireworks::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,19,34,.05) 0%, rgba(15,19,34,.5) 38%, rgba(15,19,34,.92) 62%); }
+.fireworks .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr minmax(0, 480px); padding-block: 96px; width: 100%; }
+.fireworks .txt { grid-column: 2; display: grid; gap: 18px; }
+.fireworks h2 { color: var(--night-ink); }
+.fireworks .hour { font-family: var(--font-display); font-size: clamp(4rem, 10vw, 6.4rem); line-height: .9; }
+.fireworks .cap { position: absolute; left: 18px; bottom: 14px; z-index: 1; font-size: .66rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.7); }
+@media (max-width: 760px) {
+  .fireworks { min-height: 0; display: block; }
+  .fireworks > img { position: relative; height: auto; aspect-ratio: 16 / 10; }
+  .fireworks::after { display: none; }
+  .fireworks .wrap { grid-template-columns: 1fr; padding-block: 40px 72px; }
+  .fireworks .txt { grid-column: 1; }
+  .fireworks .cap { position: static; display: block; padding: 8px 20px 0; }
 }
-.star .photos { display: grid; grid-template-columns: 1.4fr 1fr; gap: 6px; background: var(--gold-soft); }
-.star .photos img { width: 100%; height: 100%; aspect-ratio: 2 / 3; object-fit: cover; object-position: top; }
-.star .body { padding: clamp(22px, 4vw, 40px); display: grid; gap: 16px; align-content: center; }
-.star .tag {
-  justify-self: start; font-size: .74rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
-  background: var(--gold); color: #fff; padding: 5px 12px; border-radius: 999px;
-}
-.star h3 { font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 800; color: var(--gold-deep); text-transform: uppercase; letter-spacing: .01em; }
-.star .sub { font-family: var(--font-display); font-weight: 700; color: var(--gold); font-size: 1.05rem; text-transform: uppercase; letter-spacing: .04em; }
-.star p { color: var(--muted); }
-.star .mission { color: var(--ink); font-weight: 600; border-left: 4px solid var(--gold); padding-left: 14px; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chips span { font-size: .85rem; font-weight: 600; color: var(--gold-deep); border: 1px solid var(--gold-soft); border-radius: 999px; padding: 4px 12px; background: var(--paper); }
-.star + .star { margin-top: 22px; }
-.star.solo .photos { grid-template-columns: 1fr; background: #fff; }
-.star.solo .photos img { object-fit: contain; object-position: center; }
-.star.rev { grid-template-columns: 1.05fr .95fr; }
-.star.rev .photos { order: 2; }
-@media (max-width: 860px) {
-  .star, .star.rev { grid-template-columns: 1fr; }
-  .star.rev .photos { order: 0; }
-  .star .photos img { aspect-ratio: 3 / 4; }
-  .star.solo .photos img { aspect-ratio: 4 / 5; max-height: 520px; }
-}
-.act { background: var(--surface); border: 1px solid var(--gold-soft); border-radius: var(--radius); overflow: hidden; display: grid; grid-template-columns: 96px 1fr; }
-.act .photo {
-  display: grid; place-items: center; color: var(--gold);
-  font-family: var(--font-num); font-size: 2.2rem;
-  background: repeating-linear-gradient(135deg, #F1E7D2 0 14px, #EBDFC4 14px 28px);
-}
-.act .body { padding: 18px; display: grid; gap: 6px; }
-.act .body p { color: var(--muted); font-size: .95rem; }
-@media (max-width: 700px) { .lineup { grid-template-columns: 1fr; } }
+
+/* Barracas */
+.tents { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 6vw, 72px); align-items: center; }
+.tents .txt { display: grid; gap: 18px; }
+.tents .price { display: flex; gap: 32px; }
+.tents .price div { display: grid; }
+.tents .price b { font-family: var(--font-display); font-weight: 500; font-size: 3rem; line-height: 1; }
+.tents .price span { font-size: .7rem; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+.tents .gal { display: grid; grid-template-columns: 1.2fr 1fr; grid-template-rows: 1fr 1fr; gap: 10px; aspect-ratio: 1 / 1; }
+.tents .gal img { width: 100%; height: 100%; object-fit: cover; filter: sepia(.12) saturate(1.04); }
+.tents .gal img:first-child { grid-row: 1 / 3; }
+@media (max-width: 800px) { .tents { grid-template-columns: 1fr; } }
 
 /* Ingressos */
-.tickets { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.ticket {
-  background: var(--surface); border: 1px solid var(--gold-soft); border-radius: var(--radius);
-  padding: 24px; display: grid; gap: 12px; align-content: start; position: relative;
-}
-.ticket::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 6px; background: var(--gold); border-radius: var(--radius) 0 0 var(--radius); }
-.ticket .price { font-family: var(--font-num); font-size: 2rem; color: var(--gold-deep); }
-.ticket ul { margin: 0; padding-left: 18px; color: var(--muted); }
-.ticket-note { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
-@media (max-width: 700px) { .tickets { grid-template-columns: 1fr; } }
+.tickets { text-align: center; display: grid; gap: 18px; justify-items: center; }
+.tickets .box { border: 1px solid var(--line); padding: clamp(28px, 5vw, 48px) clamp(20px, 6vw, 64px); display: grid; gap: 16px; justify-items: center; max-width: 640px; position: relative; }
+.tickets .box::before { content: ""; position: absolute; inset: 6px; border: 1px solid rgba(168,130,47,.18); pointer-events: none; }
 
-/* DJ */
-.dj { margin-top: 22px; background: var(--surface); border: 1px solid var(--gold); border-radius: 22px; overflow: hidden; display: grid; grid-template-columns: .8fr 1.2fr; box-shadow: 0 24px 50px -30px rgba(122, 90, 23, .5); }
-.dj figure { margin: 0; position: relative; background: #1B2A4A; }
-.dj figure img { width: 100%; height: 100%; object-fit: cover; object-position: center 62%; aspect-ratio: 3 / 4; }
-.dj figure span { position: absolute; left: 12px; bottom: 12px; background: rgba(255,253,248,.92); color: var(--ink); font-size: .74rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
-.dj .body { padding: clamp(22px, 4vw, 40px); display: grid; gap: 14px; align-content: center; }
-.dj .tag { justify-self: start; font-size: .74rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; background: var(--gold); color: #fff; padding: 5px 12px; border-radius: 999px; }
-.dj h3 { font-size: clamp(1.8rem, 4.4vw, 2.8rem); font-weight: 800; color: var(--gold-deep); text-transform: uppercase; }
-.dj .sub { font-family: var(--font-display); font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .04em; font-size: .98rem; }
-.dj p { color: var(--muted); }
-.dj .mission { color: var(--ink); font-weight: 600; border-left: 4px solid var(--gold); padding-left: 14px; }
-@media (max-width: 860px) { .dj { grid-template-columns: 1fr; } .dj figure img { aspect-ratio: 4 / 5; max-height: 520px; object-position: center 58%; } }
+.passes { display: grid; grid-template-columns: repeat(2, minmax(0, 340px)); gap: 24px; justify-content: center; }
+.pass { position: relative; background: var(--paper); border: 1px solid var(--line); padding: 36px 28px 30px; display: grid; gap: 10px; justify-items: center; text-align: center; }
+.pass::before { content: ""; position: absolute; inset: 6px; border: 1px solid rgba(168,130,47,.18); pointer-events: none; }
+.pass .val { font-family: var(--font-display); line-height: 1; display: flex; align-items: flex-start; gap: 6px; }
+.pass .val small { font-size: 1.4rem; color: var(--muted); margin-top: 10px; }
+.pass .val span { font-size: clamp(4.4rem, 11vw, 5.6rem); font-weight: 500; }
+.pass .note { font-size: .82rem; color: var(--muted); letter-spacing: .06em; margin-bottom: 8px; }
+.pass .btn { position: relative; z-index: 1; width: 100%; }
+.pass-foot { text-align: center; color: var(--muted); font-size: .92rem; margin-top: 26px; }
+.pass-foot a { color: var(--gold-lo); }
+@media (max-width: 640px) { .passes { grid-template-columns: 1fr; } }
 
-/* Teatro infantil */
-.kids { margin-top: 22px; background: var(--surface); border: 1px solid var(--gold-soft); border-radius: 22px; overflow: hidden; display: grid; grid-template-columns: 1.1fr .9fr; }
-.kids figure { margin: 0; position: relative; }
-.kids figure img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 3 / 2; }
-.kids figcaption { position: absolute; left: 10px; bottom: 8px; font-size: .72rem; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
-.kids .body { padding: clamp(22px, 4vw, 36px); display: grid; gap: 14px; align-content: center; }
-.kids .tag { justify-self: start; font-size: .74rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; background: var(--gold); color: #fff; padding: 5px 12px; border-radius: 999px; }
-.kids h3 { font-size: clamp(1.6rem, 3.6vw, 2.2rem); font-weight: 800; color: var(--gold-deep); text-transform: uppercase; }
-.kids .sub { font-family: var(--font-display); font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .04em; font-size: .98rem; }
-.kids p { color: var(--muted); }
-.kids dl { margin: 0; display: flex; flex-wrap: wrap; gap: 10px 24px; }
-.kids dt { font-size: .74rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
-.kids dd { margin: 0; font-weight: 600; color: var(--ink); }
-@media (max-width: 860px) { .kids { grid-template-columns: 1fr; } }
-
-/* Queima de fogos */
-.fogos { position: relative; overflow: hidden; background: #0B0A12; color: #fff; padding: 0; border-top: 0; }
-.fogos img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% center; }
-.fogos::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,7,14,.1) 0%, rgba(8,7,14,.45) 35%, rgba(8,7,14,.85) 55%, rgba(8,7,14,.92) 100%); }
-.fogos .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr minmax(0, 520px); padding-block: clamp(80px, 12vw, 150px); }
-.fogos .txt { grid-column: 2; display: grid; gap: 16px; }
-.fogos .eyebrow { color: #F1D58E; }
-.fogos h2 { color: #fff; }
-.fogos h2 span { display: block; color: #F1D58E; }
-.fogos p { color: #EDE6D8; }
-.fogos .hora { font-family: var(--font-num); font-size: clamp(2.6rem, 7vw, 4rem); line-height: 1; color: #fff; letter-spacing: .04em; }
-.fogos .hora small { font-family: var(--font-body); font-size: .9rem; letter-spacing: .08em; text-transform: uppercase; color: #F1D58E; margin-left: 10px; }
-.fogos .ilus { position: absolute; left: 14px; bottom: 10px; z-index: 1; font-size: .72rem; color: rgba(255,255,255,.7); }
-@media (max-width: 760px) {
-  .fogos img { position: relative; height: auto; aspect-ratio: 16 / 9; object-position: center; }
-  .fogos::after { display: none; }
-  .fogos .wrap { grid-template-columns: 1fr; padding-block: 36px 56px; }
-  .fogos .txt { grid-column: 1; }
-  .fogos .ilus { position: static; display: block; padding: 6px 20px 0; }
-}
-section.fogos + section { border-top: 0; }
-
-/* Chamada das barracas */
-.tents { display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; align-items: center; background: var(--surface); border: 1px solid var(--gold); border-radius: 22px; padding: clamp(20px, 4vw, 36px); }
-.tents .txt { display: grid; gap: 14px; }
-.tents .facts2 { display: flex; flex-wrap: wrap; gap: 10px; }
-.tents .facts2 span { font-family: var(--font-num); font-size: 1.5rem; color: var(--gold-deep); border: 1px solid var(--gold-soft); border-radius: 12px; padding: 4px 14px; background: var(--paper); }
-.tents .facts2 small { font-family: var(--font-body); font-size: .8rem; font-weight: 700; color: var(--muted); margin-left: 6px; text-transform: uppercase; letter-spacing: .06em; }
-.tents .pics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.tents .pics img { border-radius: 12px; aspect-ratio: 4 / 5; object-fit: cover; width: 100%; }
-@media (max-width: 760px) { .tents { grid-template-columns: 1fr; } }
-
-/* Linha do tempo */
-.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 28px; position: relative; }
-.timeline::before { content: ""; position: absolute; left: 66px; top: 6px; bottom: 6px; width: 2px; background: var(--gold-soft); }
-.timeline li { display: grid; grid-template-columns: 112px 1fr; gap: 24px; align-items: start; position: relative; }
-.timeline li::after {
-  content: ""; position: absolute; left: 60px; top: 10px; width: 14px; height: 14px; border-radius: 50%;
-  background: var(--paper); border: 3px solid var(--gold);
-}
-.timeline .year { font-family: var(--font-num); font-size: 1.5rem; color: var(--gold-deep); text-align: left; line-height: 1.3; width: 52px; }
-.timeline .card {
-  background: var(--surface); border: 1px solid var(--gold-soft); border-radius: var(--radius);
-  padding: 18px; display: grid; grid-template-columns: 1fr 160px; gap: 18px; align-items: center;
-}
-.timeline .card p { color: var(--muted); font-size: .95rem; }
-.timeline .card .txt { display: grid; gap: 6px; }
-.timeline .pic {
-  aspect-ratio: 4 / 3; border-radius: 10px; display: grid; place-items: center; text-align: center;
-  font-size: .75rem; font-weight: 600; color: var(--muted); padding: 8px;
-  background: repeating-linear-gradient(135deg, #F1E7D2 0 10px, #EBDFC4 10px 20px);
-}
-.timeline li.big .card { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
-@media (max-width: 640px) {
-  .timeline::before { left: 7px; }
-  .timeline li { grid-template-columns: 1fr; gap: 8px; padding-left: 32px; }
-  .timeline li::after { left: 1px; top: 8px; }
-  .timeline .year { width: auto; }
-  .timeline .card { grid-template-columns: 1fr; }
-}
+/* 50 anos */
+.years { display: grid; grid-template-columns: 1fr auto 1fr; gap: clamp(20px, 5vw, 56px); align-items: center; text-align: center; }
+.years .y { font-family: var(--font-display); font-size: clamp(4.4rem, 13vw, 9rem); line-height: .9; font-weight: 400; }
+.years .y small { display: block; font-family: var(--font-body); font-size: .7rem; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; color: var(--muted); margin-top: 14px; }
+.years .mid { display: grid; gap: 10px; justify-items: center; max-width: 300px; }
+.years .mid p { font-family: var(--font-display); font-style: italic; font-size: 1.3rem; color: var(--muted); line-height: 1.35; }
+@media (max-width: 700px) { .years { grid-template-columns: 1fr; } }
 
 /* Patrocinadores */
-.sponsors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-.slot {
-  aspect-ratio: 3 / 2; border: 2px dashed var(--gold-soft); border-radius: var(--radius);
-  display: grid; place-items: center; text-align: center; color: var(--muted); font-size: .88rem; font-weight: 600; padding: 10px;
-}
-.sponsor { aspect-ratio: 3 / 2; border-radius: var(--radius); overflow: hidden; background: #000; display: block; border: 1px solid var(--gold-soft); transition: transform .2s, box-shadow .2s; }
-.sponsor img { width: 100%; height: 100%; object-fit: contain; }
-.sponsor:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -12px rgba(0,0,0,.4); }
-@media (max-width: 700px) { .sponsors { grid-template-columns: 1fr 1fr; } }
+.sponsors { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; align-items: center; }
+.sponsors a.logo { display: block; width: 220px; aspect-ratio: 3 / 2; background: #000; transition: transform .3s, box-shadow .3s; }
+.sponsors a.logo:hover { transform: translateY(-3px); box-shadow: 0 16px 30px -18px rgba(0,0,0,.5); }
+.sponsors a.logo img { width: 100%; height: 100%; object-fit: contain; }
+.sponsors .ask { max-width: 260px; text-align: left; display: grid; gap: 8px; padding-left: 28px; border-left: 1px solid var(--line); }
+.sponsors .ask b { font-family: var(--font-display); font-size: 1.5rem; font-weight: 500; }
+.sponsors .ask a { font-size: .74rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-lo); }
+@media (max-width: 560px) { .sponsors .ask { border-left: 0; padding-left: 0; text-align: center; } }
 
-/* Local */
-.place { display: grid; grid-template-columns: .9fr 1.1fr; gap: 28px; align-items: stretch; }
-.place dl { margin: 0; display: grid; gap: 16px; align-content: start; }
-.place dt { font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
-.place dd { margin: 2px 0 0; }
-.map {
-  border-radius: var(--radius); overflow: hidden; border: 1px solid var(--gold-soft); min-height: 320px;
-  background: var(--surface); position: relative;
-}
-.map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-@media (max-width: 760px) { .place { grid-template-columns: 1fr; } }
-
-/* Perguntas frequentes */
-.faq { display: grid; gap: 10px; max-width: 820px; }
-.faq details { background: var(--surface); border: 1px solid var(--gold-soft); border-radius: 14px; padding: 4px 20px; }
-.faq summary {
-  cursor: pointer; list-style: none; font-family: var(--font-display); font-weight: 700; padding: 14px 0;
-  display: flex; justify-content: space-between; gap: 16px;
-}
+/* Local e dúvidas */
+.two { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(36px, 7vw, 96px); }
+@media (max-width: 860px) { .two { grid-template-columns: 1fr; } }
+.place { display: grid; gap: 22px; align-content: start; }
+.place h2 { font-size: clamp(2.2rem, 4.6vw, 3rem); }
+.place dl { margin: 0; display: grid; gap: 18px; }
+.place dt { font-size: .7rem; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; color: var(--gold); }
+.place dd { margin: 4px 0 0; font-family: var(--font-display); font-size: 1.35rem; line-height: 1.3; }
+.map { position: relative; aspect-ratio: 4 / 3; border: 1px solid var(--line); background: var(--paper); }
+.map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; filter: sepia(.15) saturate(.9); }
+.faq { display: grid; }
+.faq h2 { font-size: clamp(2.2rem, 4.6vw, 3rem); margin-bottom: 18px; }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq details:first-of-type { border-top: 1px solid var(--line); }
+.faq summary { cursor: pointer; list-style: none; padding: 20px 0; display: flex; justify-content: space-between; gap: 18px; font-family: var(--font-display); font-size: 1.35rem; font-weight: 500; }
 .faq summary::-webkit-details-marker { display: none; }
-.faq summary::after { content: "+"; color: var(--gold); font-size: 1.4rem; line-height: 1; }
+.faq summary::after { content: "+"; color: var(--gold); font-size: 1.6rem; line-height: 1; }
 .faq details[open] summary::after { content: "–"; }
-.faq details p { padding-bottom: 16px; color: var(--muted); }
+.faq details p { padding-bottom: 20px; color: var(--muted); max-width: 60ch; }
 
-/* Contato */
-.contact { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-.contact a.card, .contact div.card {
-  background: var(--surface); border: 1px solid var(--gold-soft); border-radius: var(--radius);
-  padding: 22px; text-decoration: none; display: grid; gap: 6px;
-}
-.contact a.card:hover { border-color: var(--gold); }
-.contact b { font-family: var(--font-display); }
-.contact span { color: var(--muted); font-size: .95rem; }
-@media (max-width: 760px) { .contact { grid-template-columns: 1fr; } }
-
-footer { background: var(--ink); color: #E9DFC9; padding-block: 36px; font-size: .9rem; }
-footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; align-items: center; }
-footer b { font-family: var(--font-display); color: #F1D58E; }
+/* Rodapé */
+footer { padding-block: 64px 40px; }
+footer .wrap { display: grid; gap: 34px; justify-items: center; text-align: center; }
+footer img { height: 40px; width: auto; opacity: .95; }
+footer .links { display: flex; flex-wrap: wrap; gap: 14px 32px; justify-content: center; }
+footer .links a { font-size: .74rem; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; text-decoration: none; color: var(--night-ink); }
+footer .links a:hover { color: var(--gold-hi); }
+footer small { font-size: .78rem; color: var(--night-muted); }
+.preview-note { font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-hi); border: 1px solid rgba(217,182,97,.4); padding: 6px 12px; }
 </style>
 </head>
 <body>
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#inicio">AABB Balsas<small>RÉVEILLON 50 ANOS</small></a>
-    <nav aria-label="Seções">
+    <a class="brand" href="#inicio" aria-label="AABB Balsas, início">
+      <img src="assets/logo-aabb-azul.png" width="440" height="174" alt="AABB Balsas">
+      <span>Réveillon 50 anos</span>
+    </a>
+    <button class="burger" type="button" id="burger" aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
+    </button>
+    <nav class="menu" id="menu" aria-label="Seções">
+      <a href="#programacao">Programação</a>
       <a href="#atracoes">Atrações</a>
-      <a href="#ingressos">Ingressos</a>
       <a href="barracas/">Barracas</a>
-      <a href="#historia">50 anos</a>
       <a href="#local">Local</a>
-      <a href="#duvidas">Dúvidas</a>
+      <a class="btn" href="#ingressos">Ingressos</a>
     </nav>
-    <a class="btn" href="#ingressos">Ingressos</a>
   </div>
 </header>
 
 <main>
-  <!-- Abertura -->
-  <section class="hero" id="inicio">
+  <section class="hero" id="inicio" aria-labelledby="t-hero">
     <div class="wrap">
-      <div class="hero-text">
-        <p class="eyebrow">AABB Balsas · 1977–2027</p>
-        <h1><span>O Réveillon</span>da Nossa História</h1>
-        <p class="date">31.12.2026</p>
-        <p class="lead">Na virada para 2027, a AABB completa 50 anos. Vem celebrar com a gente na sede do clube, com os shows da <strong>Banda Vértigo</strong> e de <strong>Jamilson Jackson</strong>, o <strong>DJ Waguim</strong>, teatro infantil para os pequenos, bar e queima de fogos à meia-noite.</p>
-        <div class="countdown" id="countdown" aria-live="polite" aria-label="Contagem regressiva para a virada do ano">
-          <div><b id="cd-d">--</b><span>dias</span></div>
-          <div><b id="cd-h">--</b><span>horas</span></div>
-          <div><b id="cd-m">--</b><span>min</span></div>
-          <div><b id="cd-s">--</b><span>seg</span></div>
-        </div>
-        <div class="actions">
-          <a class="btn" href="#ingressos">Quero meu ingresso</a>
-          <a class="btn ghost" href="#historia">Nossos 50 anos</a>
-        </div>
+      <div class="seal">
+        <canvas id="sparkles" aria-hidden="true"></canvas>
+        <img src="assets/selo-50-anos.webp" width="600" height="600" alt="Selo dourado: O Réveillon da Nossa História, 50 anos.">
       </div>
-      <img class="art" src="assets/selo-50-anos.webp" width="600" height="600"
-           alt="Selo dourado: O Réveillon da Nossa História, 50 anos.">
+      <p class="eyebrow">AABB Balsas · 1977 — 2027</p>
+      <h1 id="t-hero"><em>O Réveillon</em><span class="metal">da Nossa História</span></h1>
+      <p class="when">31 de dezembro de 2026 · sede da AABB Balsas</p>
+      <div class="count" id="count" aria-label="Contagem regressiva para a virada do ano">
+        <div><b id="cd-d">--</b><span>dias</span></div><i>·</i>
+        <div><b id="cd-h">--</b><span>horas</span></div><i>·</i>
+        <div><b id="cd-m">--</b><span>minutos</span></div>
+      </div>
+      <p class="lead">A virada que abre os 50 anos do clube, com shows, teatro infantil e queima de fogos às margens do Rio Balsas.</p>
+      <div class="actions">
+        <a class="btn solid" href="#ingressos">Comprar ingresso</a>
+        <a class="btn" href="barracas/">Reservar barraca</a>
+      </div>
     </div>
   </section>
 
-  <!-- O que já está confirmado -->
-  <section aria-labelledby="t-festa">
+  <div class="wrap">
+    <div class="info" aria-label="Informações rápidas">
+      <div>
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 29s9-8.2 9-15a9 9 0 0 0-18 0c0 6.8 9 15 9 15z"/><circle cx="16" cy="14" r="3.2"/></svg>
+        <b>Sede da AABB</b><span>Rua Isaac Martins, Centro</span>
+      </div>
+      <div>
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12"/><path d="M16 9v7l4.5 3"/></svg>
+        <b>A partir das 20h</b><span>Início da programação</span>
+      </div>
+      <div>
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 10h24v4a3 3 0 0 0 0 6v4H4v-4a3 3 0 0 0 0-6z"/><path d="M12 10v14" stroke-dasharray="2 2"/></svg>
+        <b>A partir de R$ 50</b><span>Ingresso antecipado até 15/12</span>
+      </div>
+      <div>
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3v6M16 23v6M3 16h6M23 16h6M7 7l4 4M21 21l4 4M25 7l-4 4M11 21l-4 4"/></svg>
+        <b>Fogos à meia-noite</b><span>Às margens do Rio Balsas</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="night" id="programacao" aria-labelledby="t-prog">
     <div class="wrap">
       <div class="head">
-        <p class="eyebrow">A festa</p>
-        <h2 id="t-festa">O que você já pode anotar</h2>
+        <p class="eyebrow">Programação</p>
+        <h2 id="t-prog">Uma noite, <em class="metal">cinco momentos</em></h2>
+        <div class="rule"><span>✦</span></div>
       </div>
-      <div class="facts">
-        <div class="fact"><b>Shows e DJ</b><span>Banda Vértigo às 20h, Jamilson Jackson na virada e DJ Waguim a partir das 4h</span></div>
-        <div class="fact"><b>Sede da AABB</b><span>Rua Isaac Martins, Centro · Balsas/MA</span></div>
-        <div class="fact"><b>Queima de fogos</b><span>À meia-noite, às margens do Rio Balsas</span></div>
-        <div class="fact"><b>Bar no local</b><span>Funcionando durante a festa, com venda à parte</span></div>
-        <div class="fact"><b>Teatro infantil</b><span>Às 20h, na quadra de esportes</span></div>
-        <div class="fact"><b>Música a partir das 20h</b><span>Abertura dos portões <span class="pend">a confirmar</span></span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Atrações -->
-  <section id="atracoes" aria-labelledby="t-atracoes">
-    <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">Atrações</p>
-        <h2 id="t-atracoes">Música para virar o ano</h2>
-        <p class="lead">Duas atrações confirmadas para uma noite que atravessa gerações. Outras ainda podem ser anunciadas. Acompanhe o Instagram <a href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener">@aabb.balsas</a> para saber em primeira mão.</p>
-      </div>
-      <article class="star solo" aria-labelledby="t-vertigo">
-        <div class="photos">
-          <img src="assets/banda-vertigo.jpg" width="800" height="1191" loading="lazy"
-               alt="Os quatro integrantes da Banda Vértigo, de roupas pretas, dois sentados e dois em pé, em estúdio.">
-        </div>
-        <div class="body">
-          <span class="tag">20h · Abertura</span>
-          <div>
-            <h3 id="t-vertigo">Banda Vértigo</h3>
-            <p class="sub">Dos clássicos inesquecíveis aos sucessos atuais</p>
-          </div>
-          <p>Direto de São Luís do Maranhão, a Vértigo abre a programação musical dos 50 anos da AABB com o melhor do pop rock, do flashback e dos grandes sucessos nacionais e internacionais.</p>
-          <p>O repertório revive artistas como A-ha, Queen, U2, Bon Jovi e Pink Floyd, com o clima das décadas de 70, 80 e 90, sem deixar de fora as músicas que estão nas playlists e nas pistas de hoje.</p>
-          <div class="chips" aria-label="Estilos do show"><span>Pop rock</span><span>Flashback</span><span>Anos 70, 80 e 90</span><span>Sucessos atuais</span></div>
-          <p class="mission">Às 20h, a Banda Vértigo sobe ao palco para dar início à noite: uma viagem musical que conecta passado, presente e futuro.</p>
-        </div>
-      </article>
-      <article class="star rev" aria-labelledby="t-jamilson">
-        <div class="photos">
-          <img src="assets/jamilson-jackson-palco.jpg" width="800" height="1200" loading="lazy"
-               alt="Jamilson Jackson de blazer prateado com lapela preta, sorrindo, em estúdio.">
-          <img src="assets/jamilson-jackson.jpg" width="800" height="1202" loading="lazy"
-               alt="Jamilson Jackson de casaco longo preto e tênis branco, com as mãos nos bolsos.">
-        </div>
-        <div class="body">
-          <span class="tag">Na virada</span>
-          <div>
-            <h3 id="t-jamilson">Jamilson Jackson</h3>
-            <p class="sub">O Rei do Pop e dos grandes flashbacks</p>
-          </div>
-          <p>Com mais de 30 anos de carreira, o artista maranhense é reconhecido pelas performances eletrizantes e pelos tributos ao eterno Rei do Pop, Michael Jackson. No show, grandes sucessos do pop internacional, disco music, soul e os flashbacks que marcaram gerações.</p>
-          <p>Já se apresentou em programas de TV nacionais e junta voz, presença de palco, coreografias e muita energia para fazer o público cantar e dançar do início ao fim.</p>
-          <div class="chips" aria-label="Estilos do show"><span>Pop internacional</span><span>Disco music</span><span>Soul</span><span>Flashbacks</span></div>
-          <p class="mission">Nesta noite histórica, a missão dele é especial: embalar a chegada de 2027 e celebrar os 50 anos da AABB Balsas.</p>
-        </div>
-      </article>
-      <article class="dj" aria-labelledby="t-dj">
-        <figure>
-          <img src="assets/dj-waguim.jpg" width="800" height="1067" loading="lazy"
-               alt="DJ Waguim de camiseta branca e óculos, tocando numa controladora à beira de um rio, ao pôr do sol.">
-          <span>Imperatriz · MA</span>
-        </figure>
-        <div class="body">
-          <span class="tag">A partir das 4h</span>
-          <div>
-            <h3 id="t-dj">DJ Waguim</h3>
-            <p class="sub">A energia que vai embalar o Réveillon</p>
-          </div>
-          <p>Direto de Imperatriz, o DJ Waguim traz experiência de grandes eventos: já integrou programações ao lado de Gusttavo Lima, Claudia Leitte, Jonas Esticado e Henry Freitas, e animou festas tradicionais da região, como a Expoimp e o Lava-Pratos de Imperatriz.</p>
-          <p class="mission">Depois da virada, ele assume a pista a partir das 4h da manhã, com grandes sucessos e batidas para ninguém ficar parado.</p>
-        </div>
-      </article>
-      <article class="kids" aria-labelledby="t-kids">
-        <figure>
-          <img src="assets/teatro-infantil.jpg" width="1080" height="720" loading="lazy"
-               alt="Ilustração de crianças vestidas de branco sorrindo e olhando para os fogos de artifício.">
-          <figcaption>Imagem ilustrativa</figcaption>
-        </figure>
-        <div class="body">
-          <span class="tag">Para as crianças</span>
-          <div>
-            <h3 id="t-kids">Teatro infantil</h3>
-            <p class="sub">A magia do Réveillon para os pequenos</p>
-          </div>
-          <p>Enquanto os adultos curtem os shows, as crianças ganham um espaço só delas: teatro com apresentações musicais, brincadeiras interativas e personagens vivos, num clima de alegria e imaginação.</p>
-          <dl>
-            <div><dt>Horário</dt><dd>20h</dd></div>
-            <div><dt>Local</dt><dd>Quadra de esportes da AABB</dd></div>
-          </dl>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <!-- Queima de fogos -->
-  <section class="fogos" id="fogos" aria-labelledby="t-fogos">
-    <img src="assets/queima-de-fogos.jpg" width="1600" height="900" loading="lazy"
-         alt="Ilustração de fogos de artifício coloridos sobre um rio à noite, com coqueiros iluminados na margem.">
-    <span class="ilus">Imagem ilustrativa</span>
-    <div class="wrap">
-      <div class="txt">
-        <p class="eyebrow">Queima de fogos</p>
-        <h2 id="t-fogos">A grande virada<span>dos 50 anos!</span></h2>
-        <p class="hora">00h<small>31 para 1º de janeiro</small></p>
-        <p>À meia-noite, o céu de Balsas vira palco de um espetáculo inesquecível. Para celebrar a chegada de 2027 e os 50 anos da AABB, uma grande queima de fogos às margens do Rio Balsas vai iluminar a noite com cores, brilho e emoção.</p>
-        <p>Um momento para reunir a família e os amigos, renovar as esperanças e brindar o ano novo, tendo como cenário um dos maiores símbolos naturais da nossa cidade. Mais do que uma virada, a celebração de cinco décadas de histórias, conquistas e amizades.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Ingressos -->
-  <section id="ingressos" aria-labelledby="t-ingressos">
-    <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">Ingressos</p>
-        <h2 id="t-ingressos">Vendas em breve</h2>
-        <p class="lead">Valores, lotes e forma de compra serão divulgados aqui e no Instagram do clube.</p>
-      </div>
-      <div class="tickets">
-        <div class="ticket">
-          <h3>Associado AABB</h3>
-          <p class="price">R$ <span class="pend">a confirmar</span></p>
-          <ul>
-            <li>Lotes e prazos <span class="pend">a confirmar</span></li>
-            <li>Como comprovar a associação <span class="pend">a confirmar</span></li>
-          </ul>
-        </div>
-        <div class="ticket">
-          <h3>Convidado / não associado</h3>
-          <p class="price">R$ <span class="pend">a confirmar</span></p>
-          <ul>
-            <li>Lotes e prazos <span class="pend">a confirmar</span></li>
-            <li>Mesas ou área reservada <span class="pend">a confirmar</span></li>
-          </ul>
-        </div>
-      </div>
-      <div class="ticket-note">
-        <a class="btn" aria-disabled="true" href="#ingressos" title="Link de venda ainda não definido">Comprar ingresso (em breve)</a>
-        <a class="btn ghost" href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener">Seguir @aabb.balsas</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Barracas -->
-  <section id="barracas" aria-labelledby="t-barracas">
-    <div class="wrap">
-      <div class="tents">
-        <div class="txt">
-          <p class="eyebrow">Reserva de barracas</p>
-          <h2 id="t-barracas">Uma festa dentro da festa!</h2>
-          <p class="lead">Reúna sua família, prepare sua ceia, faça seu churrasco e decore seu espaço, com acesso a toda a programação do Réveillon.</p>
-          <div class="facts2"><span>R$ 800<small>por barraca</small></span><span>20<small>passes</small></span></div>
-          <div><a class="btn" href="barracas/">Escolher minha barraca</a></div>
-        </div>
-        <div class="pics">
-          <img src="barracas/fotos/aabb-04.jpg" width="600" height="750" loading="lazy" alt="Barraca 04, de frente para o Rio Balsas.">
-          <img src="barracas/fotos/aabb-14.jpg" width="600" height="750" loading="lazy" alt="Barraca 14, azul, com churrasqueira e vista para o rio.">
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Linha do tempo -->
-  <section id="historia" aria-labelledby="t-historia">
-    <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">1977 – 2027</p>
-        <h2 id="t-historia">50 anos da nossa história</h2>
-        <p class="lead">Cinco décadas de esporte, música e família reunida às margens do Rio Balsas. Esta virada fecha um capítulo e abre o próximo.</p>
-      </div>
-      <ol class="timeline">
-        <li>
-          <div class="year">1977</div>
-          <div class="card">
-            <div class="txt"><h3>Nasce a AABB Balsas</h3><p>Em 2 de janeiro de 1977, a Associação Atlética Banco do Brasil de Balsas é fundada.</p></div>
-            <div class="pic">Foto do acervo <span class="pend">a enviar</span></div>
-          </div>
-        </li>
-        <li>
-          <div class="year">Anos 80</div>
-          <div class="card">
-            <div class="txt"><h3>Marco da década</h3><p>Fato e foto <span class="pend">a confirmar</span></p></div>
-            <div class="pic">Foto do acervo <span class="pend">a enviar</span></div>
-          </div>
-        </li>
-        <li>
-          <div class="year">Anos 90</div>
-          <div class="card">
-            <div class="txt"><h3>Marco da década</h3><p>Fato e foto <span class="pend">a confirmar</span></p></div>
-            <div class="pic">Foto do acervo <span class="pend">a enviar</span></div>
-          </div>
-        </li>
-        <li>
-          <div class="year">Anos 2000</div>
-          <div class="card">
-            <div class="txt"><h3>Marco da década</h3><p>Fato e foto <span class="pend">a confirmar</span></p></div>
-            <div class="pic">Foto do acervo <span class="pend">a enviar</span></div>
-          </div>
-        </li>
-        <li>
-          <div class="year">Anos 2010</div>
-          <div class="card">
-            <div class="txt"><h3>Marco da década</h3><p>Fato e foto <span class="pend">a confirmar</span></p></div>
-            <div class="pic">Foto do acervo <span class="pend">a enviar</span></div>
-          </div>
-        </li>
-        <li>
-          <div class="year">Hoje</div>
-          <div class="card">
-            <div class="txt"><h3>Campo society de grama sintética</h3><p>O antigo campo de grama natural foi reformado e ganhou gramado sintético. Ano da reforma <span class="pend">a confirmar</span></p></div>
-            <div class="pic">Foto do campo <span class="pend">a enviar</span></div>
-          </div>
-        </li>
-        <li class="big">
-          <div class="year">2026</div>
-          <div class="card">
-            <div class="txt"><h3>O Réveillon da Nossa História</h3><p>31 de dezembro de 2026. A família AABB se reúne para virar o ano e brindar os 50 anos do clube.</p></div>
-            <div class="pic">Foto da festa (depois do evento)</div>
-          </div>
-        </li>
-        <li class="big">
-          <div class="year">2027</div>
-          <div class="card">
-            <div class="txt"><h3>AABB Balsas, 50 anos</h3><p>2 de janeiro de 2027: meio século de clube.</p></div>
-            <div class="pic">Selo 50 anos</div>
-          </div>
-        </li>
+      <ol class="agenda">
+        <li><span class="t metal">20h</span><div><p class="where">Palco principal</p><h3>Banda Vértigo</h3><p>Pop rock e flashback para abrir a noite.</p></div></li>
+        <li><span class="t metal">20h</span><div><p class="where">Quadra de esportes</p><h3>Teatro infantil</h3><p>Música, brincadeiras e personagens vivos para os pequenos.</p></div></li>
+        <li><span class="t metal">Virada</span><div><p class="where">Palco principal</p><h3>Jamilson Jackson</h3><p>O Rei do Pop e dos grandes flashbacks embala a chegada de 2027.</p></div></li>
+        <li><span class="t metal">00h</span><div><p class="where">Margens do Rio Balsas</p><h3>Queima de fogos</h3><p>A grande virada dos 50 anos.</p></div></li>
+        <li><span class="t metal">4h</span><div><p class="where">Pista</p><h3>DJ Waguim</h3><p>Sucessos e batidas para quem quer continuar dançando.</p></div></li>
       </ol>
     </div>
   </section>
 
-  <!-- Patrocinadores -->
-  <section id="patrocinadores" aria-labelledby="t-patro">
+  <section id="atracoes" aria-labelledby="t-atr">
     <div class="wrap">
       <div class="head">
-        <p class="eyebrow">Patrocinadores</p>
-        <h2 id="t-patro">Quem celebra com a gente</h2>
+        <p class="eyebrow">Atrações</p>
+        <h2 id="t-atr">Música que atravessa <em>gerações</em></h2>
+        <div class="rule"><span>✦</span></div>
+      </div>
+      <div class="acts">
+        <article class="act">
+          <figure class="pic"><img src="assets/banda-vertigo.jpg" width="800" height="1191" loading="lazy" style="object-position: center 20%" alt="Os quatro integrantes da Banda Vértigo, de roupas pretas, em estúdio."></figure>
+          <div class="txt">
+            <p class="time">20h · Abertura</p>
+            <h3>Banda Vértigo</h3>
+            <p class="sub">Dos clássicos inesquecíveis aos sucessos atuais</p>
+            <p>Direto de São Luís, a Vértigo abre a noite com o melhor do pop rock e do flashback, de A-ha, Queen e U2 aos hits de hoje.</p>
+            <details><summary>Saiba mais</summary><p>O repertório revive artistas como Bon Jovi e Pink Floyd e o clima das décadas de 70, 80 e 90, sem deixar de fora as músicas que estão nas playlists e nas pistas atuais. Uma viagem musical que conecta passado, presente e futuro.</p></details>
+          </div>
+        </article>
+        <article class="act">
+          <figure class="pic"><img src="assets/jamilson-jackson-palco.jpg" width="800" height="1200" loading="lazy" style="object-position: center 12%" alt="Jamilson Jackson de blazer prateado com lapela preta, sorrindo."></figure>
+          <div class="txt">
+            <p class="time">Na virada</p>
+            <h3>Jamilson Jackson</h3>
+            <p class="sub">O Rei do Pop e dos grandes flashbacks</p>
+            <p>Mais de 30 anos de carreira e tributos ao eterno Michael Jackson, com pop internacional, disco music e soul para cantar e dançar até a meia-noite.</p>
+            <details><summary>Saiba mais</summary><p>Artista maranhense com passagens por programas de TV nacionais, Jamilson junta voz, presença de palco, coreografias e muita energia. Nesta noite, a missão dele é especial: embalar a chegada de 2027 e celebrar os 50 anos da AABB Balsas.</p></details>
+          </div>
+        </article>
+        <article class="act">
+          <figure class="pic"><img src="assets/dj-waguim.jpg" width="800" height="1067" loading="lazy" style="object-position: center 60%" alt="DJ Waguim tocando numa controladora à beira de um rio, ao pôr do sol."></figure>
+          <div class="txt">
+            <p class="time">A partir das 4h</p>
+            <h3>DJ Waguim</h3>
+            <p class="sub">A energia que mantém a festa acesa</p>
+            <p>Direto de Imperatriz, assume a pista depois da virada com grandes sucessos e batidas para ninguém ficar parado.</p>
+            <details><summary>Saiba mais</summary><p>Já integrou programações ao lado de Gusttavo Lima, Claudia Leitte, Jonas Esticado e Henry Freitas, e animou festas tradicionais da região, como a Expoimp e o Lava-Pratos de Imperatriz.</p></details>
+          </div>
+        </article>
+        <article class="act">
+          <figure class="pic"><img src="assets/teatro-infantil.jpg" width="1080" height="720" loading="lazy" style="object-position: 30% center" alt="Ilustração de crianças vestidas de branco olhando os fogos de artifício."><figcaption>Imagem ilustrativa</figcaption></figure>
+          <div class="txt">
+            <p class="time">20h · Quadra de esportes</p>
+            <h3>Teatro infantil</h3>
+            <p class="sub">A magia do Réveillon para os pequenos</p>
+            <p>Enquanto os adultos curtem os shows, as crianças ganham um espaço só delas, com teatro, música, brincadeiras e personagens vivos.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="night fireworks" id="fogos" aria-labelledby="t-fogos">
+    <img src="assets/queima-de-fogos.jpg" width="1600" height="900" loading="lazy" alt="Ilustração de fogos de artifício sobre um rio à noite.">
+    <span class="cap">Imagem ilustrativa</span>
+    <div class="wrap">
+      <div class="txt">
+        <p class="eyebrow">Queima de fogos</p>
+        <p class="hour metal">00h</p>
+        <h2 id="t-fogos">A grande virada <em>dos 50 anos</em></h2>
+        <p>À meia-noite, o céu de Balsas vira palco de um espetáculo às margens do Rio Balsas, um dos maiores símbolos da nossa cidade. Mais do que uma virada: cinco décadas de histórias, conquistas e amizades.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="barracas" aria-labelledby="t-barr">
+    <div class="wrap tents">
+      <div class="txt">
+        <p class="eyebrow">Reserva de barracas</p>
+        <h2 id="t-barr">Uma festa <em>dentro da festa</em></h2>
+        <p class="lead">Sua família, sua ceia, seu churrasco e sua decoração, com acesso a toda a programação do Réveillon.</p>
+        <div class="price">
+          <div><b class="metal">R$ 800</b><span>por barraca</span></div>
+          <div><b class="metal">20</b><span>passes incluídos</span></div>
+        </div>
+        <div><a class="btn solid" href="barracas/">Escolher minha barraca</a></div>
+      </div>
+      <div class="gal">
+        <img src="barracas/fotos/aabb-04.jpg" width="600" height="750" loading="lazy" alt="Barraca 04, de frente para o Rio Balsas.">
+        <img src="barracas/fotos/aabb-14.jpg" width="600" height="750" loading="lazy" alt="Barraca 14, azul, com churrasqueira.">
+        <img src="barracas/fotos/metal-05.jpg" width="600" height="750" loading="lazy" alt="Barraca de metal 05, com vista para a mata e o rio.">
+      </div>
+    </div>
+  </section>
+
+  <section id="ingressos" style="background: var(--paper-2)" aria-labelledby="t-ing">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Ingressos</p>
+        <h2 id="t-ing">Lote <em>antecipado</em></h2>
+        <div class="rule"><span>✦</span></div>
+        <p class="lead">Valores especiais para quem garantir o ingresso até <strong>15 de dezembro</strong>. Toque no seu ingresso e fale direto com a secretaria da AABB.</p>
+      </div>
+      <div class="passes">
+        <article class="pass">
+          <p class="eyebrow">Associado AABB</p>
+          <p class="val"><small>R$</small><span class="metal">50</span></p>
+          <p class="note">por pessoa · até 15/12</p>
+          <a class="btn solid buy" href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener" data-tipo="Associado AABB" data-valor="R$ 50">Comprar ingresso</a>
+        </article>
+        <article class="pass">
+          <p class="eyebrow">Não associado</p>
+          <p class="val"><small>R$</small><span class="metal">70</span></p>
+          <p class="note">por pessoa · até 15/12</p>
+          <a class="btn solid buy" href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener" data-tipo="Não associado" data-valor="R$ 70">Comprar ingresso</a>
+        </article>
+      </div>
+      <p class="pass-foot" id="pass-foot">A compra é feita com a secretaria da AABB. Quer um espaço só da sua turma? Veja as <a href="barracas/">barracas com 20 passes</a>.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-50">
+    <div class="wrap">
+      <h2 id="t-50" class="eyebrow" style="text-align:center;margin-bottom:40px;font-family:var(--font-body)">50 anos da nossa história</h2>
+      <div class="years">
+        <p class="y metal">1977<small>2 de janeiro · fundação</small></p>
+        <div class="mid"><div class="rule" style="width:160px"><span>✦</span></div><p>Cinco décadas de esporte, música e família reunida às margens do Rio Balsas.</p></div>
+        <p class="y metal">2027<small>2 de janeiro · 50 anos</small></p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0" aria-labelledby="t-pat">
+    <div class="wrap">
+      <div class="head" style="margin-bottom:36px">
+        <p class="eyebrow" id="t-pat">Quem celebra com a gente</p>
       </div>
       <div class="sponsors">
-        <a class="sponsor" href="https://www.instagram.com/espetibarbls/" target="_blank" rel="noopener" title="Espetibar no Instagram (@espetibarbls)">
-          <img src="assets/patrocinador-espetibar.jpg" width="600" height="401" loading="lazy" alt="Espetibar, patrocinador do Réveillon. Abre o Instagram @espetibarbls.">
+        <a class="logo" href="https://www.instagram.com/espetibarbls/" target="_blank" rel="noopener" title="Espetibar no Instagram">
+          <img src="assets/patrocinador-espetibar.jpg" width="600" height="401" loading="lazy" alt="Espetibar. Abre o Instagram @espetibarbls.">
         </a>
-        <div class="slot">Espaço para patrocinador</div>
-        <div class="slot">Espaço para patrocinador</div>
-        <div class="slot">Espaço para patrocinador</div>
+        <div class="ask"><b>Quer patrocinar?</b><p style="color:var(--muted);font-size:.92rem">Coloque sua marca na festa dos 50 anos.</p><a href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener">Fale com a AABB</a></div>
       </div>
     </div>
   </section>
 
-  <!-- Local -->
-  <section id="local" aria-labelledby="t-local">
-    <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">Local</p>
-        <h2 id="t-local">Na nossa casa</h2>
-      </div>
+  <section id="local" style="background: var(--paper-2)" aria-labelledby="t-local">
+    <div class="wrap two">
       <div class="place">
+        <p class="eyebrow">Local</p>
+        <h2 id="t-local">Na nossa <em>casa</em></h2>
         <dl>
-          <div><dt>Onde</dt><dd>Sede da AABB Balsas</dd></div>
-          <div><dt>Endereço</dt><dd>Rua Isaac Martins, Centro · Balsas/MA<br>Número e CEP <span class="pend">a confirmar</span></dd></div>
-          <div><dt>Quando</dt><dd>31 de dezembro de 2026 · horário <span class="pend">a confirmar</span></dd></div>
-          <div><dt>Estacionamento</dt><dd><span class="pend">a confirmar</span></dd></div>
-          <div><a class="btn ghost" href="https://www.google.com/maps/search/?api=1&amp;query=AABB+Balsas+Rua+Isaac+Martins+Balsas+MA" target="_blank" rel="noopener">Abrir no Google Maps</a></div>
+          <div><dt>Onde</dt><dd>Sede da AABB Balsas<br>Rua Isaac Martins, Centro · Balsas/MA</dd></div>
+          <div><dt>Quando</dt><dd>31 de dezembro de 2026, a partir das 20h</dd></div>
         </dl>
-        <div class="map">
-          <iframe title="Mapa da sede da AABB Balsas" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-                  src="https://www.google.com/maps?q=AABB+Balsas,+Rua+Isaac+Martins,+Balsas+-+MA&amp;output=embed"></iframe>
-        </div>
+        <div class="map"><iframe title="Mapa da sede da AABB Balsas" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=AABB+Balsas,+Rua+Isaac+Martins,+Balsas+-+MA&amp;output=embed"></iframe></div>
+        <div><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=AABB+Balsas+Rua+Isaac+Martins+Balsas+MA" target="_blank" rel="noopener">Abrir no mapa</a></div>
       </div>
-    </div>
-  </section>
-
-  <!-- Perguntas frequentes -->
-  <section id="duvidas" aria-labelledby="t-faq">
-    <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">Perguntas frequentes</p>
-        <h2 id="t-faq">Tire suas dúvidas</h2>
-      </div>
-      <div class="faq">
-        <details open><summary>Quando e onde é a festa?</summary><p>Dia 31 de dezembro de 2026, na sede da AABB Balsas (Rua Isaac Martins, Centro). A programação musical começa às 20h, com a Banda Vértigo. O horário de abertura dos portões será divulgado em breve.</p></details>
-        <details><summary>Como compro meu ingresso?</summary><p>As vendas ainda não começaram. Valores, lotes e o link de compra serão publicados aqui e no Instagram @aabb.balsas.</p></details>
-        <details><summary>Quem não é sócio pode ir?</summary><p>As regras de venda para convidados e não associados serão divulgadas junto com os ingressos. <span class="pend">a confirmar</span></p></details>
-        <details><summary>Tem programação para crianças?</summary><p>Tem! Às 20h, na quadra de esportes, um teatro infantil com apresentações musicais, brincadeiras e personagens vivos. As regras de ingresso para crianças serão divulgadas junto com os ingressos. <span class="pend">a confirmar</span></p></details>
-        <details><summary>Tem traje?</summary><p>Ainda não há traje oficial. Pela tradição do Réveillon, a sugestão é vir de branco. <span class="pend">a confirmar</span></p></details>
-        <details><summary>Como reservo uma barraca?</summary><p>Escolha a barraca na <a href="barracas/">página de barracas</a>. Cada barraca custa R$ 800 e inclui 20 passes. O pagamento é por Pix ou cartão em até 3x, e a reserva é confirmada depois que a administração valida o comprovante.</p></details>
-        <details><summary>A bebida está inclusa?</summary><p>Não. O bar do clube funciona normalmente durante a festa, com venda à parte.</p></details>
-        <details><summary>Vai ter queima de fogos?</summary><p>Sim! À meia-noite, uma grande queima de fogos às margens do Rio Balsas celebra a chegada de 2027 e os 50 anos da AABB.</p></details>
-        <details><summary>Tem estacionamento?</summary><p>Informação a ser divulgada. <span class="pend">a confirmar</span></p></details>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contato -->
-  <section id="contato" aria-labelledby="t-contato">
-    <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">Contato</p>
-        <h2 id="t-contato">Fale com a AABB</h2>
-      </div>
-      <div class="contact">
-        <a class="card" href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener"><b>Instagram</b><span>@aabb.balsas · novidades da festa em primeira mão</span></a>
-        <a class="card" href="https://tr.ee/aabbbalsas" target="_blank" rel="noopener"><b>Todos os links</b><span>tr.ee/aabbbalsas</span></a>
-        <div class="card"><b>WhatsApp da secretaria</b><span>Número <span class="pend">a confirmar</span></span></div>
+      <div class="faq" id="duvidas">
+        <h2>Dúvidas</h2>
+        <details open><summary>Quanto custa o ingresso?</summary><p>No lote antecipado, até 15 de dezembro: R$ 50 para associados e R$ 70 para não associados. A compra é feita com a secretaria da AABB.</p></details>
+        <details><summary>Como reservo uma barraca?</summary><p>Escolha na página de barracas. Cada uma custa R$ 800, inclui 20 passes e é paga por Pix ou cartão em até 3x. A reserva vale depois que a administração valida o comprovante.</p></details>
+        <details><summary>Tem programação para crianças?</summary><p>Tem! Às 20h, na quadra de esportes, teatro infantil com música, brincadeiras e personagens vivos.</p></details>
+        <details><summary>A bebida está inclusa?</summary><p>Não. As bebidas são vendidas no bar do clube durante a festa.</p></details>
       </div>
     </div>
   </section>
 </main>
 
-<footer>
+<footer class="night">
   <div class="wrap">
-    <p><b>AABB Balsas</b> · 1977–2027 · 50 anos da nossa história</p>
-    <p>Rua Isaac Martins, Centro · Balsas/MA</p>
+    <img src="assets/logo-aabb-branca.png" width="440" height="174" alt="AABB Balsas">
+    <div class="rule"><span>✦</span></div>
+    <nav class="links" aria-label="Links">
+      <a href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://tr.ee/aabbbalsas" target="_blank" rel="noopener">Todos os links</a>
+      <a href="#programacao">Programação</a>
+      <a href="barracas/">Barracas</a>
+    </nav>
+    <small>AABB Balsas · 1977 — 2027 · Rua Isaac Martins, Centro · Balsas/MA</small>
   </div>
 </footer>
 
 <script>
-// Contagem regressiva até 00:00 de 01/01/2027 no horário de Balsas/MA (UTC-3, sem horário de verão).
 (function () {
-  var alvo = Date.parse("2027-01-01T00:00:00-03:00");
-  var box = document.getElementById("countdown");
-  var el = { d: "cd-d", h: "cd-h", m: "cd-m", s: "cd-s" };
-  for (var k in el) el[k] = document.getElementById(el[k]);
-  function dois(n) { return n < 10 ? "0" + n : String(n); }
-  function tick() {
-    var falta = Math.floor((alvo - Date.now()) / 1000);
-    if (falta <= 0) {
-      box.outerHTML = '<p class="countdown-done">Feliz 2027! AABB Balsas, 50 anos.</p>';
-      clearInterval(timer);
-      return;
-    }
-    el.d.textContent = Math.floor(falta / 86400);
-    el.h.textContent = dois(Math.floor(falta % 86400 / 3600));
-    el.m.textContent = dois(Math.floor(falta % 3600 / 60));
-    el.s.textContent = dois(falta % 60);
+  // Menu do celular
+  var burger = document.getElementById("burger"), menu = document.getElementById("menu");
+  burger.addEventListener("click", function () {
+    var open = menu.classList.toggle("open");
+    burger.setAttribute("aria-expanded", String(open));
+  });
+  menu.addEventListener("click", function (e) { if (e.target.tagName === "A") { menu.classList.remove("open"); burger.setAttribute("aria-expanded", "false"); } });
+
+  // Compra de ingresso: mensagem pronta para o WhatsApp da secretaria.
+  // Preencha WHATSAPP com DDI+DDD+número, só dígitos (ex.: "5599999999999"). Vazio = leva ao Instagram.
+  var WHATSAPP = "";
+  if (WHATSAPP) {
+    document.querySelectorAll("a.buy").forEach(function (a) {
+      var msg = "Olá! Quero comprar ingresso antecipado para o Réveillon AABB 50 anos.\n" +
+        "Tipo: " + a.getAttribute("data-tipo") + " (" + a.getAttribute("data-valor") + ")\n" +
+        "Quantidade: \nNome: ";
+      a.href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(msg);
+      a.textContent = "Comprar pelo WhatsApp";
+    });
+  } else {
+    document.getElementById("pass-foot").innerHTML = 'Por enquanto, a compra é combinada pela secretaria da AABB pelo Instagram <a href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener">@aabb.balsas</a>. Quer um espaço só da sua turma? Veja as <a href="barracas/">barracas com 20 passes</a>.';
   }
-  var timer = setInterval(tick, 1000);
-  tick();
+
+  // Contagem regressiva até 00:00 de 01/01/2027 (Balsas, UTC-3), com virada suave dos números
+  var alvo = Date.parse("2027-01-01T00:00:00-03:00");
+  var ids = { d: "cd-d", h: "cd-h", m: "cd-m" }, el = {};
+  for (var k in ids) el[k] = document.getElementById(ids[k]);
+  function dois(n) { return n < 10 ? "0" + n : String(n); }
+  function set(e, v) { if (e.textContent !== v) { e.textContent = v; e.classList.remove("tick"); void e.offsetWidth; e.classList.add("tick"); } }
+  function tick() {
+    var s = Math.floor((alvo - Date.now()) / 1000);
+    if (s <= 0) { document.getElementById("count").outerHTML = '<p class="count-done">Feliz 2027! AABB Balsas, 50 anos.</p>'; clearInterval(t); return; }
+    set(el.d, String(Math.floor(s / 86400))); set(el.h, dois(Math.floor(s % 86400 / 3600))); set(el.m, dois(Math.floor(s % 3600 / 60)));
+  }
+  var t = setInterval(tick, 1000); tick();
+
+  // Brilhos dourados discretos ao redor do selo
+  var c = document.getElementById("sparkles"), ctx = c.getContext && c.getContext("2d");
+  if (!ctx) return;
+  var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var dots = [], W, H, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  function size() { var r = c.getBoundingClientRect(); W = r.width; H = r.height; c.width = W * dpr; c.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function seed() {
+    dots = [];
+    for (var i = 0; i < 38; i++) {
+      var a = Math.random() * Math.PI * 2, rr = 0.24 + Math.random() * 0.26;
+      dots.push({ x: 0.5 + Math.cos(a) * rr, y: 0.5 + Math.sin(a) * rr, r: 0.6 + Math.random() * 1.6, p: Math.random() * Math.PI * 2, s: 0.4 + Math.random() * 0.9, v: 0.00004 + Math.random() * 0.00008 });
+    }
+  }
+  function draw(ts) {
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < dots.length; i++) {
+      var d = dots[i], tw = calm ? 0.7 : (0.35 + 0.65 * (0.5 + 0.5 * Math.sin(d.p + ts * 0.0015 * d.s)));
+      var y = calm ? d.y : d.y - ((ts * d.v) % 0.12);
+      ctx.globalAlpha = tw * 0.85;
+      ctx.fillStyle = i % 3 ? "#D9B661" : "#FFF3CF";
+      ctx.beginPath(); ctx.arc(d.x * W, y * H, d.r, 0, Math.PI * 2); ctx.fill();
+    }
+    if (!calm) requestAnimationFrame(draw);
+  }
+  size(); seed(); requestAnimationFrame(draw);
+  window.addEventListener("resize", function () { size(); if (calm) requestAnimationFrame(draw); });
 })();
 </script>
 <!-- Cloudflare Web Analytics: contagem de visitas sem cookies e sem dados pessoais -->

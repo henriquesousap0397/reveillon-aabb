@@ -40,3 +40,8 @@ Visitas medidas pelo **Cloudflare Web Analytics** (gratuito, sem cookies e sem d
 - Página: https://reveillon.aabbbalsas.workers.dev/barracas/
 - Para marcar uma barraca como reservada, edite a lista `BARRACAS` no fim de `public/barracas/index.html` e troque `"disponivel"` por `"reservada"`.
 - Link direto para uma barraca: `/barracas/#aabb-07` ou `/barracas/#metal-03`.
+
+## Ingressos
+
+- Lote antecipado até 15/12: associado R$ 50, não associado R$ 70.
+- Os botões "Comprar ingresso" abrem o WhatsApp da secretaria com uma mensagem pronta. Para ligar, preencha `WHATSAPP` no script de `public/index.html` (DDI+DDD+número, só dígitos). Enquanto estiver vazio, os botões levam ao Instagram @aabb.balsas.
