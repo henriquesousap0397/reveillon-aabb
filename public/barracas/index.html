@@ -251,7 +251,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
       <ol class="steps">
         <li><b>Escolha a barraca</b><span>Veja as fotos e anote o número da barraca que você quer.</span></li>
         <li><b>Faça o pagamento</b><span>R$ 800 por Pix ou no cartão de crédito em até 3x.</span></li>
-        <li><b>Envie o comprovante</b><span>Mande o comprovante para a administração da AABB, informando o número da barraca.</span></li>
+        <li><b>Envie o comprovante</b><span>Mande o comprovante pelo WhatsApp da secretaria da AABB, informando o número da barraca.</span></li>
         <li><b>Reserva confirmada</b><span>A reserva vale depois que a administração validar o pagamento.</span></li>
       </ol>
       <div class="pay">
@@ -264,7 +264,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
         <div class="card">
           <h3>Cartão de crédito ou outras condições</h3>
           <p>Cartão de crédito em até 3x. Para outras condições de pagamento, fale direto com a Secretaria da AABB Balsas.</p>
-          <p>WhatsApp da secretaria: <span class="pend">a confirmar</span></p>
+          <p><a class="btn small" href="https://wa.me/5599988276988?text=Ol%C3%A1!%20Tenho%20uma%20d%C3%BAvida%20sobre%20a%20reserva%20de%20barracas%20do%20R%C3%A9veillon%20AABB%2050%20anos." target="_blank" rel="noopener">Falar com a secretaria no WhatsApp</a></p>
         </div>
       </div>
     </div>
@@ -323,7 +323,7 @@ footer b { font-family: var(--font-display); color: #F1D58E; }
         <li>Envie o comprovante para a administração da AABB com esta mensagem:
           <p class="msg" id="dlg-msg"></p>
           <button type="button" class="btn small ghost" data-copy="msg">Copiar mensagem</button> <span class="copied" data-ok="msg" hidden>Copiada!</span>
-          <p class="note">WhatsApp para envio: <span class="pend">a confirmar</span></p>
+          <p style="margin-top:8px"><a class="btn small" id="dlg-whats" href="#" target="_blank" rel="noopener">Enviar no WhatsApp da secretaria</a></p>
         </li>
         <li>Pronto! A reserva fica confirmada depois que a administração validar o pagamento.</li>
       </ol>
@@ -364,6 +364,7 @@ var BARRACAS = [
   { id: "metal-06", tipo: "metal", nome: "Metal 06", status: "disponivel" }
 ];
 var PIX = "aabbdiretoria@gmail.com";
+var WHATSAPP = "5599988276988"; // secretaria da AABB (DDI+DDD+número)
 
 (function () {
   var $ = function (id) { return document.getElementById(id); };
@@ -430,6 +431,7 @@ var PIX = "aabbdiretoria@gmail.com";
     $("dlg-grupo").textContent = GRUPOS[b.tipo][0];
     $("dlg-titulo").textContent = "Reservar a " + b.nome;
     $("dlg-msg").textContent = "Olá! Quero reservar a " + b.nome + " no Réveillon AABB 50 anos. Segue o comprovante do pagamento de R$ 800,00. Meu nome é: ";
+    $("dlg-whats").href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent($("dlg-msg").textContent);
     document.querySelectorAll("[data-ok]").forEach(function (s) { s.hidden = true; });
     if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
     try { history.replaceState(null, "", "#" + b.id); } catch (e) {}
