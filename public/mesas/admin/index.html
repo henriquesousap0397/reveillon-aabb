@@ -87,6 +87,8 @@ table.res tr.hl td { background: #FFF6DA; }
 .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 10px; font-weight: 600; z-index: 10; }
 .toast[hidden] { display: none; }
 body.operador .adm-only { display: none !important; }
+.prov { border: 1px solid var(--gold); background: #FFF6DA; border-radius: 10px; padding: 14px; display: grid; gap: 8px; max-width: 620px; }
+.prov code { font: 700 1.05rem var(--font-body); background: #fff; border: 1px dashed var(--gold); padding: 2px 8px; border-radius: 6px; letter-spacing: .04em; }
 #f-user { grid-template-columns: minmax(0, 520px); }
 #f-user label { grid-template-columns: 110px 1fr; }
 #hist td, #hist th { text-align: left; }
@@ -103,6 +105,20 @@ body.operador .adm-only { display: none !important; }
     <input type="password" id="senha" autocomplete="current-password" required>
     <button class="pri" type="submit">Entrar</button>
     <p class="err" id="l-err" role="alert"></p>
+  </form>
+</div></div>
+
+<div id="primeiro" class="wrap" hidden><div class="card login">
+  <h1>Crie sua senha</h1>
+  <p class="muted" id="p-ola"></p>
+  <form id="f-primeiro" autocomplete="on">
+    <input type="text" id="p-user" autocomplete="username" hidden>
+    <label for="p-nova">Nova senha <span class="muted">(mínimo 8 caracteres)</span></label>
+    <input type="password" id="p-nova" autocomplete="new-password" minlength="8" required>
+    <label for="p-conf">Repita a nova senha</label>
+    <input type="password" id="p-conf" autocomplete="new-password" minlength="8" required>
+    <button class="pri" type="submit">Salvar e entrar</button>
+    <p class="err" id="p-err" role="alert"></p>
   </form>
 </div></div>
 
@@ -168,11 +184,17 @@ body.operador .adm-only { display: none !important; }
         <legend>Cadastrar usuário</legend>
         <label>Nome<input type="text" name="nome" maxlength="60" required placeholder="Ex.: Ana da Secretaria"></label>
         <label>Usuário<input type="text" name="login" maxlength="30" required placeholder="ana.secretaria" autocapitalize="none"></label>
-        <label>Senha inicial<input type="text" name="senha" minlength="8" maxlength="100" required placeholder="mín. 8 caracteres"></label>
         <label>Perfil<select name="papel"><option value="operador">Operador</option><option value="admin">Administrador</option></select></label>
-        <div><button class="pri" type="submit">Cadastrar</button></div>
+        <div><button class="pri" type="submit">Cadastrar e gerar senha provisória</button></div>
       </fieldset>
     </form>
+    <div class="prov" id="prov" hidden>
+      <p><b id="prov-tit"></b></p>
+      <p>Usuário: <code id="prov-user"></code> · Senha provisória: <code id="prov-pass"></code></p>
+      <p class="sub" id="prov-exp"></p>
+      <div class="acts"><button type="button" class="sm pri" id="prov-copy">Copiar mensagem para enviar</button><span class="sub" id="prov-ok" hidden>Copiada!</span><button type="button" class="sm" id="prov-close">Fechar</button></div>
+      <p class="sub">Esta senha aparece só agora. Envie para a pessoa por WhatsApp. No primeiro acesso, ela cria a própria senha.</p>
+    </div>
   </section>
 
   <section class="card">
@@ -197,19 +219,34 @@ body.operador .adm-only { display: none !important; }
   try { TOKEN = sessionStorage.getItem("mesas_token") || ""; } catch (e) {}
   var ACOES = { entrou: "Entrou no painel", reserva: "Nova reserva (site)", confirmar: "Confirmou pagamento", voltar_aguardando: "Voltou para aguardando", prorrogar: "Prorrogou +24h",
     cancelar: "Cancelou reserva", validar_associado: "Validação de associado", mudar_tipo: "Mudou o tipo", cadeiras: "Alterou cadeiras", obs: "Observação", apagar: "Apagou reserva",
-    bloquear: "Bloqueou mesa", desbloquear: "Desbloqueou mesa", config: "Alterou configurações", usuario_criar: "Cadastrou usuário", usuario_senha: "Redefiniu senha de",
-    usuario_papel: "Mudou perfil de", usuario_desativar: "Desativou", usuario_reativar: "Reativou", usuario_remover: "Removeu", minha_senha: "Trocou a própria senha" };
+    bloquear: "Bloqueou mesa", desbloquear: "Desbloqueou mesa", config: "Alterou configurações", usuario_criar: "Cadastrou usuário", usuario_senha: "Gerou senha provisória para",
+    usuario_papel: "Mudou perfil de", primeiro_acesso: "Criou a senha no 1º acesso", usuario_desativar: "Desativou", usuario_reativar: "Reativou", usuario_remover: "Removeu", minha_senha: "Trocou a própria senha" };
 
   function toast(t) { var el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { el.hidden = true; }, 2600); }
   function api(path, body) {
     return fetch(path, { method: body ? "POST" : "GET", cache: "no-store", headers: { "x-admin-token": TOKEN, "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined })
-      .then(function (r) { return r.json().then(function (j) { if (!r.ok) { var e = new Error(j.erro || "Erro"); e.status = r.status; throw e; } return j; }); });
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) { var e = new Error(j.erro || "Erro"); e.status = r.status; e.eu = j.eu; throw e; } return j; }); });
   }
-  function sair(msg) { TOKEN = ""; try { sessionStorage.removeItem("mesas_token"); } catch (e) {} $("app").hidden = true; $("login").hidden = false; $("l-err").textContent = msg || ""; $("senha").value = ""; }
+  var PROV_DIGITADA = "";
+  function primeiro(eu) {
+    $("login").hidden = true; $("app").hidden = true; $("primeiro").hidden = false;
+    $("p-ola").textContent = "Olá, " + (eu ? eu.nome : "") + "! Este é seu primeiro acesso (ou sua senha foi redefinida). Crie uma senha pessoal para continuar.";
+    $("p-user").value = eu ? eu.login : "";
+    $("p-nova").focus();
+  }
+  $("f-primeiro").addEventListener("submit", function (ev) {
+    ev.preventDefault(); var n = $("p-nova").value, c = $("p-conf").value; $("p-err").textContent = "";
+    if (n.length < 8) { $("p-err").textContent = "A senha precisa ter pelo menos 8 caracteres."; return; }
+    if (n !== c) { $("p-err").textContent = "As duas senhas não são iguais."; return; }
+    api("/api/admin/mesas", { acao: "minha_senha", atual: PROV_DIGITADA, senha: n }).then(function () {
+      PROV_DIGITADA = ""; $("primeiro").hidden = true; $("p-nova").value = ""; $("p-conf").value = ""; toast("Senha criada. Bem-vindo(a)!"); carregar();
+    }).catch(function (e) { if (e.status === 401) sair("Sessão expirada. Entre de novo com a senha provisória."); else $("p-err").textContent = e.message; });
+  });
+  function sair(msg) { $("primeiro").hidden = true; TOKEN = ""; try { sessionStorage.removeItem("mesas_token"); } catch (e) {} $("app").hidden = true; $("login").hidden = false; $("l-err").textContent = msg || ""; $("senha").value = ""; }
 
   function carregar() {
     return api("/api/admin/mesas").then(function (j) { D = j; $("login").hidden = true; $("app").hidden = false; render(); })
-      .catch(function (e) { if (e.status === 401 || e.status === 429 || e.status === 503) sair(e.message); else toast(e.message); });
+      .catch(function (e) { if (e.status === 428) primeiro(e.eu); else if (e.status === 401 || e.status === 429 || e.status === 503) sair(e.message); else toast(e.message); });
   }
 
   function render() {
@@ -325,10 +362,12 @@ body.operador .adm-only { display: none !important; }
     D.usuarios.forEach(function (u) {
       var tr = document.createElement("tr");
       ["nome", "login", "papel_nome"].forEach(function (k) { var td = document.createElement("td"); td.textContent = u[k]; tr.appendChild(td); });
-      var st = document.createElement("td"); st.innerHTML = '<span class="pill ' + (u.ativo ? "p-vendida" : "p-cancelada") + '"></span>'; st.firstChild.textContent = u.ativo ? "Ativo" : "Desativado"; tr.appendChild(st);
+      var st = document.createElement("td"); st.innerHTML = '<span class="pill ' + (u.ativo ? "p-vendida" : "p-cancelada") + '"></span>'; st.firstChild.textContent = !u.ativo ? "Desativado" : u.pendente ? "Aguardando 1º acesso" : "Ativo";
+      if (u.ativo && u.pendente) { st.firstChild.className = "pill p-aguardando"; var ex = document.createElement("div"); ex.className = "sub"; ex.textContent = "provisória até " + u.provisoria_expira.slice(8, 10) + "/" + u.provisoria_expira.slice(5, 7); st.appendChild(ex); }
+      tr.appendChild(st);
       var ac = document.createElement("td"); var box = document.createElement("div"); box.className = "acts"; box.style.justifyContent = "flex-end"; ac.appendChild(box); tr.appendChild(ac);
       function b(t, cls, fn) { var x = document.createElement("button"); x.type = "button"; x.className = "sm " + (cls || ""); x.textContent = t; x.addEventListener("click", fn); box.appendChild(x); }
-      b("Nova senha", "", function () { var v = prompt("Nova senha para " + u.nome + " (mín. 8 caracteres):"); if (v) acao({ acao: "usuario_senha", login: u.login, senha: v }, "Senha redefinida."); });
+      b("Gerar nova senha provisória", "", function () { if (confirm("Gerar uma nova senha provisória para " + u.nome + "? A senha atual deixa de valer.")) api("/api/admin/mesas", { acao: "usuario_senha", login: u.login }).then(function (j) { mostrarProv(j, "Nova senha provisória de " + j.nome); carregar(); }).catch(function (e) { toast(e.message); }); });
       b(u.papel === "admin" ? "Tornar operador" : "Tornar administrador", "", function () { acao({ acao: "usuario_papel", login: u.login, valor: u.papel === "admin" ? "operador" : "admin" }, "Perfil alterado."); });
       b(u.ativo ? "Desativar" : "Reativar", "", function () { acao({ acao: "usuario_ativo", login: u.login, valor: !u.ativo }, u.ativo ? "Acesso desativado." : "Acesso reativado."); });
       b("Remover", "danger", function () { if (confirm("Remover o acesso de " + u.nome + "?")) acao({ acao: "usuario_remover", login: u.login }, "Usuário removido."); });
@@ -336,9 +375,20 @@ body.operador .adm-only { display: none !important; }
     });
   }
 
+  var PROV_MSG = "";
+  function mostrarProv(j, titulo) {
+    $("prov-tit").textContent = titulo; $("prov-user").textContent = j.login; $("prov-pass").textContent = j.provisoria;
+    $("prov-exp").textContent = "Válida até " + j.expira.slice(8, 10) + "/" + j.expira.slice(5, 7) + " às " + j.expira.slice(11) + ".";
+    PROV_MSG = "Olá, " + j.nome + "! Seu acesso ao painel das mesas do Réveillon AABB:\n" + location.origin + "/mesas/admin/\nUsuário: " + j.login + "\nSenha provisória: " + j.provisoria +
+      "\nNo primeiro acesso você vai criar sua senha pessoal. A provisória vale até " + j.expira.slice(8, 10) + "/" + j.expira.slice(5, 7) + ".";
+    $("prov-ok").hidden = true; $("prov").hidden = false; $("prov").scrollIntoView({ block: "center" });
+  }
+  $("prov-copy").addEventListener("click", function () { var ok = function () { $("prov-ok").hidden = false; }; if (navigator.clipboard) navigator.clipboard.writeText(PROV_MSG).then(ok, ok); else ok(); });
+  $("prov-close").addEventListener("click", function () { $("prov").hidden = true; PROV_MSG = ""; });
   $("f-user").addEventListener("submit", function (ev) {
     ev.preventDefault(); var f = ev.target;
-    acao({ acao: "usuario_criar", nome: f.nome.value, login: f.login.value.trim().toLowerCase(), senha: f.senha.value, papel: f.papel.value }, "Usuário cadastrado.").then(function () { f.reset(); });
+    api("/api/admin/mesas", { acao: "usuario_criar", nome: f.nome.value, login: f.login.value.trim().toLowerCase(), papel: f.papel.value })
+      .then(function (j) { f.reset(); mostrarProv(j, j.nome + " cadastrado(a)"); return carregar(); }).catch(function (e) { toast(e.message); });
   });
   $("b-minha").addEventListener("click", function () {
     var a = prompt("Senha atual:"); if (!a) return; var n = prompt("Nova senha (mín. 8 caracteres):"); if (!n) return;
@@ -388,7 +438,7 @@ body.operador .adm-only { display: none !important; }
     ev.preventDefault(); $("l-err").textContent = "";
     fetch("/api/admin/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ login: $("usuario").value.trim().toLowerCase(), senha: $("senha").value }) })
       .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.erro || "Erro"); return j; }); })
-      .then(function (j) { TOKEN = j.token; try { sessionStorage.setItem("mesas_token", TOKEN); } catch (e) {} $("senha").value = ""; carregar(); })
+      .then(function (j) { TOKEN = j.token; try { sessionStorage.setItem("mesas_token", TOKEN); } catch (e) {} PROV_DIGITADA = j.eu.trocar_senha ? $("senha").value : ""; $("senha").value = ""; if (j.eu.trocar_senha) primeiro(j.eu); else carregar(); })
       .catch(function (e) { $("l-err").textContent = e.message; });
   });
   $("b-sair").addEventListener("click", function () { fetch("/api/admin/sair", { method: "POST", headers: { "x-admin-token": TOKEN } }).finally(function () { sair(""); }); });

@@ -82,6 +82,13 @@ async function hashSenha(senha, salt) {
   const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new TextEncoder().encode(salt), iterations: 100000 }, chave, 256);
   return hex(bits);
 }
+const PROVISORIA_MS = 7 * 86400000; // senha provisória vale 7 dias
+function senhaProvisoria() {
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const r = crypto.getRandomValues(new Uint8Array(8));
+  let c = ""; for (let i = 0; i < 8; i++) c += abc[r[i] % abc.length] + (i === 3 ? "-" : "");
+  return c;
+}
 function loginValido(l) { return /^[a-z0-9._-]{3,30}$/.test(l); }
 
 // ----- Encaminhamento a partir do Worker principal -----
@@ -191,6 +198,13 @@ export class Mesas extends DurableObject {
       const eu = this.sessao(e, req.token, agora);
       if (!eu) return erro("Sessão expirada. Entre de novo.", 401);
       if (req.caminho === "/api/admin/sair" && req.metodo === "POST") { delete e.sessoes[req.token]; await this.salvar(e); return json({ ok: true }); }
+      if (eu.trocar_senha) {
+        if (req.caminho === "/api/admin/mesas" && req.metodo === "POST") {
+          let d = {}; try { d = JSON.parse(req.corpo || "{}"); } catch {}
+          if (d.acao === "minha_senha") return this.acao(e, req, agora, eu);
+        }
+        return json({ erro: "Crie sua senha para continuar.", trocar_senha: true, eu: { ...eu, papel_nome: PAPEIS[eu.papel] } }, 428);
+      }
       if (req.caminho === "/api/admin/mesas" && req.metodo === "GET") return json(this.admin(e, agora, eu));
       if (req.caminho === "/api/admin/mesas.csv" && req.metodo === "GET") return this.csv(e, agora);
       if (req.caminho === "/api/admin/mesas" && req.metodo === "POST") return this.acao(e, req, agora, eu);
@@ -208,7 +222,10 @@ export class Mesas extends DurableObject {
       if (senhaConfere(senha, req.senhaCerta)) eu = { login: "", nome: "Administrador principal", papel: "admin" };
     } else {
       const u = e.usuarios.find((x) => x.login === login && x.ativo);
-      if (u && senhaConfere(await hashSenha(senha, u.salt), u.hash)) eu = { login: u.login, nome: u.nome, papel: u.papel };
+      if (u && senhaConfere(await hashSenha(u.trocar_senha ? senha.trim().toUpperCase() : senha, u.salt), u.hash)) {
+        if (u.trocar_senha && u.provisoria_expira && u.provisoria_expira <= agora) return erro("Sua senha provisória expirou. Peça uma nova ao administrador.", 401);
+        eu = { login: u.login, nome: u.nome, papel: u.papel, trocar_senha: !!u.trocar_senha };
+      }
     }
     if (!eu) { this.falhasLogin.get(req.ip).push(agora); return erro("Usuário ou senha incorretos.", 401); }
     for (const [t, s] of Object.entries(e.sessoes)) if (s.expira <= agora) delete e.sessoes[t];
@@ -224,7 +241,7 @@ export class Mesas extends DurableObject {
     if (!s || s.expira <= agora) return null;
     if (s.login === "") return { login: "", nome: "Administrador principal", papel: "admin" };
     const u = e.usuarios.find((x) => x.login === s.login && x.ativo);
-    return u ? { login: u.login, nome: u.nome, papel: u.papel } : null;
+    return u ? { login: u.login, nome: u.nome, papel: u.papel, trocar_senha: !!u.trocar_senha } : null;
   }
 
   async reservar(e, req, agora) {
@@ -297,7 +314,7 @@ export class Mesas extends DurableObject {
       else { rs.aguardando++; rel.aguardando++; rs.a_receber += r.valor; rel.a_receber += r.valor; }
     }
     const historico = e.historico.slice(-200).reverse().map((h) => ({ ...h, quando: horaLocal(h.t) }));
-    const usuarios = eu.papel === "admin" ? e.usuarios.map((u) => ({ login: u.login, nome: u.nome, papel: u.papel, papel_nome: PAPEIS[u.papel], ativo: u.ativo, criado: horaLocal(u.criado) })) : [];
+    const usuarios = eu.papel === "admin" ? e.usuarios.map((u) => ({ login: u.login, nome: u.nome, papel: u.papel, papel_nome: PAPEIS[u.papel], ativo: u.ativo, criado: horaLocal(u.criado), pendente: !!u.trocar_senha, provisoria_expira: u.provisoria_expira ? horaLocal(u.provisoria_expira) : "" })) : [];
     return { ...this.publico(e, agora), config: e.config, reservas, relatorio: rel, bloqueadas: e.bloqueadas, eu: { ...eu, papel_nome: PAPEIS[eu.papel] }, historico, usuarios };
   }
 
@@ -378,19 +395,20 @@ export class Mesas extends DurableObject {
         if (u) return erro("Já existe um usuário com esse nome.", 409);
         const nome = limpa(d.nome, 60);
         if (nome.length < 2) return erro("Informe o nome da pessoa.");
-        if (!senhaOk(d.senha)) return erro("A senha precisa ter pelo menos 8 caracteres.");
         const papel = d.papel === "admin" ? "admin" : "operador";
-        const salt = aleatorio(16);
-        e.usuarios.push({ login, nome, papel, salt, hash: await hashSenha(d.senha, salt), ativo: true, criado: agora });
+        const salt = aleatorio(16), prov = senhaProvisoria();
+        e.usuarios.push({ login, nome, papel, salt, hash: await hashSenha(prov, salt), ativo: true, criado: agora, trocar_senha: true, provisoria_expira: agora + PROVISORIA_MS });
         reg("usuario_criar", { alvo: nome });
-        break;
+        await this.salvar(e);
+        return json({ ok: true, login, nome, provisoria: prov, expira: horaLocal(agora + PROVISORIA_MS) });
       }
       case "usuario_senha": {
         if (!u) return erro("Usuário não encontrado.", 404);
-        if (!senhaOk(d.senha)) return erro("A senha precisa ter pelo menos 8 caracteres.");
-        u.salt = aleatorio(16); u.hash = await hashSenha(d.senha, u.salt); encerrar(u.login);
+        const prov = senhaProvisoria();
+        u.salt = aleatorio(16); u.hash = await hashSenha(prov, u.salt); u.trocar_senha = true; u.provisoria_expira = agora + PROVISORIA_MS; encerrar(u.login);
         reg("usuario_senha", { alvo: u.nome });
-        break;
+        await this.salvar(e);
+        return json({ ok: true, login: u.login, nome: u.nome, provisoria: prov, expira: horaLocal(u.provisoria_expira) });
       }
       case "usuario_papel": {
         if (!u) return erro("Usuário não encontrado.", 404);
@@ -415,10 +433,13 @@ export class Mesas extends DurableObject {
       case "minha_senha": {
         if (eu.login === "") return erro("A senha do administrador principal é trocada no Cloudflare (Secret ADMIN_SENHA).");
         const me = e.usuarios.find((x) => x.login === eu.login);
-        if (!me || !senhaConfere(await hashSenha(String(d.atual || ""), me.salt), me.hash)) return erro("Senha atual incorreta.", 403);
+        const atual = me && me.trocar_senha ? String(d.atual || "").trim().toUpperCase() : String(d.atual || "");
+        if (!me || !senhaConfere(await hashSenha(atual, me.salt), me.hash)) return erro("Senha atual incorreta.", 403);
         if (!senhaOk(d.senha)) return erro("A nova senha precisa ter pelo menos 8 caracteres.");
-        me.salt = aleatorio(16); me.hash = await hashSenha(d.senha, me.salt);
-        reg("minha_senha");
+        if (String(d.senha) === atual || String(d.senha).toUpperCase() === atual) return erro("A nova senha precisa ser diferente da atual.");
+        const primeira = !!me.trocar_senha;
+        me.salt = aleatorio(16); me.hash = await hashSenha(d.senha, me.salt); me.trocar_senha = false; delete me.provisoria_expira;
+        reg(primeira ? "primeiro_acesso" : "minha_senha");
         break;
       }
       default: return erro("Ação desconhecida.");
