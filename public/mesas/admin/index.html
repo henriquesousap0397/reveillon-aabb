@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Admin das Mesas</title>
+<title>Admin das Reservas</title>
 <link rel="icon" type="image/png" href="../../assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -87,6 +87,18 @@ table.res tr.hl td { background: #FFF6DA; }
 .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 10px; font-weight: 600; z-index: 10; }
 .toast[hidden] { display: none; }
 body.operador .adm-only { display: none !important; }
+.bgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+.bt { border: 2px solid transparent; border-radius: 10px; padding: 0; overflow: hidden; cursor: pointer; background: var(--surface); display: grid; text-align: center; font: 700 .78rem var(--font-body); color: var(--ink); }
+.bt img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+.bt span { padding: 4px 2px; }
+.bt.disponivel { border-color: var(--s-gold); }
+.bt.aguardando { border: 2px dashed var(--wait); background: var(--wait-bg); }
+.bt.vendida { border-color: var(--ok); background: var(--ok-bg); }
+.bt.vendida img, .bt.indisponivel img { filter: grayscale(.8) opacity(.55); }
+.bt.indisponivel { border-color: var(--off); background: var(--off-bg); }
+.bt.hl { box-shadow: 0 0 0 3px var(--ink); }
+dialog#db { border: 0; border-radius: 14px; padding: 0; width: min(520px, calc(100% - 20px)); max-height: calc(100% - 20px); }
+dialog#db::backdrop { background: rgba(15,19,34,.6); }
 dialog#dv { border: 0; border-radius: 14px; padding: 0; width: min(560px, calc(100% - 20px)); max-height: calc(100% - 20px); }
 dialog#dv::backdrop { background: rgba(15,19,34,.6); }
 .dvf { padding: 18px; display: grid; gap: 12px; }
@@ -139,7 +151,7 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
 
 <div id="app" class="wrap" hidden>
   <header class="top">
-    <div><h1>Reservas de mesas</h1><p class="muted" id="upd"></p></div>
+    <div><h1>Reservas de mesas e barracas</h1><p class="muted" id="upd"></p></div>
     <div class="filters">
       <span class="muted" id="quem"></span>
       <button type="button" id="b-minha" hidden>Trocar minha senha</button>
@@ -191,6 +203,21 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
     </section>
   </div>
 
+  <section class="card" id="c-barr">
+    <div class="top"><h2>Barracas</h2>
+      <div class="filters"><button type="button" class="pri" id="b-vbar">+ Nova venda de barraca</button><button type="button" id="b-csvbar">Exportar barracas (CSV)</button></div></div>
+    <div class="tiles" id="bt-tiles" style="grid-template-columns:repeat(5,1fr)"></div>
+    <p class="sub">Toque numa barraca livre para vender. Toque numa ocupada para ver a reserva.</p>
+    <div class="bgrid" id="bgrid"></div>
+    <div class="leg"><span><i style="background:var(--s-gold)"></i>Livre</span><span><i style="background:var(--wait-bg);border:2px dashed var(--wait)"></i>Aguardando</span><span><i style="background:var(--ok)"></i>Vendida</span><span><i style="background:var(--off-bg);border:2px solid var(--off)"></i>Bloqueada</span></div>
+    <div class="filters">
+      <input type="search" id="bbusca" placeholder="Buscar barraca, nome, código ou WhatsApp" aria-label="Buscar barraca">
+      <select id="bf-status" aria-label="Filtrar barracas"><option value="ativas">Ativas</option><option value="aguardando">Aguardando</option><option value="vendida">Vendidas</option><option value="expirada">Expiradas</option><option value="cancelada">Canceladas</option><option value="todas">Todas</option></select>
+    </div>
+    <div class="scroll"><table class="res"><thead><tr><th>Barraca</th><th>Comprador</th><th>Valor</th><th>Pagamento</th><th>Status</th><th>Ações</th></tr></thead><tbody id="brows"></tbody></table></div>
+    <p class="sub" id="bnores" hidden>Nenhuma reserva neste filtro.</p>
+  </section>
+
   <section class="card adm-only" id="c-users">
     <h2>Usuários do painel</h2>
     <p class="sub"><b>Operador</b>: confirma pagamentos, valida associados, ajusta cadeiras, prorroga e cancela reservas. <b>Administrador</b>: tudo isso e também preços, estoque, bloqueio de mesas, abrir/fechar vendas e cadastro de usuários.</p>
@@ -225,6 +252,26 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
     <div class="adm-only"><button class="pri" type="submit" form="f-cfg">Salvar configurações</button></div>
   </section>
 </div>
+<dialog id="db" aria-labelledby="db-t">
+  <form id="f-bar" class="dvf" novalidate>
+    <div class="dvh"><h2 id="db-t">Nova venda de barraca</h2><button type="button" class="sm" id="db-x" aria-label="Fechar">✕</button></div>
+    <label>Barraca<select name="barraca" id="db-sel" required></select></label>
+    <label>Nome completo do cliente<input type="text" name="nome" maxlength="80" required autocomplete="off"></label>
+    <div class="g2">
+      <label>WhatsApp <span class="sub">(opcional)</span><input type="tel" name="whatsapp" maxlength="20" inputmode="tel" autocomplete="off"></label>
+      <label>Pagamento<select name="pagamento"><option value="pix">Pix</option><option value="cartao">Cartão (até 3x)</option><option value="secretaria">Outra condição</option></select></label>
+    </div>
+    <div class="seg" role="radiogroup" aria-label="Situação do pagamento">
+      <label><input type="radio" name="pago" value="1"> Já pago (fica Vendida)</label>
+      <label><input type="radio" name="pago" value="0"> Aguardando pagamento</label>
+    </div>
+    <label>Observação <span class="sub">(opcional)</span><input type="text" name="obs" maxlength="300" autocomplete="off"></label>
+    <label class="chk"><input type="checkbox" name="consentimento"> O cliente autorizou o uso dos dados para esta reserva</label>
+    <div class="dvtot"><span>Total</span><b id="db-tot">R$ 800,00</b></div>
+    <p class="err" id="db-err" role="alert"></p>
+    <button class="pri" type="submit" id="db-ok">Registrar venda</button>
+  </form>
+</dialog>
 <dialog id="dv" aria-labelledby="dv-t">
   <form id="f-venda" class="dvf" novalidate>
     <div class="dvh"><h2 id="dv-t">Nova venda</h2><button type="button" class="sm" id="dv-x" aria-label="Fechar">✕</button></div>
@@ -269,7 +316,11 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
   var ACOES = { entrou: "Entrou no painel", reserva: "Nova reserva (site)", confirmar: "Confirmou pagamento", voltar_aguardando: "Voltou para aguardando", prorrogar: "Prorrogou +24h",
     cancelar: "Cancelou reserva", validar_associado: "Validação de associado", mudar_tipo: "Mudou o tipo", cadeiras: "Alterou cadeiras", obs: "Observação", apagar: "Apagou reserva",
     bloquear: "Bloqueou mesa", desbloquear: "Desbloqueou mesa", config: "Alterou configurações", usuario_criar: "Cadastrou usuário", usuario_senha: "Gerou senha provisória para",
-    vender: "Reservou mesa no painel", vender_pago: "Vendeu mesa no painel (pago)", usuario_papel: "Mudou perfil de", primeiro_acesso: "Criou a senha no 1º acesso", usuario_desativar: "Desativou", usuario_reativar: "Reativou", usuario_remover: "Removeu", minha_senha: "Trocou a própria senha" };
+    vender: "Reservou mesa no painel", vender_pago: "Vendeu mesa no painel (pago)",
+    reserva_barraca: "Reserva de barraca (site)", barraca_vender: "Reservou barraca no painel", barraca_vender_pago: "Vendeu barraca no painel (pago)", barraca_confirmar: "Confirmou pagamento de barraca",
+    barraca_voltar: "Barraca voltou para aguardando", barraca_prorrogar: "Prorrogou barraca +24h", barraca_cancelar: "Cancelou barraca", barraca_obs: "Observação de barraca", barraca_apagar: "Apagou reserva de barraca",
+    barraca_bloquear: "Bloqueou barraca", barraca_desbloquear: "Desbloqueou barraca",
+    usuario_papel: "Mudou perfil de", primeiro_acesso: "Criou a senha no 1º acesso", usuario_desativar: "Desativou", usuario_reativar: "Reativou", usuario_remover: "Removeu", minha_senha: "Trocou a própria senha" };
 
   function toast(t) { var el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { el.hidden = true; }, 2600); }
   function api(path, body) {
@@ -312,7 +363,7 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
       [s.nome, s.vendidas, s.aguardando, s.livres, s.cadeiras_usadas + " de " + s.cadeiras_total, brl(s.confirmado), brl(s.a_receber)].forEach(function (v) { var td = document.createElement("td"); td.textContent = v; tr.appendChild(td); });
       tb.appendChild(tr);
     });
-    mini(); lista(); hist(); if (adm) { cfg(); users(); }
+    mini(); lista(); barracas(); hist(); if (adm) { cfg(); users(); }
   }
 
   function mini() {
@@ -495,6 +546,92 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
       pago: pg.value === "1", obs: f.obs.value, consentimento: true })
       .then(function (j) { bt.disabled = false; $("dv").close(); hl = j.mesa; toast("Mesa " + j.mesa + (j.status === "vendida" ? " vendida" : " reservada") + " · " + brl(j.valor) + " · " + j.codigo); return carregar(); })
       .catch(function (e) { bt.disabled = false; err.textContent = e.message; if (e.status === 409) carregar().then(function () { novaVenda(); err.textContent = e.message; }); });
+  });
+
+  var bhl = null;
+  function barracas() {
+    var B = D.barracas, r = B.relatorio, t = $("bt-tiles"); t.textContent = "";
+    [[brl(r.confirmado), "arrecadado"], [brl(r.a_receber), "a receber"], [r.vendidas, "vendidas"], [r.aguardando, "aguardando"], [r.livres, "livres"]].forEach(function (x) {
+      var d = document.createElement("div"); d.className = "tile"; d.innerHTML = "<b></b><span></span>"; d.querySelector("b").textContent = x[0]; d.querySelector("span").textContent = x[1]; t.appendChild(d);
+    });
+    var g = $("bgrid"); g.textContent = "";
+    B.barracas.forEach(function (b) {
+      var x = document.createElement("button"); x.type = "button"; x.className = "bt " + b.status + (bhl === b.id ? " hl" : "");
+      x.innerHTML = '<img loading="lazy" alt=""><span></span>'; x.querySelector("img").src = "../../barracas/fotos/" + b.id + ".jpg";
+      x.querySelector("span").textContent = b.nome.replace("Barraca ", "AABB "); x.title = b.nome + " · " + b.status;
+      x.addEventListener("click", function () {
+        bhl = b.id;
+        if (b.status === "disponivel") { barracas(); venderBarraca(b.id); return; }
+        if (b.status === "indisponivel") { if (D.eu.papel === "admin" && confirm("Desbloquear a " + b.nome + "?")) acao({ acao: "barraca_desbloquear", barraca: b.id }, b.nome + " liberada."); else barracas(); return; }
+        $("bbusca").value = b.nome; $("bf-status").value = "ativas"; barracas();
+      });
+      g.appendChild(x);
+    });
+    var q = $("bbusca").value.trim().toLowerCase(), fs = $("bf-status").value;
+    var rows = B.reservas.filter(function (r) {
+      var st = r.status_efetivo;
+      if (fs === "ativas" && !(st === "aguardando" || st === "vendida")) return false;
+      if (fs !== "ativas" && fs !== "todas" && st !== fs) return false;
+      return !q || (r.nome_barraca + " " + r.nome + " " + r.codigo + " " + r.whatsapp).toLowerCase().indexOf(q) >= 0;
+    }).sort(function (a, b) { return a.barraca.localeCompare(b.barraca); });
+    var tb = $("brows"); tb.textContent = ""; $("bnores").hidden = rows.length > 0;
+    rows.forEach(function (r) {
+      var tr = document.createElement("tr"), st = r.status_efetivo; if (bhl === r.barraca) tr.className = "hl";
+      tr.innerHTML = '<td><b></b><div class="sub"></div></td><td><b class="nm"></b><div class="sub wa"></div><div class="sub ob"></div></td><td class="vl"></td><td class="pg"></td><td><span class="pill p-' + st + '"></span><div class="sub pz"></div></td><td><div class="acts"></div></td>';
+      tr.querySelector("td b").textContent = r.nome_barraca;
+      tr.querySelector("td .sub").textContent = r.codigo + (r.origem === "painel" ? " · painel (" + r.vendido_por + ")" : " · pelo site");
+      tr.querySelector(".nm").textContent = r.nome;
+      if (r.whatsapp) { var a = document.createElement("a"); a.href = "https://wa.me/55" + r.whatsapp.replace(/^55/, ""); a.target = "_blank"; a.rel = "noopener"; a.textContent = r.whatsapp; tr.querySelector(".wa").appendChild(a); }
+      tr.querySelector(".ob").textContent = r.obs ? "Obs.: " + r.obs : "";
+      tr.querySelector(".vl").textContent = brl(r.valor);
+      tr.querySelector(".pg").textContent = r.pagamento_nome;
+      tr.querySelector(".pill").textContent = { vendida: "Vendida", aguardando: "Aguardando", expirada: "Expirada", cancelada: "Cancelada" }[st];
+      tr.querySelector(".pz").textContent = st === "aguardando" ? "Prazo: " + r.expira_local.slice(8, 10) + "/" + r.expira_local.slice(5, 7) + " " + r.expira_local.slice(11) : (r.ultimo ? "por " + r.ultimo.quem : "");
+      var ac = tr.querySelector(".acts");
+      function btn(t, cls, fn) { var b = document.createElement("button"); b.type = "button"; b.className = "sm " + (cls || ""); b.textContent = t; b.addEventListener("click", fn); ac.appendChild(b); }
+      if (st === "aguardando" || st === "expirada") btn("Confirmar pagamento", "pri", function () { acao({ acao: "barraca_confirmar", codigo: r.codigo }, r.nome_barraca + " vendida."); });
+      if (st === "aguardando" || st === "expirada") btn("+24h", "", function () { acao({ acao: "barraca_prorrogar", codigo: r.codigo }, "Prazo prorrogado."); });
+      if (st === "vendida") btn("Voltar p/ aguardando", "", function () { if (confirm("Voltar a reserva " + r.codigo + " para aguardando?")) acao({ acao: "barraca_voltar", codigo: r.codigo }, "Reserva voltou para aguardando."); });
+      btn("Obs.", "", function () { var v = prompt("Observação interna:", r.obs || ""); if (v !== null) acao({ acao: "barraca_obs", codigo: r.codigo, valor: v }, "Observação salva."); });
+      if (st !== "cancelada") btn("Cancelar", "danger", function () { if (confirm("Cancelar a reserva " + r.codigo + " (" + r.nome_barraca + ")? A barraca volta a ficar livre.")) acao({ acao: "barraca_cancelar", codigo: r.codigo }, "Reserva cancelada."); });
+      else if (D.eu.papel === "admin") btn("Apagar", "danger", function () { if (confirm("Apagar os dados da reserva " + r.codigo + "?")) acao({ acao: "barraca_apagar", codigo: r.codigo }, "Reserva apagada."); });
+      tb.appendChild(tr);
+    });
+  }
+  function venderBarraca(id) {
+    var f = $("f-bar"); f.reset(); $("db-err").textContent = "";
+    var sel = $("db-sel"); sel.textContent = "";
+    var livres = D.barracas.barracas.filter(function (b) { return b.status === "disponivel"; });
+    if (!livres.length) { toast("Não há barracas livres."); return; }
+    livres.forEach(function (b) { var o = document.createElement("option"); o.value = b.id; o.textContent = b.nome; sel.appendChild(o); });
+    if (id) sel.value = id;
+    $("db-tot").textContent = brl(D.barracas.preco);
+    var bl = document.getElementById("db-block"); if (bl) bl.remove();
+    if (D.eu.papel === "admin") {
+      var b = document.createElement("button"); b.type = "button"; b.className = "sm"; b.id = "db-block"; b.textContent = "Bloquear esta barraca em vez de vender";
+      b.addEventListener("click", function () { var v = sel.value; $("db").close(); acao({ acao: "barraca_bloquear", barraca: v }, "Barraca bloqueada."); });
+      $("db-ok").after(b);
+    }
+    $("db").showModal();
+  }
+  $("db-x").addEventListener("click", function () { $("db").close(); });
+  $("b-vbar").addEventListener("click", function () { venderBarraca(); });
+  $("bbusca").addEventListener("input", function () { bhl = null; barracas(); });
+  $("bf-status").addEventListener("change", barracas);
+  $("f-bar").addEventListener("submit", function (ev) {
+    ev.preventDefault(); var f = ev.target, err = $("db-err"); err.textContent = "";
+    var pg = f.querySelector("input[name=pago]:checked");
+    var falta = f.nome.value.trim().split(/\s+/).length < 2 ? "Informe o nome completo." : !pg ? "Informe se já está pago." : !f.consentimento.checked ? "Confirme a autorização do cliente para o uso dos dados." : "";
+    if (falta) { err.textContent = falta; return; }
+    var bt = $("db-ok"); bt.disabled = true;
+    api("/api/admin/mesas", { acao: "barraca_vender", barraca: f.barraca.value, nome: f.nome.value, whatsapp: f.whatsapp.value, pagamento: f.pagamento.value, pago: pg.value === "1", obs: f.obs.value, consentimento: true })
+      .then(function (j) { bt.disabled = false; $("db").close(); toast(j.barraca + (j.status === "vendida" ? " vendida" : " reservada") + " · " + j.codigo); return carregar(); })
+      .catch(function (e) { bt.disabled = false; err.textContent = e.message; if (e.status === 409) carregar(); });
+  });
+  $("b-csvbar").addEventListener("click", function () {
+    fetch("/api/admin/barracas.csv", { headers: { "x-admin-token": TOKEN }, cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error("Falha ao exportar"); return r.blob(); })
+      .then(function (b) { var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "reservas-barracas-reveillon-aabb.csv"; document.body.appendChild(a); a.click(); a.remove(); })
+      .catch(function (e) { toast(e.message); });
   });
 
   function cfg() {

@@ -39,9 +39,11 @@ Visitas medidas pelo **Cloudflare Web Analytics** (gratuito, sem cookies e sem d
 
 ## Barracas
 
-- Página: https://reveillon.aabbbalsas.workers.dev/barracas/
-- Para marcar uma barraca como reservada, edite a lista `BARRACAS` no fim de `public/barracas/index.html` e troque `"disponivel"` por `"reservada"`.
-- Link direto para uma barraca: `/barracas/#aabb-07` ou `/barracas/#metal-03`.
+- Página: https://reveillon.aabbbalsas.workers.dev/barracas/ (reserva pelo site, fica "aguardando pagamento" pelo prazo configurado).
+- Status e reservas ficam no mesmo Durable Object das mesas (`src/mesas.js`). Controle pelo painel `/mesas/admin/`, seção Barracas: vender no balcão, confirmar pagamento, prorrogar, cancelar, bloquear (admin) e exportar CSV.
+- As barracas vendidas antes do sistema (AABB 01, 02, 03, 04, 06, 07, 08) são registradas automaticamente na primeira execução.
+- A lista `BARRACAS` em `public/barracas/index.html` é só reserva de segurança caso a API não responda.
+- Link direto para uma barraca: `/barracas/#aabb-09` ou `/barracas/#metal-03`.
 
 ## Ingressos
 

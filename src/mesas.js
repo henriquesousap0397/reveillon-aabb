@@ -72,7 +72,16 @@ function senhaConfere(a, b) {
 }
 
 const PAPEIS = { admin: "Administrador", operador: "Operador" };
-const SO_ADMIN = new Set(["apagar", "bloquear", "desbloquear", "config", "usuario_criar", "usuario_senha", "usuario_papel", "usuario_ativo", "usuario_remover"]);
+// ----- Barracas -----
+const BARRACAS = [
+  ...["01", "02", "03", "04", "06", "07", "08", "09", "11", "12", "13", "14", "15", "16"].map((n) => ({ id: "aabb-" + n, tipo: "aabb", nome: "Barraca " + n })),
+  ...["01", "02", "03", "04", "05", "06"].map((n) => ({ id: "metal-" + n, tipo: "metal", nome: "Metal " + n })),
+];
+const BARRACA = Object.fromEntries(BARRACAS.map((b) => [b.id, b]));
+// Barracas já vendidas antes do sistema (registradas uma vez, na primeira execução).
+const BARRACAS_JA_VENDIDAS = ["aabb-01", "aabb-02", "aabb-03", "aabb-04", "aabb-06", "aabb-07", "aabb-08"];
+
+const SO_ADMIN = new Set(["barraca_apagar", "barraca_bloquear", "barraca_desbloquear", "apagar", "bloquear", "desbloquear", "config", "usuario_criar", "usuario_senha", "usuario_papel", "usuario_ativo", "usuario_remover"]);
 const SESSAO_MS = 12 * 3600000;
 
 function hex(buf) { return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join(""); }
@@ -127,6 +136,19 @@ export class Mesas extends DurableObject {
     e.historico = e.historico || [];
     e.usuarios = e.usuarios || [];
     e.sessoes = e.sessoes || {};
+    e.barracas = e.barracas || [];
+    e.barracas_bloq = e.barracas_bloq || [];
+    if (e.config.preco_barraca == null) e.config.preco_barraca = 800;
+    if (e.config.passes_barraca == null) e.config.passes_barraca = 20;
+    if (!e.barracas_semeadas) {
+      const t = Date.now();
+      for (const id of BARRACAS_JA_VENDIDAS) {
+        e.barracas.push({ codigo: "B" + id.replace(/\D/g, "").padStart(2, "0") + "-ANT" + id.slice(0, 1).toUpperCase(), barraca: id, nome: "Venda registrada antes do sistema", whatsapp: "", email: "",
+          pagamento: "secretaria", status: "vendida", valor: 800, criado: t, atualizado: t, expira: t, obs: "", origem: "painel", vendido_por: "Registro inicial" });
+      }
+      e.barracas_semeadas = true;
+      this.precisaSalvar = true;
+    }
     return e;
   }
   async salvar(e) { await this.ctx.storage.put("estado", e); }
@@ -202,6 +224,8 @@ export class Mesas extends DurableObject {
     const e = await this.estado();
 
     if (req.caminho === "/api/mesas" && req.metodo === "GET") return json(this.publico(e, agora));
+    if (req.caminho === "/api/barracas" && req.metodo === "GET") { await this.salvarSeNovo(e); return json(this.barracasPublico(e, agora)); }
+    if (req.caminho === "/api/barracas/reservar" && req.metodo === "POST") return this.reservarBarraca(e, req, agora);
     if (req.caminho === "/api/mesas/reservar" && req.metodo === "POST") return this.reservar(e, req, agora);
 
     if (req.caminho.startsWith("/api/admin/")) {
@@ -219,6 +243,7 @@ export class Mesas extends DurableObject {
       }
       if (req.caminho === "/api/admin/mesas" && req.metodo === "GET") return json(this.admin(e, agora, eu));
       if (req.caminho === "/api/admin/mesas.csv" && req.metodo === "GET") return this.csv(e, agora);
+      if (req.caminho === "/api/admin/barracas.csv" && req.metodo === "GET") return this.csvBarracas(e, agora);
       if (req.caminho === "/api/admin/mesas" && req.metodo === "POST") return this.acao(e, req, agora, eu);
     }
     return erro("Não encontrado.", 404);
@@ -327,7 +352,8 @@ export class Mesas extends DurableObject {
     }
     const historico = e.historico.slice(-200).reverse().map((h) => ({ ...h, quando: horaLocal(h.t) }));
     const usuarios = eu.papel === "admin" ? e.usuarios.map((u) => ({ login: u.login, nome: u.nome, papel: u.papel, papel_nome: PAPEIS[u.papel], ativo: u.ativo, criado: horaLocal(u.criado), pendente: !!u.trocar_senha, provisoria_expira: u.provisoria_expira ? horaLocal(u.provisoria_expira) : "" })) : [];
-    return { ...this.publico(e, agora), config: e.config, reservas, relatorio: rel, bloqueadas: e.bloqueadas, eu: { ...eu, papel_nome: PAPEIS[eu.papel] }, historico, usuarios };
+    const bar = this.barracasAdmin(e, agora);
+    return { ...this.publico(e, agora), barracas: bar, config: e.config, reservas, relatorio: rel, bloqueadas: e.bloqueadas, eu: { ...eu, papel_nome: PAPEIS[eu.papel] }, historico, usuarios };
   }
 
   async acao(e, req, agora, eu) {
@@ -339,6 +365,7 @@ export class Mesas extends DurableObject {
 
     if (d.acao && d.acao.startsWith("usuario_") || d.acao === "minha_senha") return this.usuarios(e, d, agora, eu, reg);
     if (d.acao === "vender") return this.vender(e, d, agora, eu, reg);
+    if (d.acao && d.acao.startsWith("barraca_")) return this.acaoBarraca(e, d, agora, eu, reg);
     const r = d.codigo ? acha() : null;
     if (d.codigo && !r) return erro("Reserva não encontrada.", 404);
 
@@ -383,6 +410,7 @@ export class Mesas extends DurableObject {
           if (c.precos && c.precos[k]) for (const t of Object.keys(TIPOS)) { const v = num(c.precos[k][t], 0, 100000); if (v !== null) e.config.precos[k][t] = v; }
           if (c.estoque_cadeiras && c.estoque_cadeiras[k] != null) { const v = num(c.estoque_cadeiras[k], 0, 500); if (v !== null) e.config.estoque_cadeiras[k] = Math.round(v); }
         }
+        if (c.preco_barraca != null) { const v = num(c.preco_barraca, 0, 100000); if (v !== null) e.config.preco_barraca = v; }
         if (c.preco_cadeira != null) { const v = num(c.preco_cadeira, 0, 10000); if (v !== null) e.config.preco_cadeira = v; }
         if (c.prazo_pagamento_horas != null) { const v = num(c.prazo_pagamento_horas, 1, 720); if (v !== null) e.config.prazo_pagamento_horas = Math.round(v); }
         if (typeof c.vendas_abertas === "boolean") e.config.vendas_abertas = c.vendas_abertas;
@@ -502,6 +530,135 @@ export class Mesas extends DurableObject {
     }
     await this.salvar(e);
     return json({ ok: true });
+  }
+
+  // ===== Barracas =====
+  async salvarSeNovo(e) { if (this.precisaSalvar) { this.precisaSalvar = false; await this.salvar(e); } }
+  barracaDe(e, id, agora) { return e.barracas.find((r) => r.barraca === id && this.ativa(r, agora)); }
+  barracasPublico(e, agora) {
+    return {
+      atualizado: new Date(agora).toISOString(),
+      preco: e.config.preco_barraca, passes: e.config.passes_barraca,
+      prazo_pagamento_horas: e.config.prazo_pagamento_horas, vendas_abertas: e.config.vendas_abertas,
+      barracas: BARRACAS.map((b) => {
+        const r = this.barracaDe(e, b.id, agora);
+        return { ...b, status: e.barracas_bloq.includes(b.id) ? "indisponivel" : r ? (r.status === "vendida" ? "vendida" : "aguardando") : "disponivel" };
+      }),
+    };
+  }
+  barracasAdmin(e, agora) {
+    const pub = this.barracasPublico(e, agora);
+    const reservas = e.barracas.map((r) => Object.assign({}, r, {
+      status_efetivo: this.statusEfetivo(r, agora), nome_barraca: (BARRACA[r.barraca] || {}).nome || r.barraca,
+      pagamento_nome: PAGAMENTOS[r.pagamento], criado_local: horaLocal(r.criado), expira_local: horaLocal(r.expira),
+    })).sort((a, b) => b.criado - a.criado);
+    const rel = { vendidas: 0, aguardando: 0, livres: 0, indisponiveis: 0, confirmado: 0, a_receber: 0 };
+    for (const b of pub.barracas) {
+      if (b.status === "indisponivel") { rel.indisponiveis++; continue; }
+      const r = this.barracaDe(e, b.id, agora);
+      if (!r) rel.livres++;
+      else if (r.status === "vendida") { rel.vendidas++; rel.confirmado += r.valor; }
+      else { rel.aguardando++; rel.a_receber += r.valor; }
+    }
+    return { ...pub, reservas, relatorio: rel };
+  }
+  validaCliente(d, exigeWhats) {
+    const nome = limpa(d.nome, 80);
+    if (nome.length < 5 || !/\s/.test(nome)) return { erro: "Informe o nome completo." };
+    const whatsapp = String(d.whatsapp || "").replace(/\D/g, "");
+    if ((exigeWhats || whatsapp) && (whatsapp.length < 10 || whatsapp.length > 13)) return { erro: "Informe um WhatsApp válido, com DDD." };
+    const email = limpa(d.email, 120);
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { erro: "E-mail inválido." };
+    const pagamento = PAGAMENTOS[d.pagamento] ? d.pagamento : null;
+    if (!pagamento) return { erro: "Escolha a forma de pagamento." };
+    return { nome, whatsapp, email, pagamento };
+  }
+  novaBarraca(e, id, c, agora, extra) {
+    const r = Object.assign({
+      codigo: "B" + id.replace(/\D/g, "").padStart(2, "0") + (id.startsWith("metal") ? "M" : "") + "-" + codigo(0).slice(4),
+      barraca: id, nome: c.nome, whatsapp: c.whatsapp, email: c.email, pagamento: c.pagamento,
+      status: "aguardando", valor: e.config.preco_barraca, criado: agora, atualizado: agora,
+      expira: agora + e.config.prazo_pagamento_horas * 3600000, obs: "", origem: "site",
+    }, extra || {});
+    e.barracas.push(r);
+    return r;
+  }
+  async reservarBarraca(e, req, agora) {
+    let d; try { d = JSON.parse(req.corpo || "{}"); } catch { return erro("Pedido inválido."); }
+    if (d.site) return erro("Pedido inválido.");
+    if (!e.config.vendas_abertas) return erro("As reservas estão encerradas no momento.");
+    if (this.limite(this.tentativasReserva, req.ip, 5, 3600000, agora)) return erro("Muitas reservas seguidas deste aparelho. Fale com a secretaria.", 429);
+    const id = String(d.barraca || "");
+    if (!BARRACA[id]) return erro("Barraca inválida.");
+    const c = this.validaCliente(d, true); if (c.erro) return erro(c.erro);
+    if (d.consentimento !== true) return erro("É preciso concordar com o uso dos dados para a reserva.");
+    if (e.barracas_bloq.includes(id)) return erro("Esta barraca não está disponível.", 409);
+    if (this.barracaDe(e, id, agora)) return erro("Esta barraca acabou de ser reservada por outra pessoa. Escolha outra.", 409);
+    const r = this.novaBarraca(e, id, c, agora);
+    e.historico.push({ t: agora, acao: "reserva_barraca", codigo: r.codigo, alvo: BARRACA[id].nome });
+    await this.salvar(e);
+    this.tentativasReserva.get(req.ip).push(agora);
+    return json({ ok: true, codigo: r.codigo, barraca: BARRACA[id].nome, valor: r.valor, passes: e.config.passes_barraca, pagamento: PAGAMENTOS[r.pagamento], expira: new Date(r.expira).toISOString() });
+  }
+  async acaoBarraca(e, d, agora, eu, reg) {
+    const nomeB = (id) => (BARRACA[id] || {}).nome || id;
+    if (d.acao === "barraca_vender") {
+      const id = String(d.barraca || "");
+      if (!BARRACA[id]) return erro("Escolha uma barraca válida.");
+      const c = this.validaCliente(d, false); if (c.erro) return erro(c.erro);
+      if (d.consentimento !== true) return erro("Confirme que o cliente autorizou o uso dos dados para a reserva.");
+      if (e.barracas_bloq.includes(id)) return erro(`A ${nomeB(id)} está bloqueada.`, 409);
+      const outra = this.barracaDe(e, id, agora);
+      if (outra) return erro(`A ${nomeB(id)} acabou de ser reservada (${outra.codigo}).`, 409);
+      const pago = d.pago === true;
+      const r = this.novaBarraca(e, id, c, agora, { status: pago ? "vendida" : "aguardando", origem: "painel", vendido_por: eu.nome, obs: limpa(d.obs, 300),
+        ultimo: { acao: pago ? "vender_pago" : "vender", quem: eu.nome, quando: horaLocal(agora) } });
+      reg(pago ? "barraca_vender_pago" : "barraca_vender", { codigo: r.codigo, alvo: nomeB(id) });
+      await this.salvar(e);
+      return json({ ok: true, codigo: r.codigo, barraca: nomeB(id), valor: r.valor, status: r.status });
+    }
+    if (d.acao === "barraca_bloquear" || d.acao === "barraca_desbloquear") {
+      const id = String(d.barraca || "");
+      if (!BARRACA[id]) return erro("Barraca inválida.");
+      if (d.acao === "barraca_bloquear") {
+        if (this.barracaDe(e, id, agora)) return erro("A barraca tem reserva ativa. Cancele antes de bloquear.", 409);
+        if (!e.barracas_bloq.includes(id)) e.barracas_bloq.push(id);
+      } else e.barracas_bloq = e.barracas_bloq.filter((x) => x !== id);
+      reg(d.acao, { alvo: nomeB(id) }); await this.salvar(e); return json({ ok: true });
+    }
+    const r = e.barracas.find((x) => x.codigo === d.codigo);
+    if (!r) return erro("Reserva não encontrada.", 404);
+    switch (d.acao) {
+      case "barraca_confirmar": {
+        if (r.status === "cancelada") return erro("Reserva cancelada não pode ser confirmada.");
+        const outra = this.barracaDe(e, r.barraca, agora);
+        if (outra && outra.codigo !== r.codigo) return erro(`A ${nomeB(r.barraca)} já está com a reserva ${outra.codigo}.`, 409);
+        r.status = "vendida"; break;
+      }
+      case "barraca_voltar": r.status = "aguardando"; r.expira = agora + e.config.prazo_pagamento_horas * 3600000; break;
+      case "barraca_prorrogar": r.expira = Math.max(r.expira, agora) + 24 * 3600000; if (r.status !== "vendida") r.status = "aguardando"; break;
+      case "barraca_cancelar": r.status = "cancelada"; break;
+      case "barraca_obs": r.obs = limpa(d.valor, 300); break;
+      case "barraca_apagar": e.barracas = e.barracas.filter((x) => x.codigo !== d.codigo); reg("barraca_apagar", { codigo: d.codigo }); await this.salvar(e); return json({ ok: true });
+      default: return erro("Ação desconhecida.");
+    }
+    r.atualizado = agora;
+    r.ultimo = { acao: d.acao, quem: eu.nome, quando: horaLocal(agora) };
+    reg(d.acao, { codigo: r.codigo, alvo: nomeB(r.barraca) });
+    await this.salvar(e);
+    return json({ ok: true });
+  }
+  csvBarracas(e, agora) {
+    const cab = ["codigo", "barraca", "nome", "whatsapp", "email", "valor", "pagamento", "status", "criado", "prazo_pagamento", "observacao", "origem", "ultima_acao_por"];
+    const esc = (v) => { const s = String(v == null ? "" : v); return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    const linhas = e.barracas.slice().sort((a, b) => a.barraca.localeCompare(b.barraca)).map((r) => [
+      r.codigo, (BARRACA[r.barraca] || {}).nome || r.barraca, r.nome, r.whatsapp, r.email, String(r.valor).replace(".", ","), PAGAMENTOS[r.pagamento],
+      this.statusEfetivo(r, agora), horaLocal(r.criado), horaLocal(r.expira), r.obs, r.origem === "painel" ? "Painel (" + r.vendido_por + ")" : "Site",
+      r.ultimo ? r.ultimo.quem + " (" + r.ultimo.quando + ")" : "",
+    ].map(esc).join(";"));
+    return new Response("\ufeff" + [cab.join(";"), ...linhas].join("\r\n"), {
+      headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": 'attachment; filename="reservas-barracas-reveillon-aabb.csv"', "cache-control": "no-store" },
+    });
   }
 
   csv(e, agora) {
