@@ -7,7 +7,10 @@
 // Rotas do admin:   GET  /api/admin/mesas      -> tudo, com dados dos compradores
 //                   POST /api/admin/mesas      -> ações (confirmar, cancelar, preços, etc.)
 //                   GET  /api/admin/mesas.csv  -> exportação
-// O admin envia a senha no cabeçalho "x-admin-senha". A senha fica no Secret ADMIN_SENHA.
+//                   POST /api/admin/login      -> entra e recebe um token de sessão (12h)
+// O Secret ADMIN_SENHA é a senha do administrador principal (usuário em branco). Pelo painel,
+// administradores cadastram outros usuários (operador ou administrador). As senhas desses usuários
+// são guardadas só como hash PBKDF2, nunca em texto.
 
 import { DurableObject } from "cloudflare:workers";
 
@@ -68,6 +71,19 @@ function senhaConfere(a, b) {
   return d === 0;
 }
 
+const PAPEIS = { admin: "Administrador", operador: "Operador" };
+const SO_ADMIN = new Set(["apagar", "bloquear", "desbloquear", "config", "usuario_criar", "usuario_senha", "usuario_papel", "usuario_ativo", "usuario_remover"]);
+const SESSAO_MS = 12 * 3600000;
+
+function hex(buf) { return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join(""); }
+function aleatorio(n) { return hex(crypto.getRandomValues(new Uint8Array(n))); }
+async function hashSenha(senha, salt) {
+  const chave = await crypto.subtle.importKey("raw", new TextEncoder().encode(senha), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new TextEncoder().encode(salt), iterations: 100000 }, chave, 256);
+  return hex(bits);
+}
+function loginValido(l) { return /^[a-z0-9._-]{3,30}$/.test(l); }
+
 // ----- Encaminhamento a partir do Worker principal -----
 export async function rotaMesas(request, env) {
   if (!env.MESAS) return erro("Sistema de mesas indisponível no momento.", 503);
@@ -90,6 +106,8 @@ export class Mesas extends DurableObject {
     e.reservas = e.reservas || [];
     e.bloqueadas = e.bloqueadas || [];
     e.historico = e.historico || [];
+    e.usuarios = e.usuarios || [];
+    e.sessoes = e.sessoes || {};
     return e;
   }
   async salvar(e) { await this.ctx.storage.put("estado", e); }
@@ -154,7 +172,7 @@ export class Mesas extends DurableObject {
       caminho: url.pathname,
       metodo: request.method,
       ip: request.headers.get("cf-connecting-ip") || "0",
-      senha: request.headers.get("x-admin-senha") || "",
+      token: request.headers.get("x-admin-token") || "",
       senhaCerta: (this.env && this.env.ADMIN_SENHA) || "",
       corpo,
     });
@@ -169,16 +187,44 @@ export class Mesas extends DurableObject {
 
     if (req.caminho.startsWith("/api/admin/")) {
       if (!req.senhaCerta) return erro("Painel ainda não configurado: falta o Secret ADMIN_SENHA no Cloudflare.", 503);
-      if (this.limite(this.falhasLogin, req.ip, 10, 15 * 60000, agora)) return erro("Muitas tentativas. Aguarde 15 minutos.", 429);
-      if (!senhaConfere(req.senha, req.senhaCerta)) {
-        this.falhasLogin.get(req.ip).push(agora);
-        return erro("Senha incorreta.", 401);
-      }
-      if (req.caminho === "/api/admin/mesas" && req.metodo === "GET") return json(this.admin(e, agora));
+      if (req.caminho === "/api/admin/login" && req.metodo === "POST") return this.login(e, req, agora);
+      const eu = this.sessao(e, req.token, agora);
+      if (!eu) return erro("Sessão expirada. Entre de novo.", 401);
+      if (req.caminho === "/api/admin/sair" && req.metodo === "POST") { delete e.sessoes[req.token]; await this.salvar(e); return json({ ok: true }); }
+      if (req.caminho === "/api/admin/mesas" && req.metodo === "GET") return json(this.admin(e, agora, eu));
       if (req.caminho === "/api/admin/mesas.csv" && req.metodo === "GET") return this.csv(e, agora);
-      if (req.caminho === "/api/admin/mesas" && req.metodo === "POST") return this.acao(e, req, agora);
+      if (req.caminho === "/api/admin/mesas" && req.metodo === "POST") return this.acao(e, req, agora, eu);
     }
     return erro("Não encontrado.", 404);
+  }
+
+  async login(e, req, agora) {
+    if (this.limite(this.falhasLogin, req.ip, 10, 15 * 60000, agora)) return erro("Muitas tentativas. Aguarde 15 minutos.", 429);
+    let d; try { d = JSON.parse(req.corpo || "{}"); } catch { return erro("Pedido inválido."); }
+    const login = String(d.login || "").trim().toLowerCase();
+    const senha = String(d.senha || "");
+    let eu = null;
+    if (!login) {
+      if (senhaConfere(senha, req.senhaCerta)) eu = { login: "", nome: "Administrador principal", papel: "admin" };
+    } else {
+      const u = e.usuarios.find((x) => x.login === login && x.ativo);
+      if (u && senhaConfere(await hashSenha(senha, u.salt), u.hash)) eu = { login: u.login, nome: u.nome, papel: u.papel };
+    }
+    if (!eu) { this.falhasLogin.get(req.ip).push(agora); return erro("Usuário ou senha incorretos.", 401); }
+    for (const [t, s] of Object.entries(e.sessoes)) if (s.expira <= agora) delete e.sessoes[t];
+    const token = aleatorio(32);
+    e.sessoes[token] = { login: eu.login, expira: agora + SESSAO_MS };
+    e.historico.push({ t: agora, acao: "entrou", quem: eu.nome });
+    await this.salvar(e);
+    return json({ ok: true, token, eu: { ...eu, papel_nome: PAPEIS[eu.papel] } });
+  }
+
+  sessao(e, token, agora) {
+    const s = token && e.sessoes[token];
+    if (!s || s.expira <= agora) return null;
+    if (s.login === "") return { login: "", nome: "Administrador principal", papel: "admin" };
+    const u = e.usuarios.find((x) => x.login === s.login && x.ativo);
+    return u ? { login: u.login, nome: u.nome, papel: u.papel } : null;
   }
 
   async reservar(e, req, agora) {
@@ -233,7 +279,7 @@ export class Mesas extends DurableObject {
     });
   }
 
-  admin(e, agora) {
+  admin(e, agora, eu) {
     const reservas = e.reservas.map((r) => Object.assign({}, r, {
       status_efetivo: this.statusEfetivo(r, agora),
       setor_nome: SETORES[r.setor].nome, tipo_nome: TIPOS[r.tipo], pagamento_nome: PAGAMENTOS[r.pagamento],
@@ -250,14 +296,19 @@ export class Mesas extends DurableObject {
       if (r.status === "vendida") { rs.vendidas++; rel.vendidas++; rs.confirmado += r.valor; rel.confirmado += r.valor; }
       else { rs.aguardando++; rel.aguardando++; rs.a_receber += r.valor; rel.a_receber += r.valor; }
     }
-    return { ...this.publico(e, agora), config: e.config, reservas, relatorio: rel, bloqueadas: e.bloqueadas };
+    const historico = e.historico.slice(-200).reverse().map((h) => ({ ...h, quando: horaLocal(h.t) }));
+    const usuarios = eu.papel === "admin" ? e.usuarios.map((u) => ({ login: u.login, nome: u.nome, papel: u.papel, papel_nome: PAPEIS[u.papel], ativo: u.ativo, criado: horaLocal(u.criado) })) : [];
+    return { ...this.publico(e, agora), config: e.config, reservas, relatorio: rel, bloqueadas: e.bloqueadas, eu: { ...eu, papel_nome: PAPEIS[eu.papel] }, historico, usuarios };
   }
 
-  async acao(e, req, agora) {
+  async acao(e, req, agora, eu) {
     let d;
     try { d = JSON.parse(req.corpo || "{}"); } catch { return erro("Pedido inválido."); }
+    if (SO_ADMIN.has(d.acao) && eu.papel !== "admin") return erro("Só administradores podem fazer isso.", 403);
     const acha = () => e.reservas.find((r) => r.codigo === d.codigo);
-    const reg = (acao, extra) => e.historico.push(Object.assign({ t: agora, acao }, extra || {}));
+    const reg = (acao, extra) => e.historico.push(Object.assign({ t: agora, acao, quem: eu.nome }, extra || {}));
+
+    if (d.acao && d.acao.startsWith("usuario_") || d.acao === "minha_senha") return this.usuarios(e, d, agora, eu, reg);
     const r = d.codigo ? acha() : null;
     if (d.codigo && !r) return erro("Reserva não encontrada.", 404);
 
@@ -310,18 +361,79 @@ export class Mesas extends DurableObject {
       default: return erro("Ação desconhecida.");
     }
     r.atualizado = agora;
-    reg(d.acao, { codigo: r.codigo });
+    r.ultimo = { acao: d.acao, quem: eu.nome, quando: horaLocal(agora) };
+    reg(d.acao, { codigo: r.codigo, mesa: r.mesa });
+    await this.salvar(e);
+    return json({ ok: true });
+  }
+
+  async usuarios(e, d, agora, eu, reg) {
+    const login = String(d.login || "").trim().toLowerCase();
+    const u = e.usuarios.find((x) => x.login === login);
+    const encerrar = (l) => { for (const [t, s] of Object.entries(e.sessoes)) if (s.login === l) delete e.sessoes[t]; };
+    const senhaOk = (x) => typeof x === "string" && x.length >= 8 && x.length <= 100;
+    switch (d.acao) {
+      case "usuario_criar": {
+        if (!loginValido(login)) return erro("Usuário inválido: use de 3 a 30 letras minúsculas, números, ponto ou traço, sem espaços.");
+        if (u) return erro("Já existe um usuário com esse nome.", 409);
+        const nome = limpa(d.nome, 60);
+        if (nome.length < 2) return erro("Informe o nome da pessoa.");
+        if (!senhaOk(d.senha)) return erro("A senha precisa ter pelo menos 8 caracteres.");
+        const papel = d.papel === "admin" ? "admin" : "operador";
+        const salt = aleatorio(16);
+        e.usuarios.push({ login, nome, papel, salt, hash: await hashSenha(d.senha, salt), ativo: true, criado: agora });
+        reg("usuario_criar", { alvo: nome });
+        break;
+      }
+      case "usuario_senha": {
+        if (!u) return erro("Usuário não encontrado.", 404);
+        if (!senhaOk(d.senha)) return erro("A senha precisa ter pelo menos 8 caracteres.");
+        u.salt = aleatorio(16); u.hash = await hashSenha(d.senha, u.salt); encerrar(u.login);
+        reg("usuario_senha", { alvo: u.nome });
+        break;
+      }
+      case "usuario_papel": {
+        if (!u) return erro("Usuário não encontrado.", 404);
+        u.papel = d.valor === "admin" ? "admin" : "operador";
+        reg("usuario_papel", { alvo: u.nome });
+        break;
+      }
+      case "usuario_ativo": {
+        if (!u) return erro("Usuário não encontrado.", 404);
+        if (u.login === eu.login) return erro("Você não pode desativar o próprio acesso.");
+        u.ativo = !!d.valor; if (!u.ativo) encerrar(u.login);
+        reg(u.ativo ? "usuario_reativar" : "usuario_desativar", { alvo: u.nome });
+        break;
+      }
+      case "usuario_remover": {
+        if (!u) return erro("Usuário não encontrado.", 404);
+        if (u.login === eu.login) return erro("Você não pode remover o próprio acesso.");
+        e.usuarios = e.usuarios.filter((x) => x.login !== login); encerrar(login);
+        reg("usuario_remover", { alvo: u.nome });
+        break;
+      }
+      case "minha_senha": {
+        if (eu.login === "") return erro("A senha do administrador principal é trocada no Cloudflare (Secret ADMIN_SENHA).");
+        const me = e.usuarios.find((x) => x.login === eu.login);
+        if (!me || !senhaConfere(await hashSenha(String(d.atual || ""), me.salt), me.hash)) return erro("Senha atual incorreta.", 403);
+        if (!senhaOk(d.senha)) return erro("A nova senha precisa ter pelo menos 8 caracteres.");
+        me.salt = aleatorio(16); me.hash = await hashSenha(d.senha, me.salt);
+        reg("minha_senha");
+        break;
+      }
+      default: return erro("Ação desconhecida.");
+    }
     await this.salvar(e);
     return json({ ok: true });
   }
 
   csv(e, agora) {
-    const cab = ["codigo", "mesa", "setor", "tipo", "associado_validado", "matricula", "nome", "whatsapp", "email", "cadeiras_adicionais", "lugares", "valor", "pagamento", "status", "criado", "prazo_pagamento", "observacao"];
+    const cab = ["codigo", "mesa", "setor", "tipo", "associado_validado", "matricula", "nome", "whatsapp", "email", "cadeiras_adicionais", "lugares", "valor", "pagamento", "status", "criado", "prazo_pagamento", "observacao", "ultima_acao_por"];
     const esc = (v) => { const s = String(v == null ? "" : v); return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
     const linhas = e.reservas.slice().sort((a, b) => a.mesa - b.mesa).map((r) => [
       r.codigo, r.mesa, SETORES[r.setor].nome, TIPOS[r.tipo], r.associado_validado ? "sim" : "não", r.matricula, r.nome, r.whatsapp, r.email,
       r.extras, e.config.lugares_por_mesa + r.extras, String(r.valor).replace(".", ","), PAGAMENTOS[r.pagamento], this.statusEfetivo(r, agora),
-      horaLocal(r.criado), horaLocal(r.expira), r.obs,
+      horaLocal(r.criado), horaLocal(r.expira), r.obs, r.ultimo ? r.ultimo.quem + " (" + r.ultimo.quando + ")" : "",
     ].map(esc).join(";"));
     return new Response("﻿" + [cab.join(";"), ...linhas].join("\r\n"), {
       headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": 'attachment; filename="reservas-mesas-reveillon-aabb.csv"', "cache-control": "no-store" },

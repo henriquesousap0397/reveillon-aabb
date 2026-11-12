@@ -86,6 +86,10 @@ table.res tr.hl td { background: #FFF6DA; }
 .cfg input { width: 100%; }
 .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 10px; font-weight: 600; z-index: 10; }
 .toast[hidden] { display: none; }
+body.operador .adm-only { display: none !important; }
+#f-user { grid-template-columns: minmax(0, 520px); }
+#f-user label { grid-template-columns: 110px 1fr; }
+#hist td, #hist th { text-align: left; }
 </style>
 </head>
 <body>
@@ -93,6 +97,8 @@ table.res tr.hl td { background: #FFF6DA; }
   <h1>Admin das mesas</h1>
   <p class="muted">Réveillon AABB 50 anos. Acesso restrito à administração.</p>
   <form id="f-login">
+    <label for="usuario">Usuário</label>
+    <input type="text" id="usuario" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="em branco = administrador principal">
     <label for="senha">Senha</label>
     <input type="password" id="senha" autocomplete="current-password" required>
     <button class="pri" type="submit">Entrar</button>
@@ -104,6 +110,8 @@ table.res tr.hl td { background: #FFF6DA; }
   <header class="top">
     <div><h1>Reservas de mesas</h1><p class="muted" id="upd"></p></div>
     <div class="filters">
+      <span class="muted" id="quem"></span>
+      <button type="button" id="b-minha" hidden>Trocar minha senha</button>
       <button type="button" id="b-csv">Exportar planilha (CSV)</button>
       <button type="button" id="b-ref">Atualizar</button>
       <button type="button" id="b-sair">Sair</button>
@@ -127,7 +135,7 @@ table.res tr.hl td { background: #FFF6DA; }
   <div class="two">
     <section class="card">
       <h2>Mapa</h2>
-      <p class="sub">Toque numa mesa para ver a reserva. Mesas livres podem ser bloqueadas (ficam indisponíveis no site).</p>
+      <p class="sub">Toque numa mesa para ver a reserva.<span class="adm-only"> Mesas livres podem ser bloqueadas (ficam indisponíveis no site).</span></p>
       <div class="mini" id="mini"></div>
       <div class="leg"><span><i style="background:var(--s-gold)"></i>Livre</span><span><i style="background:var(--wait-bg);border:2px dashed var(--wait)"></i>Aguardando</span><span><i style="background:var(--ok)"></i>Vendida</span><span><i style="background:var(--off-bg);border:2px solid var(--off)"></i>Bloqueada</span></div>
     </section>
@@ -151,10 +159,32 @@ table.res tr.hl td { background: #FFF6DA; }
     </section>
   </div>
 
+  <section class="card adm-only" id="c-users">
+    <h2>Usuários do painel</h2>
+    <p class="sub"><b>Operador</b>: confirma pagamentos, valida associados, ajusta cadeiras, prorroga e cancela reservas. <b>Administrador</b>: tudo isso e também preços, estoque, bloqueio de mesas, abrir/fechar vendas e cadastro de usuários.</p>
+    <div class="scroll"><table class="sect"><thead><tr><th>Nome</th><th>Usuário</th><th>Perfil</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="users"></tbody></table></div>
+    <form id="f-user" class="cfg" autocomplete="off">
+      <fieldset>
+        <legend>Cadastrar usuário</legend>
+        <label>Nome<input type="text" name="nome" maxlength="60" required placeholder="Ex.: Ana da Secretaria"></label>
+        <label>Usuário<input type="text" name="login" maxlength="30" required placeholder="ana.secretaria" autocapitalize="none"></label>
+        <label>Senha inicial<input type="text" name="senha" minlength="8" maxlength="100" required placeholder="mín. 8 caracteres"></label>
+        <label>Perfil<select name="papel"><option value="operador">Operador</option><option value="admin">Administrador</option></select></label>
+        <div><button class="pri" type="submit">Cadastrar</button></div>
+      </fieldset>
+    </form>
+  </section>
+
   <section class="card">
+    <h2>Histórico de ações</h2>
+    <p class="sub">Últimas 200 ações: quem fez, o quê e quando.</p>
+    <div class="scroll" style="max-height:340px;overflow:auto"><table class="sect"><thead><tr><th>Quando</th><th>Quem</th><th>Ação</th><th>Detalhe</th></tr></thead><tbody id="hist"></tbody></table></div>
+  </section>
+
+  <section class="card adm-only" id="c-cfg">
     <h2>Configurações</h2>
     <form id="f-cfg" class="cfg"></form>
-    <div><button class="pri" type="submit" form="f-cfg">Salvar configurações</button></div>
+    <div class="adm-only"><button class="pri" type="submit" form="f-cfg">Salvar configurações</button></div>
   </section>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -163,15 +193,19 @@ table.res tr.hl td { background: #FFF6DA; }
 (function () {
   var $ = function (id) { return document.getElementById(id); };
   var brl = function (v) { return "R$ " + Number(v).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
-  var SENHA = "", D = null, hl = null;
-  try { SENHA = sessionStorage.getItem("mesas_senha") || ""; } catch (e) {}
+  var TOKEN = "", D = null, hl = null;
+  try { TOKEN = sessionStorage.getItem("mesas_token") || ""; } catch (e) {}
+  var ACOES = { entrou: "Entrou no painel", reserva: "Nova reserva (site)", confirmar: "Confirmou pagamento", voltar_aguardando: "Voltou para aguardando", prorrogar: "Prorrogou +24h",
+    cancelar: "Cancelou reserva", validar_associado: "Validação de associado", mudar_tipo: "Mudou o tipo", cadeiras: "Alterou cadeiras", obs: "Observação", apagar: "Apagou reserva",
+    bloquear: "Bloqueou mesa", desbloquear: "Desbloqueou mesa", config: "Alterou configurações", usuario_criar: "Cadastrou usuário", usuario_senha: "Redefiniu senha de",
+    usuario_papel: "Mudou perfil de", usuario_desativar: "Desativou", usuario_reativar: "Reativou", usuario_remover: "Removeu", minha_senha: "Trocou a própria senha" };
 
   function toast(t) { var el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { el.hidden = true; }, 2600); }
   function api(path, body) {
-    return fetch(path, { method: body ? "POST" : "GET", cache: "no-store", headers: { "x-admin-senha": SENHA, "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined })
+    return fetch(path, { method: body ? "POST" : "GET", cache: "no-store", headers: { "x-admin-token": TOKEN, "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined })
       .then(function (r) { return r.json().then(function (j) { if (!r.ok) { var e = new Error(j.erro || "Erro"); e.status = r.status; throw e; } return j; }); });
   }
-  function sair(msg) { SENHA = ""; try { sessionStorage.removeItem("mesas_senha"); } catch (e) {} $("app").hidden = true; $("login").hidden = false; $("l-err").textContent = msg || ""; }
+  function sair(msg) { TOKEN = ""; try { sessionStorage.removeItem("mesas_token"); } catch (e) {} $("app").hidden = true; $("login").hidden = false; $("l-err").textContent = msg || ""; $("senha").value = ""; }
 
   function carregar() {
     return api("/api/admin/mesas").then(function (j) { D = j; $("login").hidden = true; $("app").hidden = false; render(); })
@@ -179,7 +213,10 @@ table.res tr.hl td { background: #FFF6DA; }
   }
 
   function render() {
-    var r = D.relatorio;
+    var r = D.relatorio, adm = D.eu.papel === "admin";
+    document.body.classList.toggle("operador", !adm);
+    $("quem").textContent = D.eu.nome + " · " + D.eu.papel_nome;
+    $("b-minha").hidden = D.eu.login === "";
     $("upd").textContent = "Atualizado às " + new Date(D.atualizado).toLocaleTimeString("pt-BR", { timeZone: "America/Fortaleza", hour: "2-digit", minute: "2-digit" }) + (D.config.vendas_abertas ? " · vendas abertas" : " · VENDAS FECHADAS");
     $("t-conf").textContent = brl(r.confirmado); $("t-rec").textContent = brl(r.a_receber);
     $("t-vend").textContent = r.vendidas; $("t-agu").textContent = r.aguardando; $("t-liv").textContent = r.livres; $("t-pes").textContent = r.pessoas;
@@ -189,7 +226,7 @@ table.res tr.hl td { background: #FFF6DA; }
       [s.nome, s.vendidas, s.aguardando, s.livres, s.cadeiras_usadas + " de " + s.cadeiras_total, brl(s.confirmado), brl(s.a_receber)].forEach(function (v) { var td = document.createElement("td"); td.textContent = v; tr.appendChild(td); });
       tb.appendChild(tr);
     });
-    mini(); lista(); cfg();
+    mini(); lista(); hist(); if (adm) { cfg(); users(); }
   }
 
   function mini() {
@@ -207,6 +244,7 @@ table.res tr.hl td { background: #FFF6DA; }
 
   function clicar(m) {
     hl = m.n;
+    if (D.eu.papel !== "admin" && (m.status === "disponivel" || m.status === "indisponivel")) { mini(); return; }
     if (m.status === "disponivel") {
       if (confirm("Mesa " + m.n + " está livre. Bloquear (fica indisponível no site)?")) acao({ acao: "bloquear", mesa: m.n }, "Mesa " + m.n + " bloqueada.");
       else { mini(); }
@@ -252,6 +290,7 @@ table.res tr.hl td { background: #FFF6DA; }
       tr.querySelector(".vl").textContent = brl(r.valor);
       tr.querySelector(".pg").textContent = r.pagamento_nome;
       tr.querySelector(".pill").textContent = { vendida: "Vendida", aguardando: "Aguardando", expirada: "Expirada", cancelada: "Cancelada" }[st];
+      if (r.ultimo) { var u = document.createElement("div"); u.className = "sub"; u.textContent = "por " + r.ultimo.quem; tr.querySelector(".pz").after(u); }
       tr.querySelector(".pz").textContent = st === "aguardando" ? "Prazo: " + r.expira_local.slice(8, 10) + "/" + r.expira_local.slice(5, 7) + " " + r.expira_local.slice(11) : "Criada " + r.criado_local.slice(8, 10) + "/" + r.criado_local.slice(5, 7);
       var ac = tr.querySelector(".acts");
       function btn(t, cls, fn) { var b = document.createElement("button"); b.type = "button"; b.className = "sm " + (cls || ""); b.textContent = t; b.addEventListener("click", fn); ac.appendChild(b); }
@@ -265,10 +304,46 @@ table.res tr.hl td { background: #FFF6DA; }
       btn("Cadeiras", "", function () { var v = prompt("Cadeiras adicionais (0 a " + D.max_cadeiras_por_mesa + "):", r.extras); if (v !== null) acao({ acao: "cadeiras", codigo: r.codigo, valor: Number(v) }, "Cadeiras atualizadas."); });
       btn("Obs.", "", function () { var v = prompt("Observação interna:", r.obs || ""); if (v !== null) acao({ acao: "obs", codigo: r.codigo, valor: v }, "Observação salva."); });
       if (st !== "cancelada") btn("Cancelar", "danger", function () { if (confirm("Cancelar a reserva " + r.codigo + " (mesa " + r.mesa + ")? A mesa volta a ficar livre.")) acao({ acao: "cancelar", codigo: r.codigo }, "Reserva cancelada."); });
-      else btn("Apagar", "danger", function () { if (confirm("Apagar definitivamente os dados da reserva " + r.codigo + "?")) acao({ acao: "apagar", codigo: r.codigo }, "Reserva apagada."); });
+      else if (D.eu.papel === "admin") btn("Apagar", "danger", function () { if (confirm("Apagar definitivamente os dados da reserva " + r.codigo + "?")) acao({ acao: "apagar", codigo: r.codigo }, "Reserva apagada."); });
       tb.appendChild(tr);
     });
   }
+
+  function hist() {
+    var tb = $("hist"); tb.textContent = "";
+    D.historico.forEach(function (h) {
+      var tr = document.createElement("tr");
+      var det = h.alvo ? h.alvo : h.mesa ? "Mesa " + h.mesa + (h.codigo ? " · " + h.codigo : "") : h.codigo || "";
+      [h.quando.slice(8, 10) + "/" + h.quando.slice(5, 7) + " " + h.quando.slice(11), h.quem || "Site", ACOES[h.acao] || h.acao, det].forEach(function (v) { var td = document.createElement("td"); td.textContent = v; tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+  }
+
+  function users() {
+    var tb = $("users"); tb.textContent = "";
+    var tr0 = document.createElement("tr"); tr0.innerHTML = "<td>Administrador principal</td><td><i>(em branco)</i></td><td>Administrador</td><td>Senha no Cloudflare</td><td></td>"; tb.appendChild(tr0);
+    D.usuarios.forEach(function (u) {
+      var tr = document.createElement("tr");
+      ["nome", "login", "papel_nome"].forEach(function (k) { var td = document.createElement("td"); td.textContent = u[k]; tr.appendChild(td); });
+      var st = document.createElement("td"); st.innerHTML = '<span class="pill ' + (u.ativo ? "p-vendida" : "p-cancelada") + '"></span>'; st.firstChild.textContent = u.ativo ? "Ativo" : "Desativado"; tr.appendChild(st);
+      var ac = document.createElement("td"); var box = document.createElement("div"); box.className = "acts"; box.style.justifyContent = "flex-end"; ac.appendChild(box); tr.appendChild(ac);
+      function b(t, cls, fn) { var x = document.createElement("button"); x.type = "button"; x.className = "sm " + (cls || ""); x.textContent = t; x.addEventListener("click", fn); box.appendChild(x); }
+      b("Nova senha", "", function () { var v = prompt("Nova senha para " + u.nome + " (mín. 8 caracteres):"); if (v) acao({ acao: "usuario_senha", login: u.login, senha: v }, "Senha redefinida."); });
+      b(u.papel === "admin" ? "Tornar operador" : "Tornar administrador", "", function () { acao({ acao: "usuario_papel", login: u.login, valor: u.papel === "admin" ? "operador" : "admin" }, "Perfil alterado."); });
+      b(u.ativo ? "Desativar" : "Reativar", "", function () { acao({ acao: "usuario_ativo", login: u.login, valor: !u.ativo }, u.ativo ? "Acesso desativado." : "Acesso reativado."); });
+      b("Remover", "danger", function () { if (confirm("Remover o acesso de " + u.nome + "?")) acao({ acao: "usuario_remover", login: u.login }, "Usuário removido."); });
+      tb.appendChild(tr);
+    });
+  }
+
+  $("f-user").addEventListener("submit", function (ev) {
+    ev.preventDefault(); var f = ev.target;
+    acao({ acao: "usuario_criar", nome: f.nome.value, login: f.login.value.trim().toLowerCase(), senha: f.senha.value, papel: f.papel.value }, "Usuário cadastrado.").then(function () { f.reset(); });
+  });
+  $("b-minha").addEventListener("click", function () {
+    var a = prompt("Senha atual:"); if (!a) return; var n = prompt("Nova senha (mín. 8 caracteres):"); if (!n) return;
+    acao({ acao: "minha_senha", atual: a, senha: n }, "Senha trocada.");
+  });
 
   function cfg() {
     var c = D.config, f = $("f-cfg"); f.textContent = "";
@@ -310,22 +385,24 @@ table.res tr.hl td { background: #FFF6DA; }
   function acao(body, ok) { return api("/api/admin/mesas", body).then(function () { toast(ok); return carregar(); }).catch(function (e) { toast(e.message); if (e.status === 401) sair(e.message); }); }
 
   $("f-login").addEventListener("submit", function (ev) {
-    ev.preventDefault(); SENHA = $("senha").value;
-    try { sessionStorage.setItem("mesas_senha", SENHA); } catch (e) {}
-    $("l-err").textContent = ""; carregar();
+    ev.preventDefault(); $("l-err").textContent = "";
+    fetch("/api/admin/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ login: $("usuario").value.trim().toLowerCase(), senha: $("senha").value }) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.erro || "Erro"); return j; }); })
+      .then(function (j) { TOKEN = j.token; try { sessionStorage.setItem("mesas_token", TOKEN); } catch (e) {} $("senha").value = ""; carregar(); })
+      .catch(function (e) { $("l-err").textContent = e.message; });
   });
-  $("b-sair").addEventListener("click", function () { sair(""); });
+  $("b-sair").addEventListener("click", function () { fetch("/api/admin/sair", { method: "POST", headers: { "x-admin-token": TOKEN } }).finally(function () { sair(""); }); });
   $("b-ref").addEventListener("click", carregar);
   $("busca").addEventListener("input", function () { hl = null; lista(); mini(); });
   $("f-status").addEventListener("change", lista);
   $("b-csv").addEventListener("click", function () {
-    fetch("/api/admin/mesas.csv", { headers: { "x-admin-senha": SENHA }, cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error("Falha ao exportar"); return r.blob(); })
+    fetch("/api/admin/mesas.csv", { headers: { "x-admin-token": TOKEN }, cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error("Falha ao exportar"); return r.blob(); })
       .then(function (b) { var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "reservas-mesas-reveillon-aabb.csv"; document.body.appendChild(a); a.click(); a.remove(); })
       .catch(function (e) { toast(e.message); });
   });
 
-  if (SENHA) carregar();
-  setInterval(function () { if (SENHA && !document.hidden && !$("app").hidden) carregar(); }, 60000);
+  if (TOKEN) carregar();
+  setInterval(function () { if (TOKEN && !document.hidden && !$("app").hidden) carregar(); }, 60000);
 })();
 </script>
 </body>

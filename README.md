@@ -54,6 +54,8 @@ Visitas medidas pelo **Cloudflare Web Analytics** (gratuito, sem cookies e sem d
 - 40 mesas (Gold 01–15, Marrom 16–30, Royal 31–40), 6 lugares, até 2 cadeiras extras (estoque por setor: 30/30/10).
 - As reservas ficam num Durable Object do Cloudflare (`src/mesas.js`), que atende um pedido por vez: duas pessoas nunca reservam a mesma mesa.
 - Reserva nova fica "aguardando pagamento" pelo prazo configurado (padrão 24h). Se não for confirmada, a mesa volta a ficar livre sozinha.
-- O admin precisa do Secret **`ADMIN_SENHA`** no projeto `reveillon` (Settings → Variables and Secrets).
+- O Secret **`ADMIN_SENHA`** (Settings → Variables and Secrets) é a senha do **administrador principal**: no painel, deixe o usuário em branco e use essa senha.
+- Pelo painel, administradores cadastram outros usuários (operador ou administrador), redefinem senhas, desativam e removem acessos. Senhas guardadas só como hash (PBKDF2). Sessão de 12h. Toda ação fica no histórico com o nome de quem fez.
+- Operador: confirma pagamentos, valida associados, ajusta cadeiras, prorroga e cancela. Administrador: também preços, estoque, bloqueio de mesas, abrir/fechar vendas, usuários e apagar reservas.
 - Dados pessoais (nome, WhatsApp, e-mail, matrícula) só aparecem no admin. Apagar as reservas depois do evento (botão "Apagar" em reservas canceladas, ou pedir ao desenvolvedor).
 - Para testar localmente: crie `.dev.vars` com `ADMIN_SENHA=...` e rode `npx wrangler dev`.
