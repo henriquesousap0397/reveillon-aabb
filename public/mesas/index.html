@@ -328,10 +328,10 @@ footer small { font-size: .78rem; color: var(--night-muted); }
           <fieldset>
             <legend><b>1</b>Você é associado da AABB?</legend>
             <div class="opts">
-              <label class="opt"><input type="radio" name="tipo" value="associado" id="tipo-a"><span><b>Sou associado</b><small>Preço especial · a secretaria confere a associação</small></span></label>
+              <label class="opt"><input type="radio" name="tipo" value="associado" id="tipo-a"><span><b>Sou associado</b><small>Preço especial · a secretaria confere pelo nome e CPF</small></span></label>
               <label class="opt"><input type="radio" name="tipo" value="nao_associado" id="tipo-n"><span><b>Não sou associado</b><small>Preço para convidados</small></span></label>
             </div>
-            <label class="f" id="mat-wrap" hidden for="matricula">Número da carteirinha ou matrícula <small>A secretaria usa para validar sua associação.</small><input type="text" id="matricula" name="matricula" maxlength="30" autocomplete="off"></label>
+            <label class="f" id="mat-wrap" hidden for="cpf">CPF do associado <small>A secretaria confere seu nome e CPF no cadastro de associados.</small><input type="text" id="cpf" name="cpf" maxlength="14" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00"></label>
           </fieldset>
 
           <fieldset>
@@ -368,7 +368,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
             </div>
           </fieldset>
 
-          <label class="consent" for="consent"><input type="checkbox" id="consent"> <span>Autorizo a AABB Balsas a usar meu nome, WhatsApp, e-mail e matrícula só para gerenciar esta reserva e falar comigo sobre ela. Os dados não são compartilhados e são apagados após o evento.</span></label>
+          <label class="consent" for="consent"><input type="checkbox" id="consent"> <span>Autorizo a AABB Balsas a usar meu nome, WhatsApp, e-mail e, se associado, meu CPF só para gerenciar esta reserva e conferir minha associação . Os dados não são compartilhados e são apagados após o evento.</span></label>
           <p class="msg-err" id="err" role="alert"></p>
         </form>
 
@@ -445,6 +445,19 @@ footer small { font-size: .78rem; color: var(--night-muted); }
   var COR = { gold: "var(--s-gold)", marrom: "#B07A55", royal: "#7E93CC" };
   var D = null, mesa = null, extras = 0;
 
+  function cpfOk(c) {
+    c = String(c || "").replace(/\D/g, "");
+    if (c.length !== 11 || /^(\d)\1{10}$/.test(c)) return false;
+    for (var t = 9; t <= 10; t++) { var s = 0; for (var i = 0; i < t; i++) s += Number(c[i]) * (t + 1 - i); if (((s * 10) % 11) % 10 !== Number(c[t])) return false; }
+    return true;
+  }
+  $("cpf").addEventListener("input", function () {
+    var d = this.value.replace(/\D/g, "").slice(0, 11), f = d;
+    if (d.length > 9) f = d.slice(0, 3) + "." + d.slice(3, 6) + "." + d.slice(6, 9) + "-" + d.slice(9);
+    else if (d.length > 6) f = d.slice(0, 3) + "." + d.slice(3, 6) + "." + d.slice(6);
+    else if (d.length > 3) f = d.slice(0, 3) + "." + d.slice(3);
+    this.value = f;
+  });
   function tipo() { var r = document.querySelector("input[name=tipo]:checked"); return r ? r.value : null; }
   function pag() { var r = document.querySelector("input[name=pagamento]:checked"); return r ? r.value : null; }
 
@@ -560,7 +573,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
     var err = $("err"); err.textContent = "";
     var t = tipo();
     var falta = !t ? "Diga se você é associado ou não." : !mesa ? "Escolha uma mesa no mapa." :
-      (t === "associado" && $("matricula").value.trim().length < 2) ? "Informe o número da sua carteirinha ou matrícula." :
+      (t === "associado" && !cpfOk($("cpf").value)) ? "Informe um CPF válido (o do associado)." :
       ($("nome").value.trim().split(/\s+/).length < 2) ? "Informe seu nome completo." :
       ($("whatsapp").value.replace(/\D/g, "").length < 10) ? "Informe um WhatsApp com DDD." :
       !pag() ? "Escolha a forma de pagamento." : !$("consent").checked ? "Marque a autorização de uso dos dados para continuar." : "";
@@ -569,7 +582,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
     fetch("/api/mesas/reservar", {
       method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({ mesa: mesa, tipo: t, extras: extras, nome: $("nome").value, whatsapp: $("whatsapp").value, email: $("email").value,
-        matricula: $("matricula").value, pagamento: pag(), consentimento: true, site: $("site").value })
+        cpf: t === "associado" ? $("cpf").value : "", pagamento: pag(), consentimento: true, site: $("site").value })
     }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }).then(function (x) {
       bt.disabled = false; bt.textContent = "Finalizar reserva";
       if (!x.ok) { err.textContent = x.j.erro || "Não foi possível reservar. Tente de novo."; carregar(); return; }
@@ -587,7 +600,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
       var dt = document.createElement("dt"); dt.textContent = p[0]; var dd = document.createElement("dd"); dd.textContent = p[1]; dl.appendChild(dt); dl.appendChild(dd);
     });
     var fim = new Date(r.expira).toLocaleString("pt-BR", { timeZone: "America/Fortaleza", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-    $("d-warn").textContent = "Sua mesa fica separada até " + fim + ". Faça o pagamento e envie o comprovante para a secretaria. A reserva é confirmada depois que a administração valida o pagamento" + (r.tipo === "Associado" ? " e a sua associação." : ".");
+    $("d-warn").textContent = "Sua mesa fica separada até " + fim + ". Faça o pagamento e envie o comprovante para a secretaria. A reserva é confirmada depois que a administração valida o pagamento" + (r.tipo === "Associado" ? " e a sua associação (nome e CPF)." : ".");
     $("d-pix").hidden = r.pagamento !== "Pix";
     var msg = "Olá! Fiz a reserva " + r.codigo + " no site do Réveillon AABB 50 anos.\nMesa " + String(r.mesa).padStart(2, "0") + " · Setor " + r.setor + "\nTipo: " + r.tipo +
       "\nCadeiras adicionais: " + r.extras + "\nTotal: " + brl(r.valor) + "\nPagamento: " + r.pagamento + "\n" + (r.pagamento === "Pix" ? "Segue o comprovante." : "Quero combinar o pagamento.");

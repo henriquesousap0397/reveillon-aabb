@@ -159,7 +159,7 @@ body.operador .adm-only { display: none !important; }
     <section class="card">
       <h2>Reservas</h2>
       <div class="filters">
-        <input type="search" id="busca" placeholder="Buscar por nome, código, WhatsApp ou mesa" aria-label="Buscar">
+        <input type="search" id="busca" placeholder="Buscar por nome, CPF, código, WhatsApp ou mesa" aria-label="Buscar">
         <select id="f-status" aria-label="Filtrar por status">
           <option value="ativas">Ativas</option><option value="aguardando">Aguardando</option><option value="vendida">Vendidas</option>
           <option value="expirada">Expiradas</option><option value="cancelada">Canceladas</option><option value="todas">Todas</option>
@@ -302,7 +302,7 @@ body.operador .adm-only { display: none !important; }
       if (fs === "ativas" && !(st === "aguardando" || st === "vendida")) return false;
       if (fs !== "ativas" && fs !== "todas" && st !== fs) return false;
       if (!q) return true;
-      return String(r.mesa) === q || (r.nome + " " + r.codigo + " " + r.whatsapp + " " + r.email + " " + r.matricula).toLowerCase().indexOf(q) >= 0;
+      return String(r.mesa) === q || ((r.nome + " " + r.codigo + " " + r.whatsapp + " " + r.email + " " + r.cpf + " " + r.cpf_fmt).toLowerCase().indexOf(q) >= 0);
     }).sort(function (a, b) { return a.mesa - b.mesa || b.criado - a.criado; });
     var tb = $("rows"); tb.textContent = "";
     $("nores").hidden = rows.length > 0;
@@ -322,7 +322,7 @@ body.operador .adm-only { display: none !important; }
       tr.querySelector(".ob").textContent = r.obs ? "Obs.: " + r.obs : "";
       tr.querySelector(".tp").innerHTML = "";
       var tp = tr.querySelector(".tp"); tp.appendChild(document.createTextNode(r.tipo_nome));
-      if (r.tipo === "associado") { var d = document.createElement("div"); d.className = "sub"; d.textContent = "Matr. " + (r.matricula || "—") + (r.associado_validado ? " · ✓ validado" : " · não validado"); tp.appendChild(d); }
+      if (r.tipo === "associado") { var d = document.createElement("div"); d.className = "sub"; d.textContent = "CPF " + (r.cpf_fmt || "—") + (r.associado_validado ? " · ✓ validado" : " · não validado"); tp.appendChild(d); }
       tr.querySelector(".ex").textContent = r.extras;
       tr.querySelector(".vl").textContent = brl(r.valor);
       tr.querySelector(".pg").textContent = r.pagamento_nome;

@@ -89,6 +89,18 @@ function senhaProvisoria() {
   let c = ""; for (let i = 0; i < 8; i++) c += abc[r[i] % abc.length] + (i === 3 ? "-" : "");
   return c;
 }
+function cpfValido(c) {
+  c = String(c || "").replace(/\D/g, "");
+  if (c.length !== 11 || /^(\d)\1{10}$/.test(c)) return false;
+  for (const t of [9, 10]) {
+    let soma = 0;
+    for (let i = 0; i < t; i++) soma += Number(c[i]) * (t + 1 - i);
+    const dv = ((soma * 10) % 11) % 10;
+    if (dv !== Number(c[t])) return false;
+  }
+  return true;
+}
+function cpfFmt(c) { c = String(c || ""); return c.length === 11 ? c.slice(0, 3) + "." + c.slice(3, 6) + "." + c.slice(6, 9) + "-" + c.slice(9) : c; }
 function loginValido(l) { return /^[a-z0-9._-]{3,30}$/.test(l); }
 
 // ----- Encaminhamento a partir do Worker principal -----
@@ -264,8 +276,8 @@ export class Mesas extends DurableObject {
     if (whatsapp.length < 10 || whatsapp.length > 13) return erro("Informe um WhatsApp válido, com DDD.");
     const email = limpa(d.email, 120);
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return erro("E-mail inválido.");
-    const matricula = limpa(d.matricula, 30);
-    if (tipo === "associado" && matricula.length < 2) return erro("Informe o número da sua carteirinha ou matrícula de associado.");
+    const cpf = String(d.cpf || "").replace(/\D/g, "");
+    if (tipo === "associado" && !cpfValido(cpf)) return erro("Informe um CPF válido. A secretaria usa o nome e o CPF para confirmar a associação.");
     const pagamento = PAGAMENTOS[d.pagamento] ? d.pagamento : null;
     if (!pagamento) return erro("Escolha a forma de pagamento.");
     if (d.consentimento !== true) return erro("É preciso concordar com o uso dos dados para a reserva.");
@@ -278,7 +290,7 @@ export class Mesas extends DurableObject {
     const r = {
       codigo: codigo(mesa), mesa, setor, tipo, extras,
       valor: this.valor(e, setor, tipo, extras),
-      nome, whatsapp, email, matricula: tipo === "associado" ? matricula : "",
+      nome, whatsapp, email, cpf: tipo === "associado" ? cpf : "",
       associado_validado: false,
       pagamento, status: "aguardando",
       criado: agora, atualizado: agora,
@@ -300,7 +312,7 @@ export class Mesas extends DurableObject {
     const reservas = e.reservas.map((r) => Object.assign({}, r, {
       status_efetivo: this.statusEfetivo(r, agora),
       setor_nome: SETORES[r.setor].nome, tipo_nome: TIPOS[r.tipo], pagamento_nome: PAGAMENTOS[r.pagamento],
-      criado_local: horaLocal(r.criado), expira_local: horaLocal(r.expira),
+      criado_local: horaLocal(r.criado), expira_local: horaLocal(r.expira), cpf_fmt: cpfFmt(r.cpf),
     })).sort((a, b) => b.criado - a.criado);
     const rel = { setores: {}, confirmado: 0, a_receber: 0, vendidas: 0, aguardando: 0, livres: 0, indisponiveis: e.bloqueadas.length, pessoas: 0 };
     for (const k of Object.keys(SETORES)) rel.setores[k] = { nome: SETORES[k].nome, vendidas: 0, aguardando: 0, livres: 0, confirmado: 0, a_receber: 0, cadeiras_usadas: 0, cadeiras_total: e.config.estoque_cadeiras[k] };
@@ -449,10 +461,10 @@ export class Mesas extends DurableObject {
   }
 
   csv(e, agora) {
-    const cab = ["codigo", "mesa", "setor", "tipo", "associado_validado", "matricula", "nome", "whatsapp", "email", "cadeiras_adicionais", "lugares", "valor", "pagamento", "status", "criado", "prazo_pagamento", "observacao", "ultima_acao_por"];
+    const cab = ["codigo", "mesa", "setor", "tipo", "associado_validado", "cpf", "nome", "whatsapp", "email", "cadeiras_adicionais", "lugares", "valor", "pagamento", "status", "criado", "prazo_pagamento", "observacao", "ultima_acao_por"];
     const esc = (v) => { const s = String(v == null ? "" : v); return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
     const linhas = e.reservas.slice().sort((a, b) => a.mesa - b.mesa).map((r) => [
-      r.codigo, r.mesa, SETORES[r.setor].nome, TIPOS[r.tipo], r.associado_validado ? "sim" : "não", r.matricula, r.nome, r.whatsapp, r.email,
+      r.codigo, r.mesa, SETORES[r.setor].nome, TIPOS[r.tipo], r.associado_validado ? "sim" : "não", cpfFmt(r.cpf), r.nome, r.whatsapp, r.email,
       r.extras, e.config.lugares_por_mesa + r.extras, String(r.valor).replace(".", ","), PAGAMENTOS[r.pagamento], this.statusEfetivo(r, agora),
       horaLocal(r.criado), horaLocal(r.expira), r.obs, r.ultimo ? r.ultimo.quem + " (" + r.ultimo.quando + ")" : "",
     ].map(esc).join(";"));
