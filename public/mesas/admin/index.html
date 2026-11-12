@@ -97,6 +97,9 @@ body.operador .adm-only { display: none !important; }
 .bt.vendida img, .bt.indisponivel img { filter: grayscale(.8) opacity(.55); }
 .bt.indisponivel { border-color: var(--off); background: var(--off-bg); }
 .bt.hl { box-shadow: 0 0 0 3px var(--ink); }
+dialog#dp { border: 0; border-radius: 14px; padding: 0; width: min(460px, calc(100% - 20px)); }
+dialog#dp::backdrop { background: rgba(15,19,34,.6); }
+.selo { display: inline-block; margin-top: 3px; font-size: .7rem; font-weight: 700; color: #5A3E8A; background: #ECE5F7; border-radius: 999px; padding: 1px 8px; }
 dialog#db { border: 0; border-radius: 14px; padding: 0; width: min(520px, calc(100% - 20px)); max-height: calc(100% - 20px); }
 dialog#db::backdrop { background: rgba(15,19,34,.6); }
 dialog#dv { border: 0; border-radius: 14px; padding: 0; width: min(560px, calc(100% - 20px)); max-height: calc(100% - 20px); }
@@ -252,6 +255,17 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
     <div class="adm-only"><button class="pri" type="submit" form="f-cfg">Salvar configurações</button></div>
   </section>
 </div>
+<dialog id="dp" aria-labelledby="dp-t">
+  <form id="f-prazo" class="dvf" novalidate>
+    <div class="dvh"><h2 id="dp-t">Definir prazo especial</h2><button type="button" class="sm" id="dp-x" aria-label="Fechar">✕</button></div>
+    <p class="sub" id="dp-info"></p>
+    <div class="acts"><button type="button" class="sm" data-dias="1">+1 dia</button><button type="button" class="sm" data-dias="3">+3 dias</button><button type="button" class="sm" data-dias="7">+7 dias</button><button type="button" class="sm" data-dias="15">+15 dias</button></div>
+    <label>Pagar até (horário de Balsas)<input type="datetime-local" id="dp-ate" required></label>
+    <label>Motivo <span class="sub">(opcional, fica registrado)</span><input type="text" id="dp-mot" maxlength="200" placeholder="Ex.: associado vai pagar após o salário" autocomplete="off"></label>
+    <p class="err" id="dp-err" role="alert"></p>
+    <button class="pri" type="submit">Salvar prazo</button>
+  </form>
+</dialog>
 <dialog id="db" aria-labelledby="db-t">
   <form id="f-bar" class="dvf" novalidate>
     <div class="dvh"><h2 id="db-t">Nova venda de barraca</h2><button type="button" class="sm" id="db-x" aria-label="Fechar">✕</button></div>
@@ -319,7 +333,7 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
     vender: "Reservou mesa no painel", vender_pago: "Vendeu mesa no painel (pago)",
     reserva_barraca: "Reserva de barraca (site)", barraca_vender: "Reservou barraca no painel", barraca_vender_pago: "Vendeu barraca no painel (pago)", barraca_confirmar: "Confirmou pagamento de barraca",
     barraca_voltar: "Barraca voltou para aguardando", barraca_prorrogar: "Prorrogou barraca +24h", barraca_cancelar: "Cancelou barraca", barraca_obs: "Observação de barraca", barraca_apagar: "Apagou reserva de barraca",
-    barraca_bloquear: "Bloqueou barraca", barraca_desbloquear: "Desbloqueou barraca",
+    barraca_bloquear: "Bloqueou barraca", prazo: "Deu prazo especial (mesa)", barraca_prazo: "Deu prazo especial (barraca)", barraca_desbloquear: "Desbloqueou barraca",
     usuario_papel: "Mudou perfil de", primeiro_acesso: "Criou a senha no 1º acesso", usuario_desativar: "Desativou", usuario_reativar: "Reativou", usuario_remover: "Removeu", minha_senha: "Trocou a própria senha" };
 
   function toast(t) { var el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { el.hidden = true; }, 2600); }
@@ -429,6 +443,8 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
       function btn(t, cls, fn) { var b = document.createElement("button"); b.type = "button"; b.className = "sm " + (cls || ""); b.textContent = t; b.addEventListener("click", fn); ac.appendChild(b); }
       if (st === "aguardando" || st === "expirada") btn("Confirmar pagamento", "pri", function () { acao({ acao: "confirmar", codigo: r.codigo }, "Mesa " + r.mesa + " vendida."); });
       if (st === "aguardando" || st === "expirada") btn("+24h", "", function () { acao({ acao: "prorrogar", codigo: r.codigo }, "Prazo prorrogado."); });
+      if ((st === "aguardando" || st === "expirada") && D.eu.papel === "admin") btn("Definir prazo", "", function () { abrirPrazo(r, "prazo", "Mesa " + r.mesa); });
+      if (st === "aguardando" && r.prazo_especial) { var se = document.createElement("span"); se.className = "selo"; se.textContent = "Prazo especial"; se.title = "Concedido por " + r.prazo_especial.quem + (r.prazo_especial.motivo ? ": " + r.prazo_especial.motivo : ""); tr.querySelector(".pz").after(se); }
       if (st === "vendida") btn("Voltar p/ aguardando", "", function () { if (confirm("Voltar a reserva " + r.codigo + " para aguardando pagamento?")) acao({ acao: "voltar_aguardando", codigo: r.codigo }, "Reserva voltou para aguardando."); });
       if (r.tipo === "associado") btn(r.associado_validado ? "Desfazer validação" : "Validar associado", "", function () { acao({ acao: "validar_associado", codigo: r.codigo, valor: !r.associado_validado }, "Associação atualizada."); });
       btn(r.tipo === "associado" ? "Mudar p/ não associado" : "Mudar p/ associado", "", function () {
@@ -447,6 +463,7 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
     D.historico.forEach(function (h) {
       var tr = document.createElement("tr");
       var det = h.alvo ? h.alvo : h.mesa ? "Mesa " + h.mesa + (h.codigo ? " · " + h.codigo : "") : h.codigo || "";
+      if (h.detalhe) det += " · " + h.detalhe;
       [h.quando.slice(8, 10) + "/" + h.quando.slice(5, 7) + " " + h.quando.slice(11), h.quem || "Site", ACOES[h.acao] || h.acao, det].forEach(function (v) { var td = document.createElement("td"); td.textContent = v; tr.appendChild(td); });
       tb.appendChild(tr);
     });
@@ -548,6 +565,30 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
       .catch(function (e) { bt.disabled = false; err.textContent = e.message; if (e.status === 409) carregar().then(function () { novaVenda(); err.textContent = e.message; }); });
   });
 
+  var PRZ = null;
+  function localISO(ms) { return new Date(ms - 3 * 3600000).toISOString().slice(0, 16); }
+  function abrirPrazo(r, acaoNome, rotulo) {
+    PRZ = { codigo: r.codigo, acao: acaoNome };
+    $("dp-err").textContent = ""; $("dp-mot").value = "";
+    $("dp-info").textContent = rotulo + " · " + r.nome + " · prazo atual: " + r.expira_local.slice(8, 10) + "/" + r.expira_local.slice(5, 7) + " " + r.expira_local.slice(11);
+    var base = Math.max(Date.now(), r.expira);
+    $("dp-ate").value = localISO(base + 3 * 86400000);
+    $("dp-ate").max = "2026-12-31T23:59";
+    $("dp").showModal();
+  }
+  document.querySelectorAll("#f-prazo [data-dias]").forEach(function (b) {
+    b.addEventListener("click", function () { $("dp-ate").value = localISO(Date.now() + Number(b.getAttribute("data-dias")) * 86400000); });
+  });
+  $("dp-x").addEventListener("click", function () { $("dp").close(); });
+  $("f-prazo").addEventListener("submit", function (ev) {
+    ev.preventDefault(); var v = $("dp-ate").value;
+    if (!v) { $("dp-err").textContent = "Escolha a data e a hora."; return; }
+    var ate = Date.parse(v + ":00-03:00");
+    api("/api/admin/mesas", { acao: PRZ.acao, codigo: PRZ.codigo, ate: ate, motivo: $("dp-mot").value })
+      .then(function () { $("dp").close(); toast("Prazo especial salvo."); return carregar(); })
+      .catch(function (e) { $("dp-err").textContent = e.message; });
+  });
+
   var bhl = null;
   function barracas() {
     var B = D.barracas, r = B.relatorio, t = $("bt-tiles"); t.textContent = "";
@@ -591,6 +632,8 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
       function btn(t, cls, fn) { var b = document.createElement("button"); b.type = "button"; b.className = "sm " + (cls || ""); b.textContent = t; b.addEventListener("click", fn); ac.appendChild(b); }
       if (st === "aguardando" || st === "expirada") btn("Confirmar pagamento", "pri", function () { acao({ acao: "barraca_confirmar", codigo: r.codigo }, r.nome_barraca + " vendida."); });
       if (st === "aguardando" || st === "expirada") btn("+24h", "", function () { acao({ acao: "barraca_prorrogar", codigo: r.codigo }, "Prazo prorrogado."); });
+      if ((st === "aguardando" || st === "expirada") && D.eu.papel === "admin") btn("Definir prazo", "", function () { abrirPrazo(r, "barraca_prazo", r.nome_barraca); });
+      if (st === "aguardando" && r.prazo_especial) { var se = document.createElement("span"); se.className = "selo"; se.textContent = "Prazo especial"; se.title = "Concedido por " + r.prazo_especial.quem + (r.prazo_especial.motivo ? ": " + r.prazo_especial.motivo : ""); tr.querySelector(".pz").after(se); }
       if (st === "vendida") btn("Voltar p/ aguardando", "", function () { if (confirm("Voltar a reserva " + r.codigo + " para aguardando?")) acao({ acao: "barraca_voltar", codigo: r.codigo }, "Reserva voltou para aguardando."); });
       btn("Obs.", "", function () { var v = prompt("Observação interna:", r.obs || ""); if (v !== null) acao({ acao: "barraca_obs", codigo: r.codigo, valor: v }, "Observação salva."); });
       if (st !== "cancelada") btn("Cancelar", "danger", function () { if (confirm("Cancelar a reserva " + r.codigo + " (" + r.nome_barraca + ")? A barraca volta a ficar livre.")) acao({ acao: "barraca_cancelar", codigo: r.codigo }, "Reserva cancelada."); });

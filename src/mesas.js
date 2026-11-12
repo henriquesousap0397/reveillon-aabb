@@ -81,7 +81,7 @@ const BARRACA = Object.fromEntries(BARRACAS.map((b) => [b.id, b]));
 // Barracas já vendidas antes do sistema (registradas uma vez, na primeira execução).
 const BARRACAS_JA_VENDIDAS = ["aabb-01", "aabb-02", "aabb-03", "aabb-04", "aabb-06", "aabb-07", "aabb-08"];
 
-const SO_ADMIN = new Set(["barraca_apagar", "barraca_bloquear", "barraca_desbloquear", "apagar", "bloquear", "desbloquear", "config", "usuario_criar", "usuario_senha", "usuario_papel", "usuario_ativo", "usuario_remover"]);
+const SO_ADMIN = new Set(["prazo", "barraca_prazo", "barraca_apagar", "barraca_bloquear", "barraca_desbloquear", "apagar", "bloquear", "desbloquear", "config", "usuario_criar", "usuario_senha", "usuario_papel", "usuario_ativo", "usuario_remover"]);
 const SESSAO_MS = 12 * 3600000;
 
 function hex(buf) { return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join(""); }
@@ -110,6 +110,23 @@ function cpfValido(c) {
   return true;
 }
 function cpfFmt(c) { c = String(c || ""); return c.length === 11 ? c.slice(0, 3) + "." + c.slice(3, 6) + "." + c.slice(6, 9) + "-" + c.slice(9) : c; }
+const FIM_PRAZO = Date.parse("2026-12-31T23:59:00-03:00"); // nenhum prazo passa da noite da festa
+// Prazo especial concedido por administrador. Devolve mensagem de erro ou null.
+function aplicarPrazo(r, d, agora, eu, ocupadaPorOutra) {
+  if (r.status === "vendida") return "Esta reserva já está paga.";
+  if (r.status === "cancelada") return "Reserva cancelada não recebe prazo.";
+  const ate = Number(d.ate);
+  if (!Number.isFinite(ate) || ate <= agora + 60000) return "Escolha uma data e hora no futuro.";
+  if (ate > FIM_PRAZO) return "O prazo não pode passar de 31/12 às 23h59.";
+  if (ocupadaPorOutra) return "Este lugar já foi reservado por outra pessoa depois que o prazo venceu.";
+  const motivo = limpa(d.motivo, 200);
+  r.status = "aguardando";
+  r.expira = ate;
+  r.prazo_especial = { ate, motivo, quem: eu.nome, quando: horaLocal(agora) };
+  const nota = "Prazo especial até " + horaLocal(ate).slice(8, 10) + "/" + horaLocal(ate).slice(5, 7) + " " + horaLocal(ate).slice(11) + " (" + eu.nome + ")" + (motivo ? ": " + motivo : "");
+  r.obs = limpa((r.obs ? r.obs + " | " : "") + nota, 300);
+  return null;
+}
 function loginValido(l) { return /^[a-z0-9._-]{3,30}$/.test(l); }
 
 // ----- Encaminhamento a partir do Worker principal -----
@@ -380,6 +397,12 @@ export class Mesas extends DurableObject {
       }
       case "voltar_aguardando": r.status = "aguardando"; r.expira = agora + e.config.prazo_pagamento_horas * 3600000; break;
       case "prorrogar": r.expira = Math.max(r.expira, agora) + 24 * 3600000; if (r.status !== "vendida") r.status = "aguardando"; break;
+      case "prazo": {
+        const outra = this.reservaDaMesa(e, r.mesa, agora);
+        const msg = aplicarPrazo(r, d, agora, eu, outra && outra.codigo !== r.codigo);
+        if (msg) return erro(msg, 409);
+        break;
+      }
       case "cancelar": r.status = "cancelada"; break;
       case "validar_associado": r.associado_validado = !!d.valor; break;
       case "mudar_tipo": {
@@ -420,7 +443,7 @@ export class Mesas extends DurableObject {
     }
     r.atualizado = agora;
     r.ultimo = { acao: d.acao, quem: eu.nome, quando: horaLocal(agora) };
-    reg(d.acao, { codigo: r.codigo, mesa: r.mesa });
+    reg(d.acao, { codigo: r.codigo, mesa: r.mesa, detalhe: d.acao === "prazo" ? r.obs.split(" | ").pop() : undefined });
     await this.salvar(e);
     return json({ ok: true });
   }
@@ -637,6 +660,12 @@ export class Mesas extends DurableObject {
       }
       case "barraca_voltar": r.status = "aguardando"; r.expira = agora + e.config.prazo_pagamento_horas * 3600000; break;
       case "barraca_prorrogar": r.expira = Math.max(r.expira, agora) + 24 * 3600000; if (r.status !== "vendida") r.status = "aguardando"; break;
+      case "barraca_prazo": {
+        const outra = this.barracaDe(e, r.barraca, agora);
+        const msg = aplicarPrazo(r, d, agora, eu, outra && outra.codigo !== r.codigo);
+        if (msg) return erro(msg, 409);
+        break;
+      }
       case "barraca_cancelar": r.status = "cancelada"; break;
       case "barraca_obs": r.obs = limpa(d.valor, 300); break;
       case "barraca_apagar": e.barracas = e.barracas.filter((x) => x.codigo !== d.codigo); reg("barraca_apagar", { codigo: d.codigo }); await this.salvar(e); return json({ ok: true });
@@ -644,7 +673,7 @@ export class Mesas extends DurableObject {
     }
     r.atualizado = agora;
     r.ultimo = { acao: d.acao, quem: eu.nome, quando: horaLocal(agora) };
-    reg(d.acao, { codigo: r.codigo, alvo: nomeB(r.barraca) });
+    reg(d.acao, { codigo: r.codigo, alvo: nomeB(r.barraca), detalhe: d.acao === "barraca_prazo" ? r.obs.split(" | ").pop() : undefined });
     await this.salvar(e);
     return json({ ok: true });
   }

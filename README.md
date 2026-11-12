@@ -55,7 +55,7 @@ Visitas medidas pelo **Cloudflare Web Analytics** (gratuito, sem cookies e sem d
 - Página: https://reveillon.aabbbalsas.workers.dev/mesas/ · Admin: https://reveillon.aabbbalsas.workers.dev/mesas/admin/
 - 40 mesas (Gold 01–15, Marrom 16–30, Royal 31–40), 6 lugares, até 2 cadeiras extras (estoque por setor: 30/30/10).
 - As reservas ficam num Durable Object do Cloudflare (`src/mesas.js`), que atende um pedido por vez: duas pessoas nunca reservam a mesma mesa.
-- Reserva nova fica "aguardando pagamento" pelo prazo configurado (padrão 24h). Se não for confirmada, a mesa volta a ficar livre sozinha.
+- Reserva nova fica "aguardando pagamento" pelo prazo configurado (padrão 24h). Se não for confirmada, a mesa volta a ficar livre sozinha. Operadores podem dar +24h; só administradores podem "Definir prazo" especial (data e hora, até 31/12 23h59, com motivo registrado), para mesas e barracas.
 - O Secret **`ADMIN_SENHA`** (Settings → Variables and Secrets) é a senha do **administrador principal**: no painel, deixe o usuário em branco e use essa senha.
 - Pelo painel, administradores cadastram outros usuários (operador ou administrador). O sistema gera uma senha provisória (vale 7 dias) e a pessoa cria a própria senha no primeiro acesso. Também geram nova senha provisória, desativam e removem acessos. Senhas guardadas só como hash (PBKDF2). Sessão de 12h. Toda ação fica no histórico com o nome de quem fez.
 - Operador: vende mesas no painel ("+ Nova venda" ou tocando numa mesa livre do mapa), confirma pagamentos, valida associados, ajusta cadeiras, prorroga e cancela. Administrador: também preços, estoque, bloqueio de mesas, abrir/fechar vendas, usuários e apagar reservas.
