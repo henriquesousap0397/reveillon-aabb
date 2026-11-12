@@ -6,7 +6,9 @@ Hotsite oficial de **O Réveillon da Nossa História**, a festa da virada de 31/
   - `public/index.html`: o site inteiro (página única)
   - `public/assets/`: imagens
   - `public/barracas/`: página de reserva de barracas (lista e fotos em `public/barracas/fotos/`)
+  - `public/mesas/`: reserva de mesas com mapa interativo; `public/mesas/admin/`: painel administrativo das mesas
   - `public/painel/`: painel de visitas em português
+- `src/mesas.js`: sistema de reservas de mesas (Durable Object `Mesas`)
 - `src/worker.js`: busca os números no Cloudflare Web Analytics para o painel (`/api/estatisticas`)
 - `wrangler.jsonc`: configuração do Cloudflare (publica só a pasta `public/` e liga o `src/worker.js`)
 
@@ -45,3 +47,13 @@ Visitas medidas pelo **Cloudflare Web Analytics** (gratuito, sem cookies e sem d
 
 - Lote antecipado até 15/12: associado R$ 50, não associado R$ 70.
 - Os botões "Comprar ingresso" abrem o WhatsApp da secretaria com uma mensagem pronta. Para ligar, preencha `WHATSAPP` no script de `public/index.html` (DDI+DDD+número, só dígitos). Enquanto estiver vazio, os botões levam ao Instagram @aabb.balsas.
+
+## Mesas
+
+- Página: https://reveillon.aabbbalsas.workers.dev/mesas/ · Admin: https://reveillon.aabbbalsas.workers.dev/mesas/admin/
+- 40 mesas (Gold 01–15, Marrom 16–30, Royal 31–40), 6 lugares, até 2 cadeiras extras (estoque por setor: 30/30/10).
+- As reservas ficam num Durable Object do Cloudflare (`src/mesas.js`), que atende um pedido por vez: duas pessoas nunca reservam a mesma mesa.
+- Reserva nova fica "aguardando pagamento" pelo prazo configurado (padrão 24h). Se não for confirmada, a mesa volta a ficar livre sozinha.
+- O admin precisa do Secret **`ADMIN_SENHA`** no projeto `reveillon` (Settings → Variables and Secrets).
+- Dados pessoais (nome, WhatsApp, e-mail, matrícula) só aparecem no admin. Apagar as reservas depois do evento (botão "Apagar" em reservas canceladas, ou pedir ao desenvolvedor).
+- Para testar localmente: crie `.dev.vars` com `ADMIN_SENHA=...` e rode `npx wrangler dev`.

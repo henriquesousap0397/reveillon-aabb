@@ -42,6 +42,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.65; font-variant-numeric: lining-nums; }
@@ -297,6 +298,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
     <nav class="menu" id="menu" aria-label="Seções">
       <a href="#programacao">Programação</a>
       <a href="#atracoes">Atrações</a>
+      <a href="mesas/">Mesas</a>
       <a href="barracas/">Barracas</a>
       <a href="#local">Local</a>
       <a class="btn" href="#ingressos">Ingressos</a>
@@ -429,6 +431,25 @@ footer small { font-size: .78rem; color: var(--night-muted); }
     </div>
   </section>
 
+  <section id="mesas" style="background: var(--paper-2)" aria-labelledby="t-mesas">
+    <div class="wrap tents">
+      <figure class="pic" style="margin:0">
+        <img src="mesas/salao.jpg" width="1400" height="991" loading="lazy" style="aspect-ratio:1400/991" alt="Ilustração do salão principal com palco e 40 mesas em três setores.">
+      </figure>
+      <div class="txt">
+        <p class="eyebrow">Mesas no salão principal</p>
+        <h2 id="t-mesas">Escolha <em>seu lugar</em></h2>
+        <p class="lead">40 mesas de 6 lugares nos setores Gold, Marrom e Royal, com até 2 cadeiras adicionais. Escolha no mapa e reserve na hora.</p>
+        <div class="price">
+          <div><b class="metal">R$ 420</b><span>a partir · associado</span></div>
+          <div><b class="metal">40</b><span>mesas</span></div>
+        </div>
+        <div><a class="btn solid" href="mesas/">Escolher minha mesa</a></div>
+        <p style="font-size:.74rem;color:var(--muted)">Imagem meramente ilustrativa.</p>
+      </div>
+    </div>
+  </section>
+
   <section id="barracas" aria-labelledby="t-barr">
     <div class="wrap tents">
       <div class="txt">
@@ -532,6 +553,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
         <h2>Dúvidas</h2>
         <details open><summary>Quanto custa o ingresso?</summary><p>No lote antecipado, até 15 de dezembro: R$ 50 para associados e R$ 70 para não associados. A compra é feita com a secretaria da AABB.</p></details>
         <details><summary>Como funciona a entrada?</summary><p>O acesso é feito por pulseira. A clara dá acesso à área de shows. A escura é de quem reservou barraca e dá acesso à área das barracas e também à área de shows.</p></details>
+        <details><summary>Como reservo uma mesa?</summary><p>Escolha a mesa no <a href="mesas/">mapa do salão</a>, informe se é associado, as cadeiras adicionais e seus dados. A mesa fica separada aguardando o pagamento e é confirmada depois que a administração valida o comprovante.</p></details>
         <details><summary>Como reservo uma barraca?</summary><p>Escolha na página de barracas. Cada uma custa R$ 800, inclui 20 passes e é paga por Pix ou cartão em até 3x. A reserva vale depois que a administração valida o comprovante.</p></details>
         <details><summary>Tem programação para crianças?</summary><p>Tem! Às 20h, na quadra de esportes, teatro infantil com música, brincadeiras e personagens vivos.</p></details>
         <details><summary>A bebida está inclusa?</summary><p>Não. As bebidas são vendidas no bar do clube durante a festa.</p></details>

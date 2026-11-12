@@ -1,3 +1,6 @@
+import { Mesas, rotaMesas } from "./mesas.js";
+export { Mesas };
+
 // Worker do hotsite do Réveillon AABB 50 anos.
 // - Serve o site (pasta public/) normalmente.
 // - Em /api/estatisticas, busca no Cloudflare Web Analytics os números de visitas
@@ -17,6 +20,7 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === "/api/estatisticas") return estatisticas(request, env, ctx);
+    if (url.pathname.startsWith("/api/mesas") || url.pathname.startsWith("/api/admin/")) return rotaMesas(request, env);
     return env.ASSETS.fetch(request);
   },
 };

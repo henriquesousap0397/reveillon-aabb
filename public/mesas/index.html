@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mesas do Réveillon AABB</title>
+<meta name="description" content="Escolha sua mesa no Réveillon AABB 50 anos: 40 mesas em três setores, com 6 lugares e até 2 cadeiras adicionais.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://reveillon.aabbbalsas.workers.dev/mesas/">
+<meta property="og:title" content="Escolha seu lugar no Réveillon da Nossa História">
+<meta property="og:description" content="Mesas a partir de R$ 420 para associados. Apenas 40 mesas no salão principal da AABB Balsas.">
+<meta property="og:image" content="https://reveillon.aabbbalsas.workers.dev/mesas/salao.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<meta name="theme-color" content="#F6F1E7">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Mesma direção do site: convite de gala. O mapa fica numa seção noturna, como o salão à noite;
+   cada setor tem a sua cor (Gold dourado, Marrom cobre, Royal azul-marinho) e o status aparece em forma e texto. */
+:root {
+  --paper: #F6F1E7;
+  --paper-2: #EFE7D7;
+  --ink: #2B2418;
+  --muted: #6F624E;
+  --gold: #A8822F;
+  --gold-hi: #D9B661;
+  --gold-lo: #7C5C1B;
+  --night: #0F1322;
+  --night-2: #171C30;
+  --night-ink: #EEE6D4;
+  --night-muted: #B7AD97;
+  --line: rgba(168, 130, 47, .35);
+  --s-gold: #C9A04A;
+  --s-marrom: #8A5A3B;
+  --s-royal: #3A4E86;
+  --wait: #D9A441;
+  --ok: #3E6B45;
+  --bad: #9A4B2B;
+  --gold-metal: linear-gradient(100deg, var(--gold-lo) 0%, var(--gold) 22%, var(--gold-hi) 48%, var(--gold) 70%, var(--gold-lo) 100%);
+  --font-display: "Cormorant Garamond", Garamond, "Times New Roman", serif;
+  --font-body: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.6; font-variant-numeric: lining-nums; }
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; line-height: 1.05; margin: 0; text-wrap: balance; }
+h2 { font-size: clamp(2.2rem, 5vw, 3.2rem); }
+h2 em, h1 em { font-style: italic; }
+p { margin: 0; }
+.wrap { max-width: 1120px; margin-inline: auto; padding-inline: 20px; }
+.eyebrow { font-size: .72rem; font-weight: 600; letter-spacing: .32em; text-transform: uppercase; color: var(--gold); }
+.metal { background: var(--gold-metal); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lead { font-size: 1.06rem; color: var(--muted); max-width: 60ch; }
+.head { display: grid; gap: 14px; justify-items: center; text-align: center; margin-bottom: clamp(28px, 5vw, 48px); }
+.head .lead { text-align: center; }
+.rule { display: flex; align-items: center; gap: 14px; color: var(--gold); width: min(220px, 60%); }
+.rule::before, .rule::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
+.rule::after { background: linear-gradient(270deg, transparent, var(--gold)); }
+.rule span { font-size: .8rem; line-height: 1; }
+section { padding-block: clamp(56px, 9vw, 104px); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
+  font: 600 .8rem var(--font-body); letter-spacing: .18em; text-transform: uppercase; text-decoration: none;
+  padding: 15px 26px; border-radius: 2px; border: 1px solid var(--gold); color: var(--ink); background: transparent;
+  transition: background .3s, color .3s, border-color .3s;
+}
+.btn:hover { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.btn.solid { background: var(--gold-metal); background-size: 200% 100%; border-color: transparent; color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,.2); }
+.btn.solid:hover { background-position: 100% 0; color: #fff; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.night { background: radial-gradient(ellipse at 50% 0%, var(--night-2) 0%, var(--night) 70%); color: var(--night-ink); }
+.night .lead { color: var(--night-muted); }
+.night .eyebrow { color: var(--gold-hi); }
+
+/* Cabeçalho */
+.top { position: sticky; top: 0; z-index: 20; background: rgba(246, 241, 231, .92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; gap: 20px; min-height: 64px; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand img { height: 28px; width: auto; }
+.brand span { font-family: var(--font-display); font-size: 1.05rem; font-style: italic; color: var(--muted); border-left: 1px solid var(--line); padding-left: 12px; }
+.back { margin-left: auto; font-size: .72rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; text-decoration: none; color: var(--muted); }
+@media (max-width: 560px) { .brand span { display: none; } }
+
+/* Abertura */
+.hero { padding-block: clamp(44px, 7vw, 88px); background: radial-gradient(ellipse at 70% 40%, #FFFDF8 0%, var(--paper) 60%); }
+.hero .wrap { display: grid; grid-template-columns: 1fr 1.05fr; gap: clamp(28px, 5vw, 64px); align-items: center; }
+.hero-text { display: grid; gap: 18px; }
+.hero h1 { font-size: clamp(2.6rem, 6vw, 4.2rem); }
+.hero .from { display: flex; flex-wrap: wrap; gap: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.hero .from div { display: grid; padding: 14px 24px 14px 0; margin-right: 24px; }
+.hero .from div + div { border-left: 1px solid var(--line); padding-left: 24px; }
+.hero .from b { font-family: var(--font-display); font-weight: 500; font-size: 2.4rem; line-height: 1; }
+.hero .from span { font-size: .66rem; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+.hero .save { font-family: var(--font-display); font-style: italic; font-size: 1.25rem; color: var(--gold-lo); }
+.hero figure { margin: 0; position: relative; }
+.hero figure img { width: 100%; aspect-ratio: 1400 / 991; object-fit: cover; }
+.hero figure::after { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(255,253,248,.7); pointer-events: none; }
+.hero figcaption { font-size: .74rem; color: var(--muted); margin-top: 8px; }
+@media (max-width: 860px) { .hero .wrap { grid-template-columns: 1fr; } .hero figure { order: -1; } }
+
+/* Setores */
+.sectors { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.sector { padding: 28px 22px; display: grid; gap: 10px; align-content: start; }
+.sector + .sector { border-left: 1px solid var(--line); }
+.sector .sw { width: 34px; height: 4px; border-radius: 2px; }
+.sector h3 { font-size: 2rem; }
+.sector .where { font-family: var(--font-display); font-style: italic; color: var(--muted); font-size: 1.1rem; }
+.sector dl { margin: 6px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; font-size: .92rem; }
+.sector dt { color: var(--muted); }
+.sector dd { margin: 0; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.sector small { color: var(--muted); font-size: .82rem; }
+@media (max-width: 800px) { .sectors { grid-template-columns: 1fr; } .sector + .sector { border-left: 0; border-top: 1px solid var(--line); } }
+.facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 34px; margin-top: 28px; font-size: .9rem; color: var(--muted); }
+.facts b { font-family: var(--font-display); font-size: 1.4rem; font-weight: 500; color: var(--ink); margin-right: 6px; }
+
+/* Mapa */
+.mapbox { max-width: 760px; margin: 0 auto; }
+.stage { text-align: center; padding: 14px; margin-bottom: 18px; border: 1px solid rgba(217,182,97,.5); background: linear-gradient(180deg, rgba(217,182,97,.18), rgba(217,182,97,.04)); font-size: .72rem; font-weight: 600; letter-spacing: .4em; text-transform: uppercase; color: var(--gold-hi); }
+.zone { position: relative; padding: 14px 12px 16px; border-radius: 4px; margin-bottom: 10px; }
+.zone.gold { background: rgba(201,160,74,.12); border: 1px solid rgba(201,160,74,.45); }
+.zone.marrom { background: rgba(138,90,59,.16); border: 1px solid rgba(160,110,75,.5); }
+.zone.royal { background: rgba(58,78,134,.22); border: 1px solid rgba(100,120,180,.5); }
+.zone h3 { font-size: 1.2rem; color: var(--night-ink); display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin: 0 4px 10px; }
+.zone h3 span { font-family: var(--font-body); font-size: .72rem; color: var(--night-muted); letter-spacing: .06em; }
+.row5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: clamp(6px, 2vw, 14px); }
+.row5 + .row5 { margin-top: clamp(6px, 2vw, 12px); }
+.tb {
+  position: relative; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+  font-family: var(--font-display); font-size: clamp(1.05rem, 3.4vw, 1.5rem); font-weight: 600; line-height: 1;
+  border: 2px solid transparent; color: var(--night); transition: transform .15s, box-shadow .15s;
+  max-width: 76px; width: 100%; justify-self: center;
+}
+.tb:hover:not(:disabled), .tb:focus-visible { transform: scale(1.07); box-shadow: 0 0 0 3px rgba(217,182,97,.5); }
+.tb.gold { background: var(--s-gold); }
+.tb.marrom { background: #B07A55; }
+.tb.royal { background: #7E93CC; }
+.tb::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 1px dashed rgba(238,230,212,.35); pointer-events: none; }
+.tb.aguardando { background: transparent; color: var(--wait); border: 2px dashed var(--wait); }
+.tb.vendida, .tb.indisponivel { background: rgba(238,230,212,.08); color: rgba(238,230,212,.35); border: 2px solid rgba(238,230,212,.15); cursor: not-allowed; }
+.tb.vendida::before { content: ""; position: absolute; left: 22%; right: 22%; top: 50%; height: 2px; background: rgba(238,230,212,.35); transform: rotate(-35deg); }
+.tb.sel { box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--gold-hi); transform: scale(1.08); }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; margin-top: 20px; font-size: .84rem; color: var(--night-muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend i { width: 18px; height: 18px; border-radius: 50%; display: inline-block; }
+.legend .l-ok { background: var(--s-gold); }
+.legend .l-wait { border: 2px dashed var(--wait); }
+.legend .l-sold { border: 2px solid rgba(238,230,212,.2); background: rgba(238,230,212,.08); }
+.counts { text-align: center; margin-top: 14px; font-family: var(--font-display); font-style: italic; font-size: 1.15rem; color: var(--night-muted); }
+.closed { text-align: center; color: var(--wait); font-weight: 600; margin-bottom: 14px; }
+
+/* Reserva */
+.book { display: grid; grid-template-columns: 1fr 340px; gap: clamp(24px, 4vw, 48px); align-items: start; }
+@media (max-width: 900px) { .book { grid-template-columns: 1fr; } }
+form { display: grid; gap: 26px; }
+fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 12px; }
+legend { font-family: var(--font-display); font-size: 1.5rem; font-weight: 500; margin-bottom: 4px; display: flex; gap: 12px; align-items: baseline; padding: 0; }
+legend b { font-family: var(--font-display); color: var(--gold); font-weight: 500; font-size: 1.2rem; }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.opts.three { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 560px) { .opts.three { grid-template-columns: 1fr; } }
+.opt { position: relative; }
+.opt input { position: absolute; opacity: 0; inset: 0; }
+.opt span { display: grid; gap: 2px; padding: 14px 16px; border: 1px solid var(--line); background: var(--paper); cursor: pointer; height: 100%; }
+.opt span b { font-weight: 600; }
+.opt span small { color: var(--muted); font-size: .84rem; }
+.opt input:checked + span { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); background: #FFFDF8; }
+.opt input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+.opt input:disabled + span { opacity: .45; cursor: not-allowed; }
+label.f { display: grid; gap: 6px; font-size: .9rem; font-weight: 600; }
+label.f small { font-weight: 400; color: var(--muted); }
+input[type=text], input[type=tel], input[type=email] {
+  font: 400 1rem var(--font-body); padding: 13px 14px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 2px; width: 100%;
+}
+input[type=text]:focus, input[type=tel]:focus, input[type=email]:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(168,130,47,.18); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
+.consent { display: flex; gap: 10px; align-items: flex-start; font-size: .88rem; color: var(--muted); }
+.consent input { margin-top: 4px; accent-color: var(--gold); width: 18px; height: 18px; flex: none; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.pick { padding: 16px; border: 1px dashed var(--line); color: var(--muted); font-style: italic; font-family: var(--font-display); font-size: 1.2rem; }
+.chosen { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; border: 1px solid var(--gold); background: #FFFDF8; }
+.chosen .n { font-family: var(--font-display); font-size: 2.4rem; line-height: 1; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; color: var(--night); }
+.chosen p { font-size: .9rem; color: var(--muted); }
+.chosen p b { color: var(--ink); font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; display: block; }
+.chosen button { background: none; border: 0; color: var(--gold-lo); font: 600 .72rem var(--font-body); letter-spacing: .16em; text-transform: uppercase; cursor: pointer; }
+.stepper { display: flex; align-items: center; gap: 0; border: 1px solid var(--line); width: max-content; }
+.stepper button { width: 46px; height: 46px; border: 0; background: var(--paper); font-size: 1.4rem; cursor: pointer; color: var(--ink); }
+.stepper button:disabled { opacity: .35; cursor: not-allowed; }
+.stepper output { min-width: 56px; text-align: center; font-family: var(--font-display); font-size: 1.6rem; }
+.hint { font-size: .86rem; color: var(--muted); }
+.msg-err { color: var(--bad); font-weight: 600; font-size: .92rem; }
+.msg-err:empty { display: none; }
+
+/* Resumo */
+.sum { position: sticky; top: 84px; border: 1px solid var(--line); background: var(--paper); padding: 26px 22px; display: grid; gap: 14px; }
+.sum::before { content: ""; position: absolute; inset: 6px; border: 1px solid rgba(168,130,47,.16); pointer-events: none; }
+.sum > * { position: relative; }
+.sum h3 { font-size: 1.7rem; }
+.sum dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; font-size: .94rem; }
+.sum dt { color: var(--muted); }
+.sum dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.sum .total { border-top: 1px solid var(--line); padding-top: 14px; display: flex; justify-content: space-between; align-items: baseline; }
+.sum .total span { font-size: .72rem; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); }
+.sum .total b { font-family: var(--font-display); font-size: 2.6rem; font-weight: 500; line-height: 1; }
+.sum .eco { font-family: var(--font-display); font-style: italic; color: var(--ok); font-size: 1.1rem; }
+.sum .btn { width: 100%; }
+.sum .fine { font-size: .8rem; color: var(--muted); }
+@media (max-width: 900px) { .sum { position: static; } }
+
+/* Confirmação */
+.done { display: none; max-width: 640px; margin: 0 auto; text-align: center; border: 1px solid var(--line); background: #FFFDF8; padding: clamp(28px, 5vw, 44px) clamp(18px, 5vw, 40px); gap: 16px; justify-items: center; }
+.done.show { display: grid; }
+.done .code { font-family: var(--font-display); font-size: 2.2rem; letter-spacing: .06em; }
+.done dl { margin: 0; display: grid; grid-template-columns: auto auto; gap: 6px 18px; text-align: left; font-size: .95rem; }
+.done dt { color: var(--muted); }
+.done dd { margin: 0; font-weight: 600; }
+.done .pix { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
+.done code { font: 500 1.05rem var(--font-body); background: var(--paper-2); border: 1px dashed var(--gold); padding: 9px 14px; word-break: break-all; }
+.done .acts { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.done .warn { font-size: .9rem; color: var(--muted); max-width: 52ch; }
+.copied { color: var(--ok); font-weight: 600; font-size: .85rem; }
+
+/* Condições */
+.terms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.terms div { padding: 24px 20px; display: grid; gap: 6px; }
+.terms div + div { border-left: 1px solid var(--line); }
+.terms b { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+.terms span { color: var(--muted); font-size: .92rem; }
+@media (max-width: 760px) { .terms { grid-template-columns: 1fr; } .terms div + div { border-left: 0; border-top: 1px solid var(--line); } }
+
+footer { padding-block: 48px 32px; }
+footer .wrap { display: grid; gap: 22px; justify-items: center; text-align: center; }
+footer img { height: 36px; width: auto; }
+footer .links { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: center; }
+footer .links a { font-size: .72rem; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; text-decoration: none; color: var(--night-ink); }
+footer small { font-size: .78rem; color: var(--night-muted); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="AABB Balsas, voltar ao site da festa">
+      <img src="../assets/logo-aabb-azul.png" width="440" height="174" alt="AABB Balsas">
+      <span>Réveillon 50 anos</span>
+    </a>
+    <a class="back" href="../">← Site da festa</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="t-hero">
+    <div class="wrap">
+      <div class="hero-text">
+        <p class="eyebrow">Mesas reservadas · salão principal</p>
+        <h1 id="t-hero">Escolha seu lugar no <em class="metal">Réveillon da Nossa História</em></h1>
+        <p class="lead">Celebre a chegada de 2027 e os 50 anos da AABB Balsas com decoração sofisticada, iluminação especial e uma mesa só da sua família e dos seus amigos, nos setores Gold, Marrom ou Royal.</p>
+        <div class="from">
+          <div><b class="metal" id="h-assoc">R$ 420</b><span>a partir · associado</span></div>
+          <div><b class="metal" id="h-nao">R$ 600</b><span>a partir · não associado</span></div>
+        </div>
+        <p class="save" id="h-save">Associados economizam até R$ 300 por mesa.</p>
+        <div><a class="btn solid" href="#mapa">Escolher minha mesa</a></div>
+      </div>
+      <figure>
+        <img src="salao.jpg" width="1400" height="991" alt="Ilustração do salão principal visto do alto: palco com luzes ao fundo e 40 mesas redondas em três setores, Gold perto do palco, Marrom no meio e Royal atrás.">
+        <figcaption>Imagem meramente ilustrativa, sujeita a ajustes na montagem definitiva.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section style="padding-top:0" aria-labelledby="t-set">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Setores e valores</p>
+        <h2 id="t-set">Três setores, <em>40 mesas</em></h2>
+        <div class="rule"><span>✦</span></div>
+      </div>
+      <div class="sectors" id="sectors"></div>
+      <div class="facts">
+        <span><b>6</b>lugares por mesa</span>
+        <span><b>+2</b>cadeiras adicionais por mesa, R$ <span id="f-cad">50</span> cada</span>
+        <span><b>310</b>pessoas na capacidade máxima</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="night" id="mapa" aria-labelledby="t-mapa">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Mapa interativo</p>
+        <h2 id="t-mapa">Toque na <em class="metal">sua mesa</em></h2>
+        <p class="lead">O palco fica no alto. Mesas tracejadas estão aguardando pagamento e podem voltar a ficar livres.</p>
+      </div>
+      <div class="mapbox">
+        <p class="closed" id="closed" hidden>As vendas de mesas estão encerradas no momento.</p>
+        <div class="stage">Palco</div>
+        <div id="zones"><p class="counts">Carregando o mapa…</p></div>
+        <div class="legend">
+          <span><i class="l-ok"></i>Disponível</span>
+          <span><i class="l-wait"></i>Aguardando pagamento</span>
+          <span><i class="l-sold"></i>Vendida</span>
+        </div>
+        <p class="counts" id="counts" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="reserva" aria-labelledby="t-res">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Reserva</p>
+        <h2 id="t-res">Faça sua <em>reserva</em></h2>
+        <div class="rule"><span>✦</span></div>
+      </div>
+
+      <div class="book" id="book">
+        <form id="form" novalidate>
+          <fieldset>
+            <legend><b>1</b>Você é associado da AABB?</legend>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="tipo" value="associado" id="tipo-a"><span><b>Sou associado</b><small>Preço especial · a secretaria confere a associação</small></span></label>
+              <label class="opt"><input type="radio" name="tipo" value="nao_associado" id="tipo-n"><span><b>Não sou associado</b><small>Preço para convidados</small></span></label>
+            </div>
+            <label class="f" id="mat-wrap" hidden for="matricula">Número da carteirinha ou matrícula <small>A secretaria usa para validar sua associação.</small><input type="text" id="matricula" name="matricula" maxlength="30" autocomplete="off"></label>
+          </fieldset>
+
+          <fieldset>
+            <legend><b>2</b>Mesa escolhida</legend>
+            <div id="chosen"><p class="pick">Toque numa mesa no mapa acima.</p></div>
+          </fieldset>
+
+          <fieldset>
+            <legend><b>3</b>Cadeiras adicionais</legend>
+            <div class="stepper" role="group" aria-label="Cadeiras adicionais">
+              <button type="button" id="ex-menos" aria-label="Menos uma cadeira">−</button>
+              <output id="extras" aria-live="polite">0</output>
+              <button type="button" id="ex-mais" aria-label="Mais uma cadeira">+</button>
+            </div>
+            <p class="hint" id="ex-hint">Até 2 por mesa, R$ 50 cada. Escolha a mesa para ver o estoque do setor.</p>
+          </fieldset>
+
+          <fieldset>
+            <legend><b>4</b>Seus dados</legend>
+            <label class="f" for="nome">Nome completo<input type="text" id="nome" name="nome" maxlength="80" autocomplete="name" required></label>
+            <div class="grid2">
+              <label class="f" for="whatsapp">WhatsApp com DDD<input type="tel" id="whatsapp" name="whatsapp" maxlength="20" autocomplete="tel" inputmode="tel" placeholder="(99) 99999-9999" required></label>
+              <label class="f" for="email">E-mail <small>(opcional)</small><input type="email" id="email" name="email" maxlength="120" autocomplete="email"></label>
+            </div>
+            <div class="hp" aria-hidden="true"><label for="site">Não preencha</label><input type="text" id="site" name="site" tabindex="-1" autocomplete="off"></div>
+          </fieldset>
+
+          <fieldset>
+            <legend><b>5</b>Forma de pagamento</legend>
+            <div class="opts three">
+              <label class="opt"><input type="radio" name="pagamento" value="pix" id="pg-pix"><span><b>Pix</b><small>Chave da AABB</small></span></label>
+              <label class="opt"><input type="radio" name="pagamento" value="cartao" id="pg-cartao"><span><b>Cartão</b><small>Em até 3x, na secretaria</small></span></label>
+              <label class="opt"><input type="radio" name="pagamento" value="secretaria" id="pg-sec"><span><b>Outra condição</b><small>Combine com a secretaria</small></span></label>
+            </div>
+          </fieldset>
+
+          <label class="consent" for="consent"><input type="checkbox" id="consent"> <span>Autorizo a AABB Balsas a usar meu nome, WhatsApp, e-mail e matrícula só para gerenciar esta reserva e falar comigo sobre ela. Os dados não são compartilhados e são apagados após o evento.</span></label>
+          <p class="msg-err" id="err" role="alert"></p>
+        </form>
+
+        <aside class="sum" aria-labelledby="t-sum">
+          <p class="eyebrow">Resumo</p>
+          <h3 id="t-sum">Sua reserva</h3>
+          <dl>
+            <dt>Mesa</dt><dd id="s-mesa">—</dd>
+            <dt>Setor</dt><dd id="s-setor">—</dd>
+            <dt>Tipo</dt><dd id="s-tipo">—</dd>
+            <dt>Mesa (6 lugares)</dt><dd id="s-base">—</dd>
+            <dt>Cadeiras adicionais</dt><dd id="s-ex">—</dd>
+            <dt>Total de lugares</dt><dd id="s-lug">—</dd>
+          </dl>
+          <div class="total"><span>Total</span><b id="s-total">R$ 0</b></div>
+          <p class="eco" id="s-eco" hidden></p>
+          <button class="btn solid" type="submit" form="form" id="enviar">Finalizar reserva</button>
+          <p class="fine">A mesa fica separada por <span id="s-prazo">24</span> horas aguardando o pagamento. A reserva é confirmada depois que a administração valida o pagamento.</p>
+        </aside>
+      </div>
+
+      <div class="done" id="done" role="status" tabindex="-1">
+        <p class="eyebrow">Reserva recebida</p>
+        <h3 style="font-size:2.2rem">Mesa <span id="d-mesa"></span> separada para você</h3>
+        <p class="code" id="d-code"></p>
+        <dl id="d-dl"></dl>
+        <p class="warn" id="d-warn"></p>
+        <div class="pix" id="d-pix"><code>aabbdiretoria@gmail.com</code><button type="button" class="btn" id="copy-pix">Copiar chave Pix</button><span class="copied" id="ok-pix" hidden>Copiada!</span></div>
+        <div class="acts">
+          <a class="btn solid" id="d-whats" href="#" target="_blank" rel="noopener">Enviar comprovante no WhatsApp</a>
+          <button type="button" class="btn" id="d-nova">Reservar outra mesa</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0" aria-labelledby="t-cond">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Condições</p>
+        <h2 id="t-cond">Bom <em>saber</em></h2>
+        <div class="rule"><span>✦</span></div>
+      </div>
+      <div class="terms">
+        <div><b>Pagamento</b><span>Pix, cartão de crédito em até 3x ou outras condições com a secretaria. A reserva só é confirmada depois que o pagamento é validado.</span></div>
+        <div><b>Cadeiras adicionais</b><span>Até 2 por mesa, R$ 50 cada, para associados e não associados. Estoque limitado por setor: Gold 30, Marrom 30, Royal 10.</span></div>
+        <div><b>Pulseira</b><span>Quem tem mesa recebe a pulseira clara, de acesso à área de shows. Bebidas são vendidas no bar do clube.</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="night">
+  <div class="wrap">
+    <img src="../assets/logo-aabb-branca.png" width="440" height="174" alt="AABB Balsas">
+    <div class="rule"><span>✦</span></div>
+    <nav class="links" aria-label="Links">
+      <a href="../">Site da festa</a>
+      <a href="../barracas/">Barracas</a>
+      <a href="https://wa.me/5599988276988" target="_blank" rel="noopener">WhatsApp da secretaria</a>
+      <a href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener">Instagram</a>
+    </nav>
+    <small>AABB Balsas · Réveillon 50 anos · 31.12.2026</small>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var WHATSAPP = "5599988276988"; // secretaria da AABB
+  var PIX = "aabbdiretoria@gmail.com";
+  var $ = function (id) { return document.getElementById(id); };
+  var brl = function (v) { return "R$ " + Number(v).toLocaleString("pt-BR", { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
+  var TIPO = { associado: "Associado", nao_associado: "Não associado" };
+  var COR = { gold: "var(--s-gold)", marrom: "#B07A55", royal: "#7E93CC" };
+  var D = null, mesa = null, extras = 0;
+
+  function tipo() { var r = document.querySelector("input[name=tipo]:checked"); return r ? r.value : null; }
+  function pag() { var r = document.querySelector("input[name=pagamento]:checked"); return r ? r.value : null; }
+
+  function setores() {
+    var el = $("sectors"); el.textContent = "";
+    ["gold", "marrom", "royal"].forEach(function (k) {
+      var s = D.setores[k];
+      var livres = D.mesas.filter(function (m) { return m.setor === k && m.status === "disponivel"; }).length;
+      var d = document.createElement("div"); d.className = "sector";
+      d.innerHTML = '<span class="sw"></span><h3></h3><p class="where"></p><dl><dt>Associado</dt><dd data-a></dd><dt>Não associado</dt><dd data-n></dd><dt>Mesas</dt><dd data-m></dd><dt>Livres agora</dt><dd data-l></dd></dl><small></small>';
+      d.querySelector(".sw").style.background = COR[k];
+      d.querySelector("h3").textContent = s.nome;
+      d.querySelector(".where").textContent = s.local.charAt(0).toUpperCase() + s.local.slice(1);
+      d.querySelector("[data-a]").textContent = brl(s.precos.associado);
+      d.querySelector("[data-n]").textContent = brl(s.precos.nao_associado);
+      d.querySelector("[data-m]").textContent = String(s.mesas[0]).padStart(2, "0") + " a " + s.mesas[1];
+      d.querySelector("[data-l]").textContent = livres;
+      d.querySelector("small").textContent = s.cadeira + " · 6 lugares";
+      el.appendChild(d);
+    });
+    var pa = Math.min.apply(null, ["gold", "marrom", "royal"].map(function (k) { return D.setores[k].precos.associado; }));
+    var pn = Math.min.apply(null, ["gold", "marrom", "royal"].map(function (k) { return D.setores[k].precos.nao_associado; }));
+    var eco = Math.max.apply(null, ["gold", "marrom", "royal"].map(function (k) { return D.setores[k].precos.nao_associado - D.setores[k].precos.associado; }));
+    $("h-assoc").textContent = brl(pa); $("h-nao").textContent = brl(pn);
+    $("h-save").textContent = "Associados economizam até " + brl(eco) + " por mesa.";
+    $("f-cad").textContent = D.preco_cadeira;
+    $("s-prazo").textContent = D.prazo_pagamento_horas;
+  }
+
+  function mapa() {
+    var z = $("zones"); z.textContent = "";
+    $("closed").hidden = D.vendas_abertas;
+    ["gold", "marrom", "royal"].forEach(function (k) {
+      var s = D.setores[k], ms = D.mesas.filter(function (m) { return m.setor === k; });
+      var zone = document.createElement("div"); zone.className = "zone " + k;
+      zone.innerHTML = '<h3>Setor ' + s.nome + ' <span></span></h3>';
+      zone.querySelector("h3 span").textContent = s.local + " · " + s.cadeiras_restantes + " cadeiras extras livres";
+      for (var i = 0; i < ms.length; i += 5) {
+        var row = document.createElement("div"); row.className = "row5";
+        ms.slice(i, i + 5).forEach(function (m) {
+          var b = document.createElement("button"); b.type = "button";
+          b.className = "tb " + k + " " + m.status + (mesa === m.n ? " sel" : "");
+          b.textContent = String(m.n).padStart(2, "0");
+          var st = { disponivel: "disponível", aguardando: "aguardando pagamento", vendida: "vendida", indisponivel: "indisponível" }[m.status];
+          b.setAttribute("aria-label", "Mesa " + m.n + ", setor " + s.nome + ", " + st);
+          b.disabled = m.status !== "disponivel" || !D.vendas_abertas;
+          b.addEventListener("click", function () { escolher(m.n); });
+          row.appendChild(b);
+        });
+        zone.appendChild(row);
+      }
+      z.appendChild(zone);
+    });
+    var c = { disponivel: 0, aguardando: 0, vendida: 0 };
+    D.mesas.forEach(function (m) { if (c[m.status] != null) c[m.status]++; });
+    $("counts").textContent = c.disponivel + " disponíveis · " + c.aguardando + " aguardando pagamento · " + c.vendida + " vendidas";
+  }
+
+  function escolher(n) {
+    mesa = n; $("err").textContent = "";
+    var m = D.mesas[n - 1], s = D.setores[m.setor];
+    extras = Math.min(extras, s.cadeiras_restantes, D.max_cadeiras_por_mesa);
+    $("chosen").innerHTML = '<div class="chosen"><span class="n"></span><p><b></b><span></span></p><button type="button">Trocar</button></div>';
+    var ch = $("chosen").querySelector(".chosen");
+    ch.querySelector(".n").textContent = String(n).padStart(2, "0");
+    ch.querySelector(".n").style.background = COR[m.setor];
+    ch.querySelector("b").textContent = "Mesa " + String(n).padStart(2, "0") + " · Setor " + s.nome;
+    ch.querySelector("p span").textContent = m.fileira_setor + "ª fileira do setor, " + s.local + ". " + s.cadeira + ".";
+    ch.querySelector("button").addEventListener("click", function () { $("mapa").scrollIntoView(); });
+    mapa(); resumo();
+    if (window.innerWidth < 900) $("reserva").scrollIntoView();
+  }
+
+  function resumo() {
+    var t = tipo(), m = mesa ? D.mesas[mesa - 1] : null, s = m ? D.setores[m.setor] : null;
+    var max = s ? Math.min(D.max_cadeiras_por_mesa, s.cadeiras_restantes) : D.max_cadeiras_por_mesa;
+    if (extras > max) extras = max;
+    $("extras").textContent = extras;
+    $("ex-menos").disabled = extras <= 0;
+    $("ex-mais").disabled = !s || extras >= max;
+    $("ex-hint").textContent = !s ? "Até " + D.max_cadeiras_por_mesa + " por mesa, " + brl(D.preco_cadeira) + " cada. Escolha a mesa para ver o estoque do setor."
+      : s.cadeiras_restantes === 0 ? "As cadeiras adicionais do setor " + s.nome + " esgotaram."
+      : "Restam " + s.cadeiras_restantes + " cadeiras adicionais no setor " + s.nome + ". " + brl(D.preco_cadeira) + " cada.";
+    $("mat-wrap").hidden = t !== "associado";
+    $("s-mesa").textContent = m ? String(mesa).padStart(2, "0") : "—";
+    $("s-setor").textContent = s ? s.nome : "—";
+    $("s-tipo").textContent = t ? TIPO[t] : "—";
+    var base = s && t ? s.precos[t] : null;
+    $("s-base").textContent = base != null ? brl(base) : "—";
+    $("s-ex").textContent = extras + " × " + brl(D.preco_cadeira);
+    $("s-lug").textContent = (D.lugares_por_mesa + extras) + " pessoas";
+    $("s-total").textContent = brl(base != null ? base + extras * D.preco_cadeira : 0);
+    var eco = $("s-eco");
+    if (s && t === "associado") { eco.hidden = false; eco.textContent = "Você economiza " + brl(s.precos.nao_associado - s.precos.associado) + " como associado."; }
+    else eco.hidden = true;
+  }
+
+  function carregar() {
+    return fetch("/api/mesas", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) {
+      if (j.erro) throw new Error(j.erro);
+      D = j;
+      if (mesa && D.mesas[mesa - 1].status !== "disponivel") { mesa = null; $("chosen").innerHTML = '<p class="pick">A mesa que você tinha escolhido acabou de ser reservada. Escolha outra.</p>'; }
+      setores(); mapa(); resumo();
+    }).catch(function () { $("zones").innerHTML = '<p class="counts">Não foi possível carregar o mapa agora. Tente de novo em instantes ou fale com a secretaria.</p>'; });
+  }
+
+  document.querySelectorAll("input[name=tipo]").forEach(function (r) { r.addEventListener("change", resumo); });
+  $("ex-menos").addEventListener("click", function () { if (extras > 0) { extras--; resumo(); } });
+  $("ex-mais").addEventListener("click", function () { extras++; resumo(); });
+
+  $("form").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var err = $("err"); err.textContent = "";
+    var t = tipo();
+    var falta = !t ? "Diga se você é associado ou não." : !mesa ? "Escolha uma mesa no mapa." :
+      (t === "associado" && $("matricula").value.trim().length < 2) ? "Informe o número da sua carteirinha ou matrícula." :
+      ($("nome").value.trim().split(/\s+/).length < 2) ? "Informe seu nome completo." :
+      ($("whatsapp").value.replace(/\D/g, "").length < 10) ? "Informe um WhatsApp com DDD." :
+      !pag() ? "Escolha a forma de pagamento." : !$("consent").checked ? "Marque a autorização de uso dos dados para continuar." : "";
+    if (falta) { err.textContent = falta; return; }
+    var bt = $("enviar"); bt.disabled = true; bt.textContent = "Reservando…";
+    fetch("/api/mesas/reservar", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ mesa: mesa, tipo: t, extras: extras, nome: $("nome").value, whatsapp: $("whatsapp").value, email: $("email").value,
+        matricula: $("matricula").value, pagamento: pag(), consentimento: true, site: $("site").value })
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }).then(function (x) {
+      bt.disabled = false; bt.textContent = "Finalizar reserva";
+      if (!x.ok) { err.textContent = x.j.erro || "Não foi possível reservar. Tente de novo."; carregar(); return; }
+      concluir(x.j);
+    }).catch(function () { bt.disabled = false; bt.textContent = "Finalizar reserva"; err.textContent = "Sem conexão. Confira a internet e tente de novo."; });
+  });
+
+  function concluir(r) {
+    $("book").hidden = true;
+    var d = $("done"); d.classList.add("show");
+    $("d-mesa").textContent = String(r.mesa).padStart(2, "0");
+    $("d-code").textContent = r.codigo;
+    var dl = $("d-dl"); dl.textContent = "";
+    [["Setor", r.setor], ["Tipo", r.tipo], ["Lugares", r.lugares + " pessoas"], ["Cadeiras adicionais", r.extras], ["Pagamento", r.pagamento], ["Total", brl(r.valor)]].forEach(function (p) {
+      var dt = document.createElement("dt"); dt.textContent = p[0]; var dd = document.createElement("dd"); dd.textContent = p[1]; dl.appendChild(dt); dl.appendChild(dd);
+    });
+    var fim = new Date(r.expira).toLocaleString("pt-BR", { timeZone: "America/Fortaleza", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    $("d-warn").textContent = "Sua mesa fica separada até " + fim + ". Faça o pagamento e envie o comprovante para a secretaria. A reserva é confirmada depois que a administração valida o pagamento" + (r.tipo === "Associado" ? " e a sua associação." : ".");
+    $("d-pix").hidden = r.pagamento !== "Pix";
+    var msg = "Olá! Fiz a reserva " + r.codigo + " no site do Réveillon AABB 50 anos.\nMesa " + String(r.mesa).padStart(2, "0") + " · Setor " + r.setor + "\nTipo: " + r.tipo +
+      "\nCadeiras adicionais: " + r.extras + "\nTotal: " + brl(r.valor) + "\nPagamento: " + r.pagamento + "\n" + (r.pagamento === "Pix" ? "Segue o comprovante." : "Quero combinar o pagamento.");
+    $("d-whats").href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(msg);
+    d.focus(); d.scrollIntoView();
+  }
+
+  $("copy-pix").addEventListener("click", function () {
+    var ok = function () { $("ok-pix").hidden = false; };
+    if (navigator.clipboard) navigator.clipboard.writeText(PIX).then(ok, ok); else ok();
+  });
+  $("d-nova").addEventListener("click", function () {
+    $("done").classList.remove("show"); $("book").hidden = false; mesa = null; extras = 0;
+    $("chosen").innerHTML = '<p class="pick">Toque numa mesa no mapa acima.</p>';
+    carregar(); $("mapa").scrollIntoView();
+  });
+
+  carregar();
+  setInterval(function () { if (!document.hidden && $("book").hidden === false) carregar(); }, 30000);
+})();
+</script>
+<!-- Cloudflare Web Analytics: contagem de visitas sem cookies e sem dados pessoais -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "51fcc0eaa3d94fb493e87df4c8e9a2c9"}'></script>
+<!-- Fim Cloudflare Web Analytics -->
+</body>
+</html>

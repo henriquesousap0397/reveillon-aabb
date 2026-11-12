@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin das Mesas</title>
+<link rel="icon" type="image/png" href="../../assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Painel de trabalho da secretaria: resumo no topo, mapa compacto, lista de reservas com ações e configurações.
+   Cores do site, mas denso e funcional. Status em texto + cor. */
+:root {
+  --paper: #F6F1E7; --surface: #FFFDF8; --ink: #2B2418; --muted: #6F624E; --line: #E3D6B8;
+  --gold: #A8822F; --gold-lo: #7C5C1B;
+  --s-gold: #C9A04A; --s-marrom: #B07A55; --s-royal: #7E93CC;
+  --ok: #2F6B3A; --ok-bg: #E2EFDF; --wait: #8A5A00; --wait-bg: #FBEFCB; --bad: #9A3B22; --bad-bg: #F6E0D8; --off: #7D7465; --off-bg: #ECE6DA;
+  --font-display: "Cormorant Garamond", Garamond, serif; --font-body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--font-body); font-variant-numeric: tabular-nums; }
+h1, h2 { font-family: var(--font-display); font-weight: 600; margin: 0; line-height: 1.1; }
+h1 { font-size: 1.9rem; } h2 { font-size: 1.45rem; }
+p { margin: 0; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 20px 16px 60px; display: grid; gap: 18px; }
+.top { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between; }
+.muted { color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
+button, .btn { font: 600 .82rem var(--font-body); border: 1px solid var(--gold); background: var(--surface); color: var(--gold-lo); padding: 8px 14px; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+button:hover, .btn:hover { background: var(--gold); color: #fff; }
+button.pri { background: var(--gold); color: #fff; }
+button.danger { border-color: var(--bad); color: var(--bad); }
+button.danger:hover { background: var(--bad); color: #fff; }
+button.sm { padding: 5px 10px; font-size: .76rem; }
+input, select { font: 400 .95rem var(--font-body); padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.login { max-width: 380px; margin: 12vh auto; }
+.login form { display: grid; gap: 10px; }
+.err { color: var(--bad); font-weight: 600; }
+.err:empty { display: none; }
+.tiles { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 2px; }
+.tile b { font-family: var(--font-display); font-size: 1.9rem; line-height: 1.05; }
+.tile span { font-size: .78rem; color: var(--muted); }
+@media (max-width: 900px) { .tiles { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 480px) { .tiles { grid-template-columns: 1fr 1fr; } }
+.sect { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.sect th, .sect td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: right; }
+.sect th:first-child, .sect td:first-child { text-align: left; }
+.sect th { font-size: .74rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+.scroll { overflow-x: auto; }
+.two { display: grid; grid-template-columns: 330px 1fr; gap: 18px; align-items: start; }
+@media (max-width: 960px) { .two { grid-template-columns: 1fr; } }
+.mini { display: grid; gap: 8px; }
+.mini .stage { text-align: center; font-size: .7rem; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 5px; }
+.mini .r { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.mini .zl { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-top: 4px; }
+.m { aspect-ratio: 1; border-radius: 50%; border: 2px solid transparent; display: grid; place-items: center; font-weight: 700; font-size: .85rem; cursor: pointer; padding: 0; color: var(--ink); }
+.m.gold { background: var(--s-gold); } .m.marrom { background: var(--s-marrom); } .m.royal { background: var(--s-royal); }
+.m.aguardando { background: var(--wait-bg); border: 2px dashed var(--wait); color: var(--wait); }
+.m.vendida { background: var(--ok); color: #fff; }
+.m.indisponivel { background: var(--off-bg); color: var(--off); border-color: var(--off); }
+.m.hl { box-shadow: 0 0 0 3px var(--ink); }
+.leg { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: .76rem; color: var(--muted); }
+.leg i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.filters input { flex: 1; min-width: 180px; }
+table.res { width: 100%; border-collapse: collapse; font-size: .86rem; min-width: 900px; }
+table.res th { text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; padding: 8px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--surface); }
+table.res td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.res tr.hl td { background: #FFF6DA; }
+.pill { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.p-vendida { background: var(--ok-bg); color: var(--ok); }
+.p-aguardando { background: var(--wait-bg); color: var(--wait); }
+.p-expirada, .p-cancelada { background: var(--off-bg); color: var(--off); }
+.acts { display: flex; flex-wrap: wrap; gap: 5px; }
+.sub { font-size: .78rem; color: var(--muted); }
+.cfg { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.cfg fieldset { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px 12px; display: grid; gap: 8px; margin: 0; }
+.cfg legend { font-weight: 700; font-size: .85rem; padding: 0 4px; }
+.cfg label { display: grid; grid-template-columns: 1fr 110px; gap: 8px; align-items: center; font-size: .86rem; }
+.cfg input { width: 100%; }
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 10px; font-weight: 600; z-index: 10; }
+.toast[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div id="login" class="wrap"><div class="card login">
+  <h1>Admin das mesas</h1>
+  <p class="muted">Réveillon AABB 50 anos. Acesso restrito à administração.</p>
+  <form id="f-login">
+    <label for="senha">Senha</label>
+    <input type="password" id="senha" autocomplete="current-password" required>
+    <button class="pri" type="submit">Entrar</button>
+    <p class="err" id="l-err" role="alert"></p>
+  </form>
+</div></div>
+
+<div id="app" class="wrap" hidden>
+  <header class="top">
+    <div><h1>Reservas de mesas</h1><p class="muted" id="upd"></p></div>
+    <div class="filters">
+      <button type="button" id="b-csv">Exportar planilha (CSV)</button>
+      <button type="button" id="b-ref">Atualizar</button>
+      <button type="button" id="b-sair">Sair</button>
+    </div>
+  </header>
+
+  <section class="tiles" aria-label="Resumo">
+    <div class="tile"><b id="t-conf">–</b><span>arrecadado (confirmado)</span></div>
+    <div class="tile"><b id="t-rec">–</b><span>a receber (aguardando)</span></div>
+    <div class="tile"><b id="t-vend">–</b><span>mesas vendidas</span></div>
+    <div class="tile"><b id="t-agu">–</b><span>aguardando pagamento</span></div>
+    <div class="tile"><b id="t-liv">–</b><span>mesas livres</span></div>
+    <div class="tile"><b id="t-pes">–</b><span>pessoas com mesa</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Por setor</h2>
+    <div class="scroll"><table class="sect"><thead><tr><th>Setor</th><th>Vendidas</th><th>Aguardando</th><th>Livres</th><th>Cadeiras extras</th><th>Confirmado</th><th>A receber</th></tr></thead><tbody id="sect"></tbody></table></div>
+  </section>
+
+  <div class="two">
+    <section class="card">
+      <h2>Mapa</h2>
+      <p class="sub">Toque numa mesa para ver a reserva. Mesas livres podem ser bloqueadas (ficam indisponíveis no site).</p>
+      <div class="mini" id="mini"></div>
+      <div class="leg"><span><i style="background:var(--s-gold)"></i>Livre</span><span><i style="background:var(--wait-bg);border:2px dashed var(--wait)"></i>Aguardando</span><span><i style="background:var(--ok)"></i>Vendida</span><span><i style="background:var(--off-bg);border:2px solid var(--off)"></i>Bloqueada</span></div>
+    </section>
+
+    <section class="card">
+      <h2>Reservas</h2>
+      <div class="filters">
+        <input type="search" id="busca" placeholder="Buscar por nome, código, WhatsApp ou mesa" aria-label="Buscar">
+        <select id="f-status" aria-label="Filtrar por status">
+          <option value="ativas">Ativas</option><option value="aguardando">Aguardando</option><option value="vendida">Vendidas</option>
+          <option value="expirada">Expiradas</option><option value="cancelada">Canceladas</option><option value="todas">Todas</option>
+        </select>
+      </div>
+      <div class="scroll">
+        <table class="res">
+          <thead><tr><th>Mesa</th><th>Comprador</th><th>Tipo</th><th>Extras</th><th>Valor</th><th>Pagamento</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p class="sub" id="nores" hidden>Nenhuma reserva neste filtro.</p>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Configurações</h2>
+    <form id="f-cfg" class="cfg"></form>
+    <div><button class="pri" type="submit" form="f-cfg">Salvar configurações</button></div>
+  </section>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var brl = function (v) { return "R$ " + Number(v).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var SENHA = "", D = null, hl = null;
+  try { SENHA = sessionStorage.getItem("mesas_senha") || ""; } catch (e) {}
+
+  function toast(t) { var el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { el.hidden = true; }, 2600); }
+  function api(path, body) {
+    return fetch(path, { method: body ? "POST" : "GET", cache: "no-store", headers: { "x-admin-senha": SENHA, "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) { var e = new Error(j.erro || "Erro"); e.status = r.status; throw e; } return j; }); });
+  }
+  function sair(msg) { SENHA = ""; try { sessionStorage.removeItem("mesas_senha"); } catch (e) {} $("app").hidden = true; $("login").hidden = false; $("l-err").textContent = msg || ""; }
+
+  function carregar() {
+    return api("/api/admin/mesas").then(function (j) { D = j; $("login").hidden = true; $("app").hidden = false; render(); })
+      .catch(function (e) { if (e.status === 401 || e.status === 429 || e.status === 503) sair(e.message); else toast(e.message); });
+  }
+
+  function render() {
+    var r = D.relatorio;
+    $("upd").textContent = "Atualizado às " + new Date(D.atualizado).toLocaleTimeString("pt-BR", { timeZone: "America/Fortaleza", hour: "2-digit", minute: "2-digit" }) + (D.config.vendas_abertas ? " · vendas abertas" : " · VENDAS FECHADAS");
+    $("t-conf").textContent = brl(r.confirmado); $("t-rec").textContent = brl(r.a_receber);
+    $("t-vend").textContent = r.vendidas; $("t-agu").textContent = r.aguardando; $("t-liv").textContent = r.livres; $("t-pes").textContent = r.pessoas;
+    var tb = $("sect"); tb.textContent = "";
+    Object.keys(r.setores).forEach(function (k) {
+      var s = r.setores[k], tr = document.createElement("tr");
+      [s.nome, s.vendidas, s.aguardando, s.livres, s.cadeiras_usadas + " de " + s.cadeiras_total, brl(s.confirmado), brl(s.a_receber)].forEach(function (v) { var td = document.createElement("td"); td.textContent = v; tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+    mini(); lista(); cfg();
+  }
+
+  function mini() {
+    var el = $("mini"); el.innerHTML = '<div class="stage">Palco</div>';
+    var nomes = { gold: "Gold", marrom: "Marrom", royal: "Royal" }, atual = null, row = null;
+    D.mesas.forEach(function (m, i) {
+      if (m.setor !== atual) { atual = m.setor; var zl = document.createElement("p"); zl.className = "zl"; zl.textContent = nomes[m.setor]; el.appendChild(zl); }
+      if (i % 5 === 0) { row = document.createElement("div"); row.className = "r"; el.appendChild(row); }
+      var b = document.createElement("button"); b.type = "button"; b.className = "m " + m.setor + " " + m.status + (hl === m.n ? " hl" : "");
+      b.textContent = m.n; b.title = "Mesa " + m.n + " · " + m.status;
+      b.addEventListener("click", function () { clicar(m); });
+      row.appendChild(b);
+    });
+  }
+
+  function clicar(m) {
+    hl = m.n;
+    if (m.status === "disponivel") {
+      if (confirm("Mesa " + m.n + " está livre. Bloquear (fica indisponível no site)?")) acao({ acao: "bloquear", mesa: m.n }, "Mesa " + m.n + " bloqueada.");
+      else { mini(); }
+      return;
+    }
+    if (m.status === "indisponivel") {
+      if (confirm("Desbloquear a mesa " + m.n + "?")) acao({ acao: "desbloquear", mesa: m.n }, "Mesa " + m.n + " liberada.");
+      return;
+    }
+    $("busca").value = String(m.n); $("f-status").value = "ativas"; mini(); lista();
+    var tr = document.querySelector("tr.hl"); if (tr) tr.scrollIntoView({ block: "center" });
+  }
+
+  function lista() {
+    var q = $("busca").value.trim().toLowerCase(), fs = $("f-status").value;
+    var rows = D.reservas.filter(function (r) {
+      var st = r.status_efetivo;
+      if (fs === "ativas" && !(st === "aguardando" || st === "vendida")) return false;
+      if (fs !== "ativas" && fs !== "todas" && st !== fs) return false;
+      if (!q) return true;
+      return String(r.mesa) === q || (r.nome + " " + r.codigo + " " + r.whatsapp + " " + r.email + " " + r.matricula).toLowerCase().indexOf(q) >= 0;
+    }).sort(function (a, b) { return a.mesa - b.mesa || b.criado - a.criado; });
+    var tb = $("rows"); tb.textContent = "";
+    $("nores").hidden = rows.length > 0;
+    rows.forEach(function (r) {
+      var tr = document.createElement("tr"); if (hl === r.mesa) tr.className = "hl";
+      var st = r.status_efetivo;
+      tr.innerHTML =
+        '<td><b></b><div class="sub"></div></td>' +
+        '<td><b class="nm"></b><div class="sub wa"></div><div class="sub em"></div><div class="sub ob"></div></td>' +
+        '<td class="tp"></td><td class="ex"></td><td class="vl"></td><td class="pg"></td>' +
+        '<td><span class="pill p-' + st + '"></span><div class="sub pz"></div></td><td><div class="acts"></div></td>';
+      tr.querySelector("td b").textContent = String(r.mesa).padStart(2, "0") + " · " + r.setor_nome;
+      tr.querySelector("td .sub").textContent = r.codigo;
+      tr.querySelector(".nm").textContent = r.nome;
+      var wa = tr.querySelector(".wa"); var a = document.createElement("a"); a.href = "https://wa.me/55" + r.whatsapp.replace(/^55/, ""); a.target = "_blank"; a.rel = "noopener"; a.textContent = r.whatsapp; wa.appendChild(a);
+      tr.querySelector(".em").textContent = r.email || "";
+      tr.querySelector(".ob").textContent = r.obs ? "Obs.: " + r.obs : "";
+      tr.querySelector(".tp").innerHTML = "";
+      var tp = tr.querySelector(".tp"); tp.appendChild(document.createTextNode(r.tipo_nome));
+      if (r.tipo === "associado") { var d = document.createElement("div"); d.className = "sub"; d.textContent = "Matr. " + (r.matricula || "—") + (r.associado_validado ? " · ✓ validado" : " · não validado"); tp.appendChild(d); }
+      tr.querySelector(".ex").textContent = r.extras;
+      tr.querySelector(".vl").textContent = brl(r.valor);
+      tr.querySelector(".pg").textContent = r.pagamento_nome;
+      tr.querySelector(".pill").textContent = { vendida: "Vendida", aguardando: "Aguardando", expirada: "Expirada", cancelada: "Cancelada" }[st];
+      tr.querySelector(".pz").textContent = st === "aguardando" ? "Prazo: " + r.expira_local.slice(8, 10) + "/" + r.expira_local.slice(5, 7) + " " + r.expira_local.slice(11) : "Criada " + r.criado_local.slice(8, 10) + "/" + r.criado_local.slice(5, 7);
+      var ac = tr.querySelector(".acts");
+      function btn(t, cls, fn) { var b = document.createElement("button"); b.type = "button"; b.className = "sm " + (cls || ""); b.textContent = t; b.addEventListener("click", fn); ac.appendChild(b); }
+      if (st === "aguardando" || st === "expirada") btn("Confirmar pagamento", "pri", function () { acao({ acao: "confirmar", codigo: r.codigo }, "Mesa " + r.mesa + " vendida."); });
+      if (st === "aguardando" || st === "expirada") btn("+24h", "", function () { acao({ acao: "prorrogar", codigo: r.codigo }, "Prazo prorrogado."); });
+      if (st === "vendida") btn("Voltar p/ aguardando", "", function () { if (confirm("Voltar a reserva " + r.codigo + " para aguardando pagamento?")) acao({ acao: "voltar_aguardando", codigo: r.codigo }, "Reserva voltou para aguardando."); });
+      if (r.tipo === "associado") btn(r.associado_validado ? "Desfazer validação" : "Validar associado", "", function () { acao({ acao: "validar_associado", codigo: r.codigo, valor: !r.associado_validado }, "Associação atualizada."); });
+      btn(r.tipo === "associado" ? "Mudar p/ não associado" : "Mudar p/ associado", "", function () {
+        if (confirm("Mudar o tipo desta reserva? O valor será recalculado.")) acao({ acao: "mudar_tipo", codigo: r.codigo, valor: r.tipo === "associado" ? "nao_associado" : "associado" }, "Tipo alterado, valor recalculado.");
+      });
+      btn("Cadeiras", "", function () { var v = prompt("Cadeiras adicionais (0 a " + D.max_cadeiras_por_mesa + "):", r.extras); if (v !== null) acao({ acao: "cadeiras", codigo: r.codigo, valor: Number(v) }, "Cadeiras atualizadas."); });
+      btn("Obs.", "", function () { var v = prompt("Observação interna:", r.obs || ""); if (v !== null) acao({ acao: "obs", codigo: r.codigo, valor: v }, "Observação salva."); });
+      if (st !== "cancelada") btn("Cancelar", "danger", function () { if (confirm("Cancelar a reserva " + r.codigo + " (mesa " + r.mesa + ")? A mesa volta a ficar livre.")) acao({ acao: "cancelar", codigo: r.codigo }, "Reserva cancelada."); });
+      else btn("Apagar", "danger", function () { if (confirm("Apagar definitivamente os dados da reserva " + r.codigo + "?")) acao({ acao: "apagar", codigo: r.codigo }, "Reserva apagada."); });
+      tb.appendChild(tr);
+    });
+  }
+
+  function cfg() {
+    var c = D.config, f = $("f-cfg"); f.textContent = "";
+    var nomes = { gold: "Gold", marrom: "Marrom", royal: "Royal" };
+    Object.keys(nomes).forEach(function (k) {
+      var fs = document.createElement("fieldset");
+      fs.innerHTML = '<legend>Setor ' + nomes[k] + '</legend>' +
+        '<label>Associado (R$)<input type="number" min="0" step="1" name="p_' + k + '_a"></label>' +
+        '<label>Não associado (R$)<input type="number" min="0" step="1" name="p_' + k + '_n"></label>' +
+        '<label>Estoque de cadeiras extras<input type="number" min="0" step="1" name="e_' + k + '"></label>';
+      fs.querySelector('[name=p_' + k + '_a]').value = c.precos[k].associado;
+      fs.querySelector('[name=p_' + k + '_n]').value = c.precos[k].nao_associado;
+      fs.querySelector('[name=e_' + k + ']').value = c.estoque_cadeiras[k];
+      f.appendChild(fs);
+    });
+    var g = document.createElement("fieldset");
+    g.innerHTML = '<legend>Geral</legend>' +
+      '<label>Cadeira extra (R$)<input type="number" min="0" step="1" name="cad"></label>' +
+      '<label>Prazo para pagar (horas)<input type="number" min="1" step="1" name="prazo"></label>' +
+      '<label>Vendas abertas<select name="abertas"><option value="1">Sim</option><option value="0">Não</option></select></label>';
+    g.querySelector("[name=cad]").value = c.preco_cadeira;
+    g.querySelector("[name=prazo]").value = c.prazo_pagamento_horas;
+    g.querySelector("[name=abertas]").value = c.vendas_abertas ? "1" : "0";
+    f.appendChild(g);
+  }
+
+  $("f-cfg").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var f = ev.target, v = { precos: {}, estoque_cadeiras: {} };
+    ["gold", "marrom", "royal"].forEach(function (k) {
+      v.precos[k] = { associado: Number(f["p_" + k + "_a"].value), nao_associado: Number(f["p_" + k + "_n"].value) };
+      v.estoque_cadeiras[k] = Number(f["e_" + k].value);
+    });
+    v.preco_cadeira = Number(f.cad.value); v.prazo_pagamento_horas = Number(f.prazo.value); v.vendas_abertas = f.abertas.value === "1";
+    if (!confirm("Salvar as novas configurações? Os novos preços valem para reservas feitas a partir de agora.")) return;
+    acao({ acao: "config", valor: v }, "Configurações salvas.");
+  });
+
+  function acao(body, ok) { return api("/api/admin/mesas", body).then(function () { toast(ok); return carregar(); }).catch(function (e) { toast(e.message); if (e.status === 401) sair(e.message); }); }
+
+  $("f-login").addEventListener("submit", function (ev) {
+    ev.preventDefault(); SENHA = $("senha").value;
+    try { sessionStorage.setItem("mesas_senha", SENHA); } catch (e) {}
+    $("l-err").textContent = ""; carregar();
+  });
+  $("b-sair").addEventListener("click", function () { sair(""); });
+  $("b-ref").addEventListener("click", carregar);
+  $("busca").addEventListener("input", function () { hl = null; lista(); mini(); });
+  $("f-status").addEventListener("change", lista);
+  $("b-csv").addEventListener("click", function () {
+    fetch("/api/admin/mesas.csv", { headers: { "x-admin-senha": SENHA }, cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error("Falha ao exportar"); return r.blob(); })
+      .then(function (b) { var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "reservas-mesas-reveillon-aabb.csv"; document.body.appendChild(a); a.click(); a.remove(); })
+      .catch(function (e) { toast(e.message); });
+  });
+
+  if (SENHA) carregar();
+  setInterval(function () { if (SENHA && !document.hidden && !$("app").hidden) carregar(); }, 60000);
+})();
+</script>
+</body>
+</html>
