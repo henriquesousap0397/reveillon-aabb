@@ -225,6 +225,7 @@ input[type=text]:focus, input[type=tel]:focus, input[type=email]:focus { outline
 .done .pix { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
 .done code { font: 500 1.05rem var(--font-body); background: var(--paper-2); border: 1px dashed var(--gold); padding: 9px 14px; word-break: break-all; }
 .done .acts { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.done .cielo { display: grid; gap: 10px; justify-items: center; }
 .done .warn { font-size: .9rem; color: var(--muted); max-width: 52ch; }
 .copied { color: var(--ok); font-weight: 600; font-size: .85rem; }
 
@@ -363,7 +364,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
             <legend><b>5</b>Forma de pagamento</legend>
             <div class="opts three">
               <label class="opt"><input type="radio" name="pagamento" value="pix" id="pg-pix"><span><b>Pix</b><small>Chave da AABB</small></span></label>
-              <label class="opt"><input type="radio" name="pagamento" value="cartao" id="pg-cartao"><span><b>Cartão</b><small>Em até 3x, na secretaria</small></span></label>
+              <label class="opt"><input type="radio" name="pagamento" value="cartao" id="pg-cartao"><span><b>Cartão</b><small>Em até 3x, pelo link da Cielo</small></span></label>
               <label class="opt"><input type="radio" name="pagamento" value="secretaria" id="pg-sec"><span><b>Outra condição</b><small>Combine com a secretaria</small></span></label>
             </div>
           </fieldset>
@@ -396,6 +397,10 @@ footer small { font-size: .78rem; color: var(--night-muted); }
         <p class="code" id="d-code"></p>
         <dl id="d-dl"></dl>
         <p class="warn" id="d-warn"></p>
+        <div class="cielo" id="d-cielo" hidden>
+          <a class="btn solid" id="d-cielo-a" href="#" target="_blank" rel="noopener">Pagar a mesa com cartão (Cielo)</a>
+          <p class="warn" id="d-cielo-n"></p>
+        </div>
         <div class="pix" id="d-pix"><code>aabbdiretoria@gmail.com</code><button type="button" class="btn" id="copy-pix">Copiar chave Pix</button><span class="copied" id="ok-pix" hidden>Copiada!</span></div>
         <div class="acts">
           <a class="btn solid" id="d-whats" href="#" target="_blank" rel="noopener">Enviar comprovante no WhatsApp</a>
@@ -439,6 +444,12 @@ footer small { font-size: .78rem; color: var(--night-muted); }
 (function () {
   var WHATSAPP = "5599988276988"; // secretaria da AABB
   var PIX = "aabbdiretoria@gmail.com";
+  // Links de pagamento da Cielo (um por setor e tipo). Cobram só a mesa; cadeiras extras são pagas à parte.
+  var CIELO = {
+    gold:   { associado: "https://cielolink.com.br/4BXCRo3", nao_associado: "https://cielolink.com.br/4BWEoL0" },
+    marrom: { associado: "https://cielolink.com.br/4sYquUD", nao_associado: "https://cielolink.com.br/4zNGr2E" },
+    royal:  { associado: "https://cielolink.com.br/4zCZf4w", nao_associado: "https://cielolink.com.br/48LYlXE" }
+  };
   var $ = function (id) { return document.getElementById(id); };
   var brl = function (v) { return "R$ " + Number(v).toLocaleString("pt-BR", { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
   var TIPO = { associado: "Associado", nao_associado: "Não associado" };
@@ -602,8 +613,18 @@ footer small { font-size: .78rem; color: var(--night-muted); }
     var fim = new Date(r.expira).toLocaleString("pt-BR", { timeZone: "America/Fortaleza", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
     $("d-warn").textContent = "Sua mesa fica separada até " + fim + ". Faça o pagamento e envie o comprovante para a secretaria. A reserva é confirmada depois que a administração valida o pagamento" + (r.tipo === "Associado" ? " e a sua associação (nome e CPF)." : ".");
     $("d-pix").hidden = r.pagamento !== "Pix";
+    var mm = D.mesas[r.mesa - 1], tk = r.tipo === "Associado" ? "associado" : "nao_associado";
+    var link = mm && CIELO[mm.setor] && CIELO[mm.setor][tk];
+    $("d-cielo").hidden = !(r.pagamento.indexOf("Cartão") === 0 && link);
+    if (link) {
+      $("d-cielo-a").href = link;
+      var base = D.setores[mm.setor].precos[tk];
+      $("d-cielo-n").textContent = "O link cobra a mesa " + r.setor + " (" + r.tipo.toLowerCase() + "): " + brl(base) + ", em até 3x." +
+        (r.extras > 0 ? " As " + r.extras + " cadeira(s) adicional(is) (" + brl(r.extras * D.preco_cadeira) + ") são pagas à parte: combine com a secretaria ao enviar o comprovante." : "") +
+        " Depois de pagar, envie o comprovante no botão abaixo.";
+    }
     var msg = "Olá! Fiz a reserva " + r.codigo + " no site do Réveillon AABB 50 anos.\nMesa " + String(r.mesa).padStart(2, "0") + " · Setor " + r.setor + "\nTipo: " + r.tipo +
-      "\nCadeiras adicionais: " + r.extras + "\nTotal: " + brl(r.valor) + "\nPagamento: " + r.pagamento + "\n" + (r.pagamento === "Pix" ? "Segue o comprovante." : "Quero combinar o pagamento.");
+      "\nCadeiras adicionais: " + r.extras + "\nTotal: " + brl(r.valor) + "\nPagamento: " + r.pagamento + "\n" + (r.pagamento === "Pix" ? "Segue o comprovante do Pix." : r.pagamento.indexOf("Cartão") === 0 ? "Segue o comprovante do cartão (link Cielo)." + (r.extras > 0 ? " Como pago as cadeiras adicionais?" : "") : "Quero combinar o pagamento.");
     $("d-whats").href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(msg);
     d.focus(); d.scrollIntoView();
   }
