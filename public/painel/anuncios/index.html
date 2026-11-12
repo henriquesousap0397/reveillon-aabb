@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Cliques nos Anúncios</title>
+<meta name="theme-color" content="#F5EFE4">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Oswald:wght@400;500&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Painel de cliques nos anúncios: mesmo visual do painel de visitas.
+   Números do topo, cliques por patrocinador, gráfico por dia e aparelho. Tema único (claro). */
+:root {
+  --paper: #F5EFE4;
+  --surface: #FFFDF8;
+  --ink: #3A2E1C;
+  --muted: #6E5E45;
+  --gold: #A9802C;
+  --gold-deep: #7A5A17;
+  --line: #E8D9B5;
+  --grid: #EFE5CF;
+  --font-display: "Montserrat", "Segoe UI", system-ui, sans-serif;
+  --font-num: "Oswald", "Arial Narrow", sans-serif;
+  --font-body: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 980px; margin-inline: auto; padding: 24px 16px 48px; display: grid; gap: 18px; }
+h1, h2 { font-family: var(--font-display); margin: 0; line-height: 1.15; text-wrap: balance; }
+h1 { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800; color: var(--gold-deep); }
+h2 { font-size: 1.05rem; font-weight: 700; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+.top { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: end; justify-content: space-between; }
+.eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.meta { color: var(--muted); font-size: .9rem; }
+button {
+  font: 700 .9rem var(--font-display); color: var(--gold-deep); background: var(--surface);
+  border: 2px solid var(--gold); border-radius: 999px; padding: 8px 18px; cursor: pointer;
+}
+button:hover { background: var(--gold); color: #fff; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 14px; align-content: start; }
+.notice { background: #FBF1CF; color: #6B5310; border-radius: 12px; padding: 12px 16px; font-weight: 600; font-size: .92rem; }
+.notice[hidden] { display: none; }
+
+/* Números do topo */
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: grid; gap: 2px; }
+.tile .num { font-family: var(--font-num); font-weight: 500; font-size: clamp(2rem, 6vw, 2.8rem); line-height: 1.05; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tile .lbl { font-size: .85rem; font-weight: 600; color: var(--muted); }
+.tile.hl { border-color: var(--gold); }
+.tile.hl .num { color: var(--gold-deep); }
+@media (max-width: 720px) { .tiles { grid-template-columns: 1fr 1fr; } }
+
+/* Gráfico de visitas por dia */
+.chart { position: relative; height: 220px; display: grid; grid-template-columns: 34px 1fr; gap: 6px; }
+.yaxis { position: relative; font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.yaxis span { position: absolute; right: 0; transform: translateY(50%); }
+.plot { position: relative; border-bottom: 1px solid var(--muted); }
+.gridline { position: absolute; left: 0; right: 0; border-top: 1px solid var(--grid); }
+.bars { position: absolute; inset: 0; display: flex; align-items: flex-end; gap: 2px; }
+.bar { flex: 1; max-width: 46px; min-width: 3px; position: relative; height: 100%; display: flex; align-items: flex-end; cursor: default; }
+.bar i { display: block; width: 100%; background: var(--gold); border-radius: 4px 4px 0 0; min-height: 0; }
+.bar:hover i, .bar:focus i { background: var(--gold-deep); }
+.bar.today i { background: var(--gold-deep); }
+.xaxis { display: flex; justify-content: space-between; margin-left: 40px; font-size: .75rem; color: var(--muted); }
+.tip {
+  position: absolute; pointer-events: none; background: var(--ink); color: #fff; font-size: .82rem;
+  padding: 6px 10px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, -100%); top: 0; z-index: 2;
+}
+.tip[hidden] { display: none; }
+
+/* Listas com barras horizontais */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 720px) { .two { grid-template-columns: 1fr; } }
+.rows { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.row { display: grid; gap: 4px; }
+.row .head { display: flex; justify-content: space-between; gap: 12px; font-size: .92rem; }
+.row .head b { font-weight: 600; }
+.row .head span { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.track { height: 10px; background: var(--grid); border-radius: 999px; overflow: hidden; }
+.track i { display: block; height: 100%; background: var(--gold); border-radius: 999px; }
+.empty { color: var(--muted); font-size: .92rem; }
+.help { color: var(--muted); font-size: .85rem; display: grid; gap: 6px; }
+.help b { color: var(--ink); }
+.sp { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.sp li { display: grid; grid-template-columns: 1fr repeat(3, auto); gap: 6px 18px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--grid); }
+.sp li:last-child { border-bottom: 0; }
+.sp .nm { font-weight: 700; }
+.sp .nm a { font-weight: 500; font-size: .85rem; color: var(--muted); display: block; }
+.sp .v { text-align: right; font-variant-numeric: tabular-nums; }
+.sp .v b { display: block; font-family: var(--font-num); font-weight: 500; font-size: 1.5rem; line-height: 1.1; }
+.sp .v span { font-size: .75rem; color: var(--muted); }
+.sp li.headrow { display: none; }
+@media (max-width: 520px) { .sp li { grid-template-columns: repeat(3, 1fr); } .sp .nm { grid-column: 1 / -1; } .sp .v { text-align: left; } }
+.links { display: flex; gap: 14px; flex-wrap: wrap; font-size: .9rem; }
+.links a { color: var(--gold-deep); font-weight: 600; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow">Réveillon AABB 50 anos · patrocinadores</p>
+      <h1>Cliques nos anúncios</h1>
+      <p class="meta" id="meta">Carregando os números…</p>
+    </div>
+    <button type="button" id="atualizar">Atualizar números</button>
+  </header>
+
+  <p class="notice" id="aviso" hidden></p>
+
+  <section class="tiles" aria-label="Resumo">
+    <div class="tile hl"><span class="num" id="t-hoje">–</span><span class="lbl">cliques hoje</span></div>
+    <div class="tile"><span class="num" id="t-semana">–</span><span class="lbl">cliques nos últimos 7 dias</span></div>
+    <div class="tile"><span class="num" id="t-total">–</span><span class="lbl">cliques desde o início</span></div>
+    <div class="tile"><span class="num" id="t-taxa">–</span><span class="lbl">dos visitantes clicaram</span></div>
+  </section>
+
+  <section class="card" aria-labelledby="g-patro">
+    <h2 id="g-patro">Por patrocinador</h2>
+    <ul class="sp" id="patros"></ul>
+  </section>
+
+  <section class="card" aria-labelledby="g-dias">
+    <h2 id="g-dias">Cliques por dia</h2>
+    <div class="chart" id="chart">
+      <div class="yaxis" id="yaxis"></div>
+      <div class="plot" id="plot"><div class="bars" id="bars" role="list"></div><div class="tip" id="tip" hidden></div></div>
+    </div>
+    <div class="xaxis" id="xaxis"></div>
+  </section>
+
+  <div class="two">
+    <section class="card" aria-labelledby="g-aparelho">
+      <h2 id="g-aparelho">Aparelho de quem clicou</h2>
+      <ul class="rows" id="aparelhos"></ul>
+    </section>
+    <section class="card help" aria-labelledby="g-ajuda">
+      <h2 id="g-ajuda">Como ler</h2>
+      <p><b>Clique</b> é cada vez que alguém toca no logo do patrocinador no site e é levado para o Instagram dele.</p>
+      <p><b>Dos visitantes clicaram</b> compara os cliques com as visitas do site no mesmo período. Mostra quanto o anúncio chama atenção.</p>
+      <p>A contagem começou em 12/11, não usa cookies nem identifica ninguém, e ignora robôs e prévias de link. Os números são atualizados na hora.</p>
+      <p class="links"><a href="../">Painel de visitas do site</a><a href="../../">Abrir o site</a></p>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  var demo = /[?&]demo=1/.test(location.search);
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = new Intl.NumberFormat("pt-BR");
+  var pct = new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 1 });
+  var MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  function rotuloData(iso) { var p = iso.split("-"); return Number(p[2]) + " " + MESES[Number(p[1]) - 1]; }
+
+  function exemplo() {
+    var dias = [], ini = Date.parse("2026-11-07T12:00:00Z"), n = 18;
+    for (var i = 0; i < n; i++) dias.push({ data: new Date(ini + i * 86400000).toISOString().slice(0, 10), cliques: Math.round(3 + i * 0.8 + (i % 7 === 5 ? 9 : 0) + (i * 13 % 5)) });
+    var soma = function (l) { return l.reduce(function (t, d) { return t + d.cliques; }, 0); };
+    var total = soma(dias);
+    return {
+      cliques: { atualizado: new Date().toISOString(), hoje: dias[n - 1].data,
+        totais: { hoje: dias[n - 1].cliques, semana: soma(dias.slice(-7)), total: total }, dias: dias,
+        patrocinadores: [{ nome: "Espetibar", destino: "https://www.instagram.com/espetibarbls/", hoje: dias[n - 1].cliques, semana: soma(dias.slice(-7)), total: total }],
+        aparelhos: [{ nome: "Celular", cliques: Math.round(total * .88) }, { nome: "Computador", cliques: Math.round(total * .12) }] },
+      visitas: total * 21
+    };
+  }
+
+  function escala(max) {
+    if (max <= 4) return 4;
+    var p = Math.pow(10, Math.floor(Math.log10(max))), passos = [1, 2, 2.5, 5, 10];
+    for (var i = 0; i < passos.length; i++) { var t = passos[i] * p; if (t * 4 >= max) return t * 4; }
+    return 10 * p * 4;
+  }
+
+  function grafico(dias, hoje) {
+    var bars = $("bars"), y = $("yaxis"), plot = $("plot"), tip = $("tip");
+    bars.textContent = ""; y.textContent = "";
+    plot.querySelectorAll(".gridline").forEach(function (g) { g.remove(); });
+    var max = escala(Math.max.apply(null, dias.map(function (d) { return d.cliques; }).concat([1])));
+    for (var k = 0; k <= 4; k++) {
+      var s = document.createElement("span"); s.style.bottom = (k * 25) + "%"; s.textContent = fmt.format(max * k / 4); y.appendChild(s);
+      if (k > 0) { var g = document.createElement("div"); g.className = "gridline"; g.style.bottom = (k * 25) + "%"; plot.insertBefore(g, bars); }
+    }
+    dias.forEach(function (d) {
+      var b = document.createElement("div");
+      b.className = "bar" + (d.data === hoje ? " today" : "");
+      b.setAttribute("role", "listitem"); b.tabIndex = 0;
+      var texto = rotuloData(d.data) + ": " + fmt.format(d.cliques) + (d.cliques === 1 ? " clique" : " cliques");
+      b.setAttribute("aria-label", texto);
+      var i = document.createElement("i"); i.style.height = (d.cliques / max * 100) + "%"; b.appendChild(i);
+      function mostrar() {
+        tip.textContent = texto; tip.hidden = false;
+        var r = b.getBoundingClientRect(), pr = plot.getBoundingClientRect();
+        tip.style.left = Math.min(Math.max(r.left - pr.left + r.width / 2, 70), pr.width - 70) + "px";
+        tip.style.top = Math.max(pr.height - (d.cliques / max * pr.height) - 8, 24) + "px";
+      }
+      b.addEventListener("mouseenter", mostrar); b.addEventListener("focus", mostrar);
+      b.addEventListener("mouseleave", function () { tip.hidden = true; }); b.addEventListener("blur", function () { tip.hidden = true; });
+      bars.appendChild(b);
+    });
+    var xa = $("xaxis"); xa.textContent = "";
+    if (dias.length) {
+      var marcas = dias.length < 3 ? dias : [dias[0], dias[Math.floor((dias.length - 1) / 2)], dias[dias.length - 1]];
+      marcas.forEach(function (d, idx) { var s = document.createElement("span"); s.textContent = (idx === marcas.length - 1 && d.data === hoje) ? "hoje" : rotuloData(d.data); xa.appendChild(s); });
+    }
+  }
+
+  function patros(lista) {
+    var el = $("patros"); el.textContent = "";
+    lista.forEach(function (p) {
+      var li = document.createElement("li");
+      li.innerHTML = '<div class="nm"><span></span><a target="_blank" rel="noopener"></a></div>' +
+        '<div class="v"><b data-k="hoje"></b><span>hoje</span></div><div class="v"><b data-k="semana"></b><span>7 dias</span></div><div class="v"><b data-k="total"></b><span>total</span></div>';
+      li.querySelector(".nm span").textContent = p.nome;
+      var a = li.querySelector(".nm a"); a.href = p.destino; a.textContent = p.destino.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+      ["hoje", "semana", "total"].forEach(function (k) { li.querySelector('[data-k="' + k + '"]').textContent = fmt.format(p[k]); });
+      el.appendChild(li);
+    });
+  }
+
+  function aparelhos(lista) {
+    var el = $("aparelhos"); el.textContent = "";
+    if (!lista.length) { el.innerHTML = '<li class="empty">Ainda sem cliques.</li>'; return; }
+    var total = lista.reduce(function (t, o) { return t + o.cliques; }, 0), max = lista[0].cliques;
+    lista.forEach(function (o) {
+      var li = document.createElement("li"); li.className = "row";
+      li.innerHTML = '<div class="head"><b></b><span></span></div><div class="track"><i></i></div>';
+      li.querySelector("b").textContent = o.nome;
+      li.querySelector("span").textContent = fmt.format(o.cliques) + " · " + Math.round(o.cliques / total * 100) + "%";
+      li.querySelector("i").style.width = (o.cliques / max * 100) + "%";
+      el.appendChild(li);
+    });
+  }
+
+  function mostrar(c, visitas) {
+    $("t-hoje").textContent = fmt.format(c.totais.hoje);
+    $("t-semana").textContent = fmt.format(c.totais.semana);
+    $("t-total").textContent = fmt.format(c.totais.total);
+    $("t-taxa").textContent = visitas ? pct.format(c.totais.total / visitas) : "–";
+    var quando = new Date(c.atualizado).toLocaleString("pt-BR", { timeZone: "America/Fortaleza", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    $("meta").textContent = "Cliques nos logos dos patrocinadores no site · atualizado em " + quando;
+    patros(c.patrocinadores); grafico(c.dias, c.hoje); aparelhos(c.aparelhos);
+  }
+
+  function aviso(txt) { var a = $("aviso"); a.textContent = txt; a.hidden = !txt; }
+  function pegar(url) { return fetch(url, { cache: "no-store" }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }); }
+
+  function carregar() {
+    if (demo) { aviso("Dados de exemplo, só para visualizar o painel. Os números reais aparecem sem o ?demo=1 no endereço."); var e = exemplo(); mostrar(e.cliques, e.visitas); return; }
+    aviso("");
+    Promise.all([pegar("/api/cliques"), pegar("/api/estatisticas").catch(function () { return { ok: false }; })])
+      .then(function (res) {
+        var c = res[0], v = res[1];
+        if (!c.ok) { aviso("Não foi possível buscar os números agora. Tente de novo em alguns minutos." + (c.j && c.j.mensagem ? " (" + c.j.mensagem + ")" : "")); $("meta").textContent = "Sem dados no momento"; return; }
+        mostrar(c.j, v.ok && v.j && v.j.totais ? v.j.totais.visitas : 0);
+      })
+      .catch(function () { aviso("Sem conexão. Confira a internet e toque em Atualizar números."); });
+  }
+
+  $("atualizar").addEventListener("click", carregar);
+  carregar();
+})();
+</script>
+</body>
+</html>

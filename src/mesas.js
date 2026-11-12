@@ -73,6 +73,21 @@ function senhaConfere(a, b) {
 
 const PAPEIS = { admin: "Administrador", operador: "Operador" };
 // ----- Barracas -----
+// ----- Patrocinadores: cliques nos anúncios -----
+// O logo aponta para /ir/<chave>. O clique é contado (sem cookies e sem dados pessoais) e a pessoa é redirecionada.
+const PATROCINADORES = {
+  espetibar: { nome: "Espetibar", destino: "https://www.instagram.com/espetibarbls/" },
+};
+const INICIO_CLIQUES = "2026-11-12";
+function aparelhoDe(ua) {
+  ua = ua || "";
+  if (/iPad|Tablet/i.test(ua)) return "tablet";
+  if (/Mobi|Android|iPhone/i.test(ua)) return "mobile";
+  return "desktop";
+}
+const APARELHOS_NOMES = { mobile: "Celular", desktop: "Computador", tablet: "Tablet" };
+const BOT = /bot|crawl|spider|preview|facebookexternalhit|whatsapp|telegram|slack|discord|curl|wget|python|headless/i;
+
 const BARRACAS = [
   ...["01", "02", "03", "04", "06", "07", "08", "09", "11", "12", "13", "14", "15", "16"].map((n) => ({ id: "aabb-" + n, tipo: "aabb", nome: "Barraca " + n })),
   ...["01", "02", "03", "04", "05", "06"].map((n) => ({ id: "metal-" + n, tipo: "metal", nome: "Metal " + n })),
@@ -232,6 +247,8 @@ export class Mesas extends DurableObject {
       ip: request.headers.get("cf-connecting-ip") || "0",
       token: request.headers.get("x-admin-token") || "",
       senhaCerta: (this.env && this.env.ADMIN_SENHA) || "",
+      ua: request.headers.get("user-agent") || "",
+      de: url.searchParams.get("de") || "",
       corpo,
     });
   }
@@ -240,6 +257,8 @@ export class Mesas extends DurableObject {
     const agora = Date.now();
     const e = await this.estado();
 
+    if (req.caminho.startsWith("/ir/")) return this.irPara(req, agora);
+    if (req.caminho === "/api/cliques" && req.metodo === "GET") return json(await this.cliques(agora));
     if (req.caminho === "/api/mesas" && req.metodo === "GET") return json(this.publico(e, agora));
     if (req.caminho === "/api/barracas" && req.metodo === "GET") { await this.salvarSeNovo(e); return json(this.barracasPublico(e, agora)); }
     if (req.caminho === "/api/barracas/reservar" && req.metodo === "POST") return this.reservarBarraca(e, req, agora);
@@ -553,6 +572,46 @@ export class Mesas extends DurableObject {
     }
     await this.salvar(e);
     return json({ ok: true });
+  }
+
+  // ===== Cliques nos patrocinadores =====
+  async irPara(req, agora) {
+    const chave = req.caminho.slice(4).replace(/\/+$/, "").toLowerCase();
+    const p = PATROCINADORES[chave];
+    if (!p) return new Response(null, { status: 302, headers: { location: "/" } });
+    if (!BOT.test(req.ua)) {
+      try {
+        const c = (await this.ctx.storage.get("cliques")) || {};
+        const k = horaLocal(agora).slice(0, 10) + "|" + chave + "|" + aparelhoDe(req.ua);
+        c[k] = (c[k] || 0) + 1;
+        await this.ctx.storage.put("cliques", c);
+      } catch (x) { /* nunca impedir o redirecionamento */ }
+    }
+    return new Response(null, { status: 302, headers: { location: p.destino, "cache-control": "no-store" } });
+  }
+  async cliques(agora) {
+    const c = (await this.ctx.storage.get("cliques")) || {};
+    const hoje = horaLocal(agora).slice(0, 10);
+    const seteAtras = horaLocal(agora - 6 * 86400000).slice(0, 10);
+    const dias = new Map();
+    for (let t = Date.parse(INICIO_CLIQUES + "T12:00:00-03:00"); horaLocal(t).slice(0, 10) <= hoje; t += 86400000) dias.set(horaLocal(t).slice(0, 10), 0);
+    const pat = {}, ap = {};
+    let total = 0, th = 0, ts = 0;
+    for (const [k, n] of Object.entries(c)) {
+      const [dia, chave, dev] = k.split("|");
+      dias.set(dia, (dias.get(dia) || 0) + n);
+      const pp = pat[chave] || (pat[chave] = { total: 0, hoje: 0, semana: 0 });
+      pp.total += n; if (dia === hoje) pp.hoje += n; if (dia >= seteAtras) pp.semana += n;
+      const nome = APARELHOS_NOMES[dev] || "Outros"; ap[nome] = (ap[nome] || 0) + n;
+      total += n; if (dia === hoje) th += n; if (dia >= seteAtras) ts += n;
+    }
+    return {
+      atualizado: new Date(agora).toISOString(), hoje,
+      totais: { hoje: th, semana: ts, total },
+      dias: [...dias.entries()].sort().map(([data, cliques]) => ({ data, cliques })),
+      patrocinadores: Object.keys(PATROCINADORES).map((k) => ({ chave: k, nome: PATROCINADORES[k].nome, destino: PATROCINADORES[k].destino, ...(pat[k] || { total: 0, hoje: 0, semana: 0 }) })).sort((a, b) => b.total - a.total),
+      aparelhos: Object.entries(ap).map(([nome, cliques]) => ({ nome, cliques })).sort((a, b) => b.cliques - a.cliques),
+    };
   }
 
   // ===== Barracas =====

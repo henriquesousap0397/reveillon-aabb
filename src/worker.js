@@ -20,7 +20,7 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === "/api/estatisticas") return estatisticas(request, env, ctx);
-    if (url.pathname.startsWith("/api/mesas") || url.pathname.startsWith("/api/barracas") || url.pathname.startsWith("/api/admin/")) return rotaMesas(request, env);
+    if (url.pathname.startsWith("/api/mesas") || url.pathname.startsWith("/api/barracas") || url.pathname.startsWith("/api/admin/") || url.pathname.startsWith("/ir/") || url.pathname === "/api/cliques") return rotaMesas(request, env);
     return env.ASSETS.fetch(request);
   },
 };

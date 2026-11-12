@@ -8,6 +8,7 @@ Hotsite oficial de **O Réveillon da Nossa História**, a festa da virada de 31/
   - `public/barracas/`: página de reserva de barracas (lista e fotos em `public/barracas/fotos/`)
   - `public/mesas/`: reserva de mesas com mapa interativo; `public/mesas/admin/`: painel administrativo das mesas
   - `public/painel/`: painel de visitas em português
+  - `public/painel/anuncios/`: painel de cliques nos anúncios dos patrocinadores
 - `src/mesas.js`: sistema de reservas de mesas (Durable Object `Mesas`)
 - `src/worker.js`: busca os números no Cloudflare Web Analytics para o painel (`/api/estatisticas`)
 - `wrangler.jsonc`: configuração do Cloudflare (publica só a pasta `public/` e liga o `src/worker.js`)
@@ -61,3 +62,9 @@ Visitas medidas pelo **Cloudflare Web Analytics** (gratuito, sem cookies e sem d
 - Operador: vende mesas no painel ("+ Nova venda" ou tocando numa mesa livre do mapa), confirma pagamentos, valida associados, ajusta cadeiras, prorroga e cancela. Administrador: também preços, estoque, bloqueio de mesas, abrir/fechar vendas, usuários e apagar reservas.
 - Dados pessoais (nome, WhatsApp, e-mail e CPF do associado) só aparecem no admin e na planilha exportada. O CPF é conferido pelos dígitos verificadores; a secretaria valida a associação pelo nome + CPF. Apagar as reservas depois do evento (botão "Apagar" em reservas canceladas, ou pedir ao desenvolvedor).
 - Para testar localmente: crie `.dev.vars` com `ADMIN_SENHA=...` e rode `npx wrangler dev`.
+
+## Cliques nos patrocinadores
+
+- Painel: https://reveillon.aabbbalsas.workers.dev/painel/anuncios/ (prévia: `?demo=1`)
+- O logo aponta para `/ir/<chave>`; o Durable Object conta o clique por dia, patrocinador e aparelho (sem cookies, ignora robôs e prévias de link) e redireciona.
+- Para incluir um patrocinador: adicione em `PATROCINADORES` no `src/mesas.js` e use `href="/ir/<chave>"` no logo.
