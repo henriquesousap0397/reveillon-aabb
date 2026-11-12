@@ -237,6 +237,15 @@ input[type=text]:focus, input[type=tel]:focus, input[type=email]:focus { outline
 .terms span { color: var(--muted); font-size: .92rem; }
 @media (max-width: 760px) { .terms { grid-template-columns: 1fr; } .terms div + div { border-left: 0; border-top: 1px solid var(--line); } }
 
+.rules { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+.rcard { position: relative; border: 1px solid var(--line); padding: 26px 24px; display: grid; gap: 12px; align-content: start; background: var(--paper); }
+.rcard h3 { font-size: 1.8rem; }
+.rcard ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; color: var(--muted); }
+.rcard li { padding-left: 28px; position: relative; }
+.rcard.yes li::before { content: "✓"; position: absolute; left: 0; color: var(--ok); font-weight: 700; }
+.rcard.no li::before { content: "✕"; position: absolute; left: 0; color: var(--bad); font-weight: 700; }
+.tip { text-align: center; color: var(--muted); margin-top: 20px; }
 footer { padding-block: 48px 32px; }
 footer .wrap { display: grid; gap: 22px; justify-items: center; text-align: center; }
 footer img { height: 36px; width: auto; }
@@ -420,8 +429,38 @@ footer small { font-size: .78rem; color: var(--night-muted); }
       <div class="terms">
         <div><b>Pagamento</b><span>Pix, cartão de crédito em até 3x ou outras condições com a secretaria. A reserva só é confirmada depois que o pagamento é validado.</span></div>
         <div><b>Cadeiras adicionais</b><span>Até 2 por mesa, R$ 50 cada, para associados e não associados. Estoque limitado por setor: Gold 30, Marrom 30, Royal 10.</span></div>
-        <div><b>Pulseira</b><span>Quem tem mesa recebe a pulseira clara, de acesso à área de shows. Bebidas são vendidas no bar do clube.</span></div>
+        <div><b>Pulseira</b><span>Quem tem mesa recebe a pulseira clara, de acesso à área de shows.</span></div>
       </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0" aria-labelledby="t-ori">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Orientações</p>
+        <h2 id="t-ori">Sua mesa, <em>sua ceia</em></h2>
+        <div class="rule"><span>✦</span></div>
+        <p class="lead">Para mais conforto e liberdade, quem reserva mesa pode levar alimentos para consumo próprio e dos convidados.</p>
+      </div>
+      <div class="rules">
+        <div class="rcard yes">
+          <h3>Pode</h3>
+          <ul>
+            <li>Levar petiscos, lanches, frios e outros alimentos para consumo na própria mesa.</li>
+            <li>Usar a mesa durante todo o evento: ela é numerada e fica reservada para você.</li>
+            <li>Contar com 6 cadeiras e adquirir até 2 adicionais, conforme disponibilidade.</li>
+          </ul>
+        </div>
+        <div class="rcard no">
+          <h3>Não pode</h3>
+          <ul>
+            <li>Entrar com bebidas de qualquer natureza. Todas as bebidas são compradas exclusivamente no clube.</li>
+            <li>Entrar com facas, objetos cortantes, perfurantes ou pontiagudos, por segurança.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="tip">Dica: leve os alimentos já preparados e porcionados.</p>
+      <p class="tip" style="font-family:var(--font-display);font-style:italic;font-size:1.25rem;color:var(--ink)">Organize sua mesa, reúna a família e os amigos e aproveite a noite dos 50 anos da AABB Balsas!</p>
     </div>
   </section>
 </main>
