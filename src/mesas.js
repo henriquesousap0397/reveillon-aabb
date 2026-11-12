@@ -338,6 +338,7 @@ export class Mesas extends DurableObject {
     const reg = (acao, extra) => e.historico.push(Object.assign({ t: agora, acao, quem: eu.nome }, extra || {}));
 
     if (d.acao && d.acao.startsWith("usuario_") || d.acao === "minha_senha") return this.usuarios(e, d, agora, eu, reg);
+    if (d.acao === "vender") return this.vender(e, d, agora, eu, reg);
     const r = d.codigo ? acha() : null;
     if (d.codigo && !r) return erro("Reserva não encontrada.", 404);
 
@@ -394,6 +395,49 @@ export class Mesas extends DurableObject {
     reg(d.acao, { codigo: r.codigo, mesa: r.mesa });
     await this.salvar(e);
     return json({ ok: true });
+  }
+
+  // Venda feita por operador/administrador no painel (balcão, telefone, WhatsApp).
+  async vender(e, d, agora, eu, reg) {
+    const mesa = Number(d.mesa), setor = setorDaMesa(mesa);
+    if (!Number.isInteger(mesa) || !setor) return erro("Escolha uma mesa válida.");
+    const tipo = d.tipo === "associado" ? "associado" : d.tipo === "nao_associado" ? "nao_associado" : null;
+    if (!tipo) return erro("Informe se o cliente é associado ou não.");
+    const extras = Number(d.extras || 0);
+    if (!Number.isInteger(extras) || extras < 0 || extras > e.config.max_cadeiras_por_mesa) return erro("Quantidade de cadeiras adicionais inválida.");
+    const nome = limpa(d.nome, 80);
+    if (nome.length < 5 || !/\s/.test(nome)) return erro("Informe o nome completo do cliente.");
+    const whatsapp = String(d.whatsapp || "").replace(/\D/g, "");
+    if (whatsapp && (whatsapp.length < 10 || whatsapp.length > 13)) return erro("WhatsApp inválido. Use DDD + número, ou deixe em branco.");
+    const email = limpa(d.email, 120);
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return erro("E-mail inválido.");
+    const cpf = String(d.cpf || "").replace(/\D/g, "");
+    if (tipo === "associado" && !cpfValido(cpf)) return erro("Informe um CPF válido do associado.");
+    const pagamento = PAGAMENTOS[d.pagamento] ? d.pagamento : null;
+    if (!pagamento) return erro("Escolha a forma de pagamento.");
+    if (d.consentimento !== true) return erro("Confirme que o cliente autorizou o uso dos dados para a reserva.");
+    if (e.bloqueadas.includes(mesa)) return erro(`A mesa ${mesa} está bloqueada. Desbloqueie antes de vender.`, 409);
+    const outra = this.reservaDaMesa(e, mesa, agora);
+    if (outra) return erro(`A mesa ${mesa} acabou de ser reservada (${outra.codigo}). Escolha outra.`, 409);
+    const restantes = e.config.estoque_cadeiras[setor] - this.cadeirasUsadas(e, setor, agora);
+    if (extras > restantes) return erro(restantes > 0 ? `Restam apenas ${restantes} cadeira(s) adicional(is) neste setor.` : "As cadeiras adicionais deste setor esgotaram.", 409);
+    const pago = d.pago === true;
+    const r = {
+      codigo: codigo(mesa), mesa, setor, tipo, extras,
+      valor: this.valor(e, setor, tipo, extras),
+      nome, whatsapp, email, cpf: tipo === "associado" ? cpf : "",
+      associado_validado: tipo === "associado" && d.associado_conferido === true,
+      pagamento, status: pago ? "vendida" : "aguardando",
+      criado: agora, atualizado: agora,
+      expira: agora + e.config.prazo_pagamento_horas * 3600000,
+      obs: limpa(d.obs, 300),
+      origem: "painel", vendido_por: eu.nome,
+      ultimo: { acao: pago ? "vender_pago" : "vender", quem: eu.nome, quando: horaLocal(agora) },
+    };
+    e.reservas.push(r);
+    reg(pago ? "vender_pago" : "vender", { codigo: r.codigo, mesa });
+    await this.salvar(e);
+    return json({ ok: true, codigo: r.codigo, mesa, valor: r.valor, status: r.status });
   }
 
   async usuarios(e, d, agora, eu, reg) {
@@ -461,12 +505,12 @@ export class Mesas extends DurableObject {
   }
 
   csv(e, agora) {
-    const cab = ["codigo", "mesa", "setor", "tipo", "associado_validado", "cpf", "nome", "whatsapp", "email", "cadeiras_adicionais", "lugares", "valor", "pagamento", "status", "criado", "prazo_pagamento", "observacao", "ultima_acao_por"];
+    const cab = ["codigo", "mesa", "setor", "tipo", "associado_validado", "cpf", "nome", "whatsapp", "email", "cadeiras_adicionais", "lugares", "valor", "pagamento", "status", "criado", "prazo_pagamento", "observacao", "origem", "ultima_acao_por"];
     const esc = (v) => { const s = String(v == null ? "" : v); return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
     const linhas = e.reservas.slice().sort((a, b) => a.mesa - b.mesa).map((r) => [
       r.codigo, r.mesa, SETORES[r.setor].nome, TIPOS[r.tipo], r.associado_validado ? "sim" : "não", cpfFmt(r.cpf), r.nome, r.whatsapp, r.email,
       r.extras, e.config.lugares_por_mesa + r.extras, String(r.valor).replace(".", ","), PAGAMENTOS[r.pagamento], this.statusEfetivo(r, agora),
-      horaLocal(r.criado), horaLocal(r.expira), r.obs, r.ultimo ? r.ultimo.quem + " (" + r.ultimo.quando + ")" : "",
+      horaLocal(r.criado), horaLocal(r.expira), r.obs, r.origem === "painel" ? "Painel (" + r.vendido_por + ")" : "Site", r.ultimo ? r.ultimo.quem + " (" + r.ultimo.quando + ")" : "",
     ].map(esc).join(";"));
     return new Response("﻿" + [cab.join(";"), ...linhas].join("\r\n"), {
       headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": 'attachment; filename="reservas-mesas-reveillon-aabb.csv"', "cache-control": "no-store" },

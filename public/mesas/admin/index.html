@@ -87,6 +87,21 @@ table.res tr.hl td { background: #FFF6DA; }
 .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 10px; font-weight: 600; z-index: 10; }
 .toast[hidden] { display: none; }
 body.operador .adm-only { display: none !important; }
+dialog#dv { border: 0; border-radius: 14px; padding: 0; width: min(560px, calc(100% - 20px)); max-height: calc(100% - 20px); }
+dialog#dv::backdrop { background: rgba(15,19,34,.6); }
+.dvf { padding: 18px; display: grid; gap: 12px; }
+.dvf > label, .dvf .g2 label { display: grid; gap: 4px; font-size: .86rem; font-weight: 600; }
+.dvf input[type=text], .dvf input[type=tel], .dvf input[type=email], .dvf select { width: 100%; }
+.dvh { display: flex; justify-content: space-between; align-items: center; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 480px) { .g2 { grid-template-columns: 1fr; } }
+.seg { display: flex; flex-wrap: wrap; gap: 8px; }
+.seg label { flex: 1; min-width: 150px; border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; font-size: .88rem; font-weight: 600; display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.seg label:has(input:checked) { border-color: var(--gold); background: #FFF6DA; }
+.chk { display: flex !important; grid-template-columns: none; gap: 8px; align-items: flex-start; font-weight: 500 !important; }
+.chk input { margin-top: 3px; accent-color: var(--gold); }
+.dvtot { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); padding-top: 10px; }
+.dvtot b { font-family: var(--font-display); font-size: 2rem; }
 .prov { border: 1px solid var(--gold); background: #FFF6DA; border-radius: 10px; padding: 14px; display: grid; gap: 8px; max-width: 620px; }
 .prov code { font: 700 1.05rem var(--font-body); background: #fff; border: 1px dashed var(--gold); padding: 2px 8px; border-radius: 6px; letter-spacing: .04em; }
 #f-user { grid-template-columns: minmax(0, 520px); }
@@ -128,6 +143,7 @@ body.operador .adm-only { display: none !important; }
     <div class="filters">
       <span class="muted" id="quem"></span>
       <button type="button" id="b-minha" hidden>Trocar minha senha</button>
+      <button type="button" class="pri" id="b-venda">+ Nova venda</button>
       <button type="button" id="b-csv">Exportar planilha (CSV)</button>
       <button type="button" id="b-ref">Atualizar</button>
       <button type="button" id="b-sair">Sair</button>
@@ -151,7 +167,7 @@ body.operador .adm-only { display: none !important; }
   <div class="two">
     <section class="card">
       <h2>Mapa</h2>
-      <p class="sub">Toque numa mesa para ver a reserva.<span class="adm-only"> Mesas livres podem ser bloqueadas (ficam indisponíveis no site).</span></p>
+      <p class="sub">Toque numa mesa livre para vender. Toque numa mesa ocupada para ver a reserva.<span class="adm-only"> Na venda, o administrador também pode bloquear a mesa.</span></p>
       <div class="mini" id="mini"></div>
       <div class="leg"><span><i style="background:var(--s-gold)"></i>Livre</span><span><i style="background:var(--wait-bg);border:2px dashed var(--wait)"></i>Aguardando</span><span><i style="background:var(--ok)"></i>Vendida</span><span><i style="background:var(--off-bg);border:2px solid var(--off)"></i>Bloqueada</span></div>
     </section>
@@ -209,6 +225,39 @@ body.operador .adm-only { display: none !important; }
     <div class="adm-only"><button class="pri" type="submit" form="f-cfg">Salvar configurações</button></div>
   </section>
 </div>
+<dialog id="dv" aria-labelledby="dv-t">
+  <form id="f-venda" class="dvf" novalidate>
+    <div class="dvh"><h2 id="dv-t">Nova venda</h2><button type="button" class="sm" id="dv-x" aria-label="Fechar">✕</button></div>
+    <label>Mesa
+      <select name="mesa" id="dv-mesa" required></select>
+    </label>
+    <div class="seg" role="radiogroup" aria-label="Tipo de cliente">
+      <label><input type="radio" name="tipo" value="associado"> Associado</label>
+      <label><input type="radio" name="tipo" value="nao_associado"> Não associado</label>
+    </div>
+    <label id="dv-cpfw" hidden>CPF do associado<input type="text" name="cpf" id="dv-cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" autocomplete="off"></label>
+    <label id="dv-confw" class="chk" hidden><input type="checkbox" name="associado_conferido"> Associação já conferida (nome + CPF no cadastro)</label>
+    <label>Nome completo do cliente<input type="text" name="nome" maxlength="80" required autocomplete="off"></label>
+    <div class="g2">
+      <label>WhatsApp <span class="sub">(opcional)</span><input type="tel" name="whatsapp" maxlength="20" inputmode="tel" autocomplete="off"></label>
+      <label>E-mail <span class="sub">(opcional)</span><input type="email" name="email" maxlength="120" autocomplete="off"></label>
+    </div>
+    <div class="g2">
+      <label>Cadeiras adicionais<select name="extras" id="dv-ex"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></label>
+      <label>Pagamento<select name="pagamento"><option value="pix">Pix</option><option value="cartao">Cartão (até 3x)</option><option value="secretaria">Outra condição</option></select></label>
+    </div>
+    <p class="sub" id="dv-est"></p>
+    <div class="seg" role="radiogroup" aria-label="Situação do pagamento">
+      <label><input type="radio" name="pago" value="1"> Já pago (fica Vendida)</label>
+      <label><input type="radio" name="pago" value="0"> Aguardando pagamento</label>
+    </div>
+    <label>Observação <span class="sub">(opcional)</span><input type="text" name="obs" maxlength="300" autocomplete="off"></label>
+    <label class="chk"><input type="checkbox" name="consentimento"> O cliente autorizou o uso dos dados para esta reserva</label>
+    <div class="dvtot"><span>Total</span><b id="dv-tot">R$ 0,00</b></div>
+    <p class="err" id="dv-err" role="alert"></p>
+    <button class="pri" type="submit" id="dv-ok">Registrar venda</button>
+  </form>
+</dialog>
 <div class="toast" id="toast" hidden></div>
 
 <script>
@@ -220,7 +269,7 @@ body.operador .adm-only { display: none !important; }
   var ACOES = { entrou: "Entrou no painel", reserva: "Nova reserva (site)", confirmar: "Confirmou pagamento", voltar_aguardando: "Voltou para aguardando", prorrogar: "Prorrogou +24h",
     cancelar: "Cancelou reserva", validar_associado: "Validação de associado", mudar_tipo: "Mudou o tipo", cadeiras: "Alterou cadeiras", obs: "Observação", apagar: "Apagou reserva",
     bloquear: "Bloqueou mesa", desbloquear: "Desbloqueou mesa", config: "Alterou configurações", usuario_criar: "Cadastrou usuário", usuario_senha: "Gerou senha provisória para",
-    usuario_papel: "Mudou perfil de", primeiro_acesso: "Criou a senha no 1º acesso", usuario_desativar: "Desativou", usuario_reativar: "Reativou", usuario_remover: "Removeu", minha_senha: "Trocou a própria senha" };
+    vender: "Reservou mesa no painel", vender_pago: "Vendeu mesa no painel (pago)", usuario_papel: "Mudou perfil de", primeiro_acesso: "Criou a senha no 1º acesso", usuario_desativar: "Desativou", usuario_reativar: "Reativou", usuario_remover: "Removeu", minha_senha: "Trocou a própria senha" };
 
   function toast(t) { var el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { el.hidden = true; }, 2600); }
   function api(path, body) {
@@ -281,12 +330,8 @@ body.operador .adm-only { display: none !important; }
 
   function clicar(m) {
     hl = m.n;
-    if (D.eu.papel !== "admin" && (m.status === "disponivel" || m.status === "indisponivel")) { mini(); return; }
-    if (m.status === "disponivel") {
-      if (confirm("Mesa " + m.n + " está livre. Bloquear (fica indisponível no site)?")) acao({ acao: "bloquear", mesa: m.n }, "Mesa " + m.n + " bloqueada.");
-      else { mini(); }
-      return;
-    }
+    if (m.status === "disponivel") { mini(); novaVenda(m.n); return; }
+    if (D.eu.papel !== "admin" && m.status === "indisponivel") { mini(); return; }
     if (m.status === "indisponivel") {
       if (confirm("Desbloquear a mesa " + m.n + "?")) acao({ acao: "desbloquear", mesa: m.n }, "Mesa " + m.n + " liberada.");
       return;
@@ -315,7 +360,7 @@ body.operador .adm-only { display: none !important; }
         '<td class="tp"></td><td class="ex"></td><td class="vl"></td><td class="pg"></td>' +
         '<td><span class="pill p-' + st + '"></span><div class="sub pz"></div></td><td><div class="acts"></div></td>';
       tr.querySelector("td b").textContent = String(r.mesa).padStart(2, "0") + " · " + r.setor_nome;
-      tr.querySelector("td .sub").textContent = r.codigo;
+      tr.querySelector("td .sub").textContent = r.codigo + (r.origem === "painel" ? " · vendida no painel por " + r.vendido_por : " · pelo site");
       tr.querySelector(".nm").textContent = r.nome;
       var wa = tr.querySelector(".wa"); var a = document.createElement("a"); a.href = "https://wa.me/55" + r.whatsapp.replace(/^55/, ""); a.target = "_blank"; a.rel = "noopener"; a.textContent = r.whatsapp; wa.appendChild(a);
       tr.querySelector(".em").textContent = r.email || "";
@@ -393,6 +438,63 @@ body.operador .adm-only { display: none !important; }
   $("b-minha").addEventListener("click", function () {
     var a = prompt("Senha atual:"); if (!a) return; var n = prompt("Nova senha (mín. 8 caracteres):"); if (!n) return;
     acao({ acao: "minha_senha", atual: a, senha: n }, "Senha trocada.");
+  });
+
+  function cpfOk(c) {
+    c = String(c || "").replace(/\D/g, "");
+    if (c.length !== 11 || /^(\d)\1{10}$/.test(c)) return false;
+    for (var t = 9; t <= 10; t++) { var s = 0; for (var i = 0; i < t; i++) s += Number(c[i]) * (t + 1 - i); if (((s * 10) % 11) % 10 !== Number(c[t])) return false; }
+    return true;
+  }
+  var NOMES_S = { gold: "Gold", marrom: "Marrom", royal: "Royal" };
+  function novaVenda(n) {
+    var f = $("f-venda"); f.reset(); $("dv-err").textContent = "";
+    var sel = $("dv-mesa"); sel.textContent = "";
+    var livres = D.mesas.filter(function (m) { return m.status === "disponivel"; });
+    if (!livres.length) { toast("Não há mesas livres."); return; }
+    livres.forEach(function (m) { var o = document.createElement("option"); o.value = m.n; o.textContent = "Mesa " + String(m.n).padStart(2, "0") + " · " + NOMES_S[m.setor]; sel.appendChild(o); });
+    if (n) sel.value = String(n);
+    var bl = document.getElementById("dv-block"); if (bl) bl.remove();
+    if (D.eu.papel === "admin") {
+      var b = document.createElement("button"); b.type = "button"; b.className = "sm"; b.id = "dv-block"; b.textContent = "Bloquear esta mesa em vez de vender";
+      b.addEventListener("click", function () { var m = Number(sel.value); $("dv").close(); acao({ acao: "bloquear", mesa: m }, "Mesa " + m + " bloqueada."); });
+      $("dv-ok").after(b);
+    }
+    calcVenda(); $("dv").showModal();
+  }
+  function calcVenda() {
+    var f = $("f-venda"), m = D.mesas[Number(f.mesa.value) - 1], s = m && D.setores[m.setor];
+    var t = f.querySelector("input[name=tipo]:checked");
+    $("dv-cpfw").hidden = $("dv-confw").hidden = !(t && t.value === "associado");
+    var max = s ? Math.min(D.max_cadeiras_por_mesa, s.cadeiras_restantes) : 0;
+    Array.prototype.forEach.call($("dv-ex").options, function (o) { o.disabled = Number(o.value) > max; });
+    if (Number($("dv-ex").value) > max) $("dv-ex").value = String(max);
+    $("dv-est").textContent = s ? "Setor " + s.nome + ": restam " + s.cadeiras_restantes + " cadeiras adicionais." : "";
+    var tot = s && t ? s.precos[t.value] + Number($("dv-ex").value) * D.preco_cadeira : 0;
+    $("dv-tot").textContent = brl(tot);
+  }
+  $("f-venda").addEventListener("change", calcVenda);
+  $("dv-cpf").addEventListener("input", function () {
+    var d = this.value.replace(/\D/g, "").slice(0, 11), f = d;
+    if (d.length > 9) f = d.slice(0, 3) + "." + d.slice(3, 6) + "." + d.slice(6, 9) + "-" + d.slice(9);
+    else if (d.length > 6) f = d.slice(0, 3) + "." + d.slice(3, 6) + "." + d.slice(6);
+    else if (d.length > 3) f = d.slice(0, 3) + "." + d.slice(3);
+    this.value = f;
+  });
+  $("dv-x").addEventListener("click", function () { $("dv").close(); });
+  $("b-venda").addEventListener("click", function () { novaVenda(); });
+  $("f-venda").addEventListener("submit", function (ev) {
+    ev.preventDefault(); var f = ev.target, err = $("dv-err"); err.textContent = "";
+    var t = f.querySelector("input[name=tipo]:checked"), pg = f.querySelector("input[name=pago]:checked");
+    var falta = !t ? "Informe se o cliente é associado." : (t.value === "associado" && !cpfOk(f.cpf.value)) ? "CPF do associado inválido." :
+      f.nome.value.trim().split(/\s+/).length < 2 ? "Informe o nome completo." : !pg ? "Informe se já está pago." : !f.consentimento.checked ? "Confirme a autorização do cliente para o uso dos dados." : "";
+    if (falta) { err.textContent = falta; return; }
+    var bt = $("dv-ok"); bt.disabled = true;
+    api("/api/admin/mesas", { acao: "vender", mesa: Number(f.mesa.value), tipo: t.value, cpf: f.cpf.value, associado_conferido: f.associado_conferido.checked,
+      nome: f.nome.value, whatsapp: f.whatsapp.value, email: f.email.value, extras: Number(f.extras.value), pagamento: f.pagamento.value,
+      pago: pg.value === "1", obs: f.obs.value, consentimento: true })
+      .then(function (j) { bt.disabled = false; $("dv").close(); hl = j.mesa; toast("Mesa " + j.mesa + (j.status === "vendida" ? " vendida" : " reservada") + " · " + brl(j.valor) + " · " + j.codigo); return carregar(); })
+      .catch(function (e) { bt.disabled = false; err.textContent = e.message; if (e.status === 409) carregar().then(function () { novaVenda(); err.textContent = e.message; }); });
   });
 
   function cfg() {
