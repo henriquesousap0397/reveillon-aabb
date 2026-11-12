@@ -225,6 +225,15 @@ section { padding-block: clamp(72px, 11vw, 128px); }
 .pass-foot a { color: var(--gold-lo); }
 @media (max-width: 640px) { .passes { grid-template-columns: 1fr; } }
 
+/* Pulseiras */
+.bands { display: grid; gap: 22px; max-width: 760px; margin: 0 auto; }
+.band { display: grid; gap: 10px; }
+.band .strip { aspect-ratio: 8.5 / 1; overflow: hidden; border-radius: 6px; box-shadow: 0 10px 22px -14px rgba(43,36,24,.55), inset 0 0 0 1px rgba(255,255,255,.25); }
+.band .strip img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.band .cap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; align-items: baseline; }
+.band .cap b { font-family: var(--font-display); font-weight: 600; font-size: 1.35rem; }
+.band .cap span { font-size: .9rem; color: var(--muted); }
+
 /* 50 anos */
 .years { display: grid; grid-template-columns: 1fr auto 1fr; gap: clamp(20px, 5vw, 56px); align-items: center; text-align: center; }
 .years .y { font-family: var(--font-display); font-size: clamp(4.4rem, 13vw, 9rem); line-height: .9; font-weight: 400; }
@@ -462,6 +471,22 @@ footer small { font-size: .78rem; color: var(--night-muted); }
           <a class="btn solid buy" href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener" data-tipo="Não associado" data-valor="R$ 70">Comprar ingresso</a>
         </article>
       </div>
+      <div class="bands-wrap" style="margin-top:56px">
+        <div class="head" style="margin-bottom:28px">
+          <p class="eyebrow">Sua pulseira</p>
+          <h3 style="font-size:clamp(1.8rem,4vw,2.4rem)">Cada acesso, <em>uma cor</em></h3>
+        </div>
+        <div class="bands">
+          <div class="band">
+            <div class="strip"><img src="assets/pulseira-shows.jpg" width="1400" height="100" loading="lazy" alt="Pulseira clara, dourada, com o selo dos 50 anos, o texto Réveillon 2027 e a logo da AABB."></div>
+            <div class="cap"><b>Pulseira clara · Área de shows</b><span>Ingresso individual</span></div>
+          </div>
+          <div class="band">
+            <div class="strip"><img src="assets/pulseira-barraca.jpg" width="1400" height="100" loading="lazy" alt="Pulseira escura, em tons de cobre, com o selo dos 50 anos, o texto Réveillon 2027 e a logo da AABB."></div>
+            <div class="cap"><b>Pulseira escura · Barraca + área de shows</b><span>Para quem reservou barraca</span></div>
+          </div>
+        </div>
+      </div>
       <p class="pass-foot" id="pass-foot">A compra é feita com a secretaria da AABB. Quer um espaço só da sua turma? Veja as <a href="barracas/">barracas com 20 passes</a>.</p>
     </div>
   </section>
@@ -506,6 +531,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
       <div class="faq" id="duvidas">
         <h2>Dúvidas</h2>
         <details open><summary>Quanto custa o ingresso?</summary><p>No lote antecipado, até 15 de dezembro: R$ 50 para associados e R$ 70 para não associados. A compra é feita com a secretaria da AABB.</p></details>
+        <details><summary>Como funciona a entrada?</summary><p>O acesso é feito por pulseira. A clara dá acesso à área de shows. A escura é de quem reservou barraca e dá acesso à área das barracas e também à área de shows.</p></details>
         <details><summary>Como reservo uma barraca?</summary><p>Escolha na página de barracas. Cada uma custa R$ 800, inclui 20 passes e é paga por Pix ou cartão em até 3x. A reserva vale depois que a administração valida o comprovante.</p></details>
         <details><summary>Tem programação para crianças?</summary><p>Tem! Às 20h, na quadra de esportes, teatro infantil com música, brincadeiras e personagens vivos.</p></details>
         <details><summary>A bebida está inclusa?</summary><p>Não. As bebidas são vendidas no bar do clube durante a festa.</p></details>
