@@ -1,5 +1,6 @@
 // Worker do hotsite do Réveillon AABB 50 anos.
 // - Serve o site (pasta public/) normalmente.
+// - Em /api/mesas, /api/reservas e /api/admin, cuida das reservas de mesas do salão (src/mesas.js).
 // - Em /api/estatisticas, busca no Cloudflare Web Analytics os números de visitas
 //   e devolve um resumo para o painel em /painel/.
 //
@@ -13,10 +14,15 @@ const FUSO_HORAS = -3;                            // Balsas/MA: UTC-3, sem horá
 const JANELA_DIAS = 7;                            // consulta em blocos de 7 dias
 const CACHE_SEGUNDOS = 300;                       // guarda o resumo por 5 minutos
 
+import { rotaMesas } from "./mesas.js";
+export { Mesas } from "./mesas.js";
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === "/api/estatisticas") return estatisticas(request, env, ctx);
+    const mesas = await rotaMesas(request, env);
+    if (mesas) return mesas;
     return env.ASSETS.fetch(request);
   },
 };

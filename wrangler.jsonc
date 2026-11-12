@@ -2,6 +2,9 @@
   // Configuração do Cloudflare.
   // - Publica só a pasta public/ (o site e o painel). README e este arquivo não vão para o ar.
   // - src/worker.js responde em /api/estatisticas com os números do painel (/painel/).
+  // - src/mesas.js cuida das reservas de mesas (/api/mesas, /api/reservas, /api/admin).
+  //   Os dados ficam no Durable Object "Mesas" (banco SQLite criado sozinho na publicação).
+  //   O painel /mesas/admin/ exige o Secret ADMIN_SENHA (Settings → Variables and Secrets).
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "reveillon",
   "main": "src/worker.js",
@@ -12,5 +15,11 @@
   "assets": {
     "directory": "./public",
     "binding": "ASSETS"
-  }
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "MESAS", "class_name": "Mesas" }]
+  },
+  "migrations": [
+    { "tag": "v1-mesas", "new_sqlite_classes": ["Mesas"] }
+  ]
 }

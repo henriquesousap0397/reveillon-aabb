@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acompanhar reserva de mesa · Réveillon AABB 50 Anos</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../../assets/favicon.png">
+<meta name="theme-color" content="#F6F1E7">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../mesas.css?v=2">
+<style>
+  .box { max-width: 600px; margin-inline: auto; display: grid; gap: 18px; }
+  .busca { display: flex; gap: 10px; }
+  .busca input { text-transform: uppercase; letter-spacing: .1em; font-weight: 600; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../../" aria-label="Réveillon AABB 50 anos, voltar ao site da festa">
+      <img src="../../assets/logo-aabb-azul.png" width="440" height="174" alt="AABB Balsas">
+      <span>Réveillon 50 anos</span>
+    </a>
+    <nav aria-label="Links"><a href="../#mapa">← Mapa de mesas</a></nav>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="wrap box">
+      <div class="head" style="margin-bottom:8px">
+        <p class="eyebrow">Mesas do salão</p>
+        <h2>Acompanhe <em>sua reserva</em></h2>
+        <div class="rule"><span>✦</span></div>
+      </div>
+      <form class="busca" id="busca">
+        <label class="campo" style="flex:1">Código da reserva<input type="text" name="c" maxlength="12" autocomplete="off" placeholder="Ex.: K7M2Q9XA" required></label>
+        <button class="btn solid small" style="align-self:end;height:46px">Ver</button>
+      </form>
+      <div id="saida" aria-live="polite"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="night">
+  <div class="wrap">
+    <img src="../../assets/logo-aabb-branca.png" width="440" height="174" alt="AABB Balsas">
+    <nav class="links" aria-label="Links">
+      <a href="../">Mapa de mesas</a>
+      <a href="../../">Site da festa</a>
+      <a href="https://wa.me/5599988276988" target="_blank" rel="noopener">WhatsApp da secretaria</a>
+    </nav>
+    <small>Réveillon AABB 2027 · O Réveillon da Nossa História</small>
+  </div>
+</footer>
+
+<script src="../comum.js?v=2"></script>
+<script>
+(function () {
+  var C = window.MesasComum, f = document.getElementById("busca"), saida = document.getElementById("saida");
+  var codigo = (new URLSearchParams(location.search).get("c") || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  var ultimoStatus = null;
+
+  function mostrar(r) {
+    var cls = r.status === "pago" ? "msg-ok" : ["cancelada", "expirada"].includes(r.status) ? "msg-erro" : "";
+    var zap = C.whatsapp(r.whatsapp, "Olá! Sobre a reserva da mesa " + C.dois(r.mesa) + " do Réveillon AABB 50 anos, código " + r.codigo + ".");
+    saida.innerHTML =
+      (cls ? '<div class="' + cls + '"><b>' + C.STATUS[r.status] + "</b></div>" : "") +
+      '<div class="card">' +
+        '<p class="eyebrow">Mesa ' + C.dois(r.mesa) + " · Setor " + C.NOMES[r.setor] + "</p>" +
+        '<h3>Reserva de ' + C.esc(r.primeiro_nome) + "</h3>" +
+        '<dl class="info"><dt>Código</dt><dd>' + r.codigo + "</dd>" +
+          "<dt>Situação</dt><dd>" + C.STATUS[r.status] + "</dd>" +
+          "<dt>Tipo</dt><dd>" + (r.tipo === "associado" ? "Associado" : "Não associado") + "</dd>" +
+          "<dt>Lugares</dt><dd>" + r.lugares + " (6 + " + r.cadeiras + " adiciona" + (r.cadeiras === 1 ? "l" : "is") + ")</dd>" +
+          "<dt>Mesa</dt><dd>" + C.reais(r.valor_mesa) + "</dd>" +
+          (r.cadeiras ? "<dt>Cadeiras</dt><dd>" + C.reais(r.valor_cadeiras) + "</dd>" : "") +
+          "<dt>Total</dt><dd>" + C.reais(r.total) + "</dd>" +
+          (r.expira_em ? '<dt>Prazo</dt><dd class="prazo">até ' + C.quando(r.expira_em) + "</dd>" : "") +
+        "</dl>" +
+      "</div>" +
+      (r.status === "validacao" ? '<p class="nota">A secretaria está validando sua condição de associado. Quando for validada, o Pix aparece aqui nesta página. Se preferir, chame a secretaria no WhatsApp.</p>' : "") +
+      (r.status === "pagamento" && r.forma === "secretaria" ? '<p class="nota">Você escolheu pagar no cartão ou combinar outra condição. Fale com a secretaria pelo WhatsApp dentro do prazo.</p>' : "") +
+      '<div id="pix-alvo"></div>' +
+      (r.pix ? '<p class="nota">Depois de pagar, envie o comprovante pelo WhatsApp da secretaria. A reserva é confirmada quando a secretaria validar o pagamento.</p>' : "") +
+      (r.status === "pago" ? '<p class="nota">Tudo certo! Sua mesa está garantida. Nos vemos na virada!</p>' : "") +
+      (["cancelada", "expirada"].includes(r.status) ? '<p class="nota">Esta reserva não está mais ativa. Se acha que é um engano, fale com a secretaria. Você também pode escolher outra mesa disponível no mapa.</p>' : "") +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn wa" href="' + zap + '" target="_blank" rel="noopener">WhatsApp da secretaria</a><a class="btn" href="../#mapa">Mapa de mesas</a></div>';
+    if (r.pix) C.mostrarPix(document.getElementById("pix-alvo"), r.pix, r.codigo);
+    C.guardarCodigo(r.codigo, r.mesa);
+  }
+
+  function buscar(silencioso) {
+    if (!codigo) return;
+    f.c.value = codigo;
+    if (!silencioso) saida.innerHTML = '<p class="nota">Buscando…</p>';
+    fetch("/api/reservas/" + encodeURIComponent(codigo), { cache: "no-store" })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (!res.ok) { if (!silencioso) saida.innerHTML = '<div class="msg-erro">' + C.esc(res.j.erro || "Reserva não encontrada.") + "</div>"; return; }
+        // Só redesenha se a situação mudou (para não apagar o que a pessoa está copiando).
+        if (res.j.status !== ultimoStatus) { ultimoStatus = res.j.status; mostrar(res.j); }
+      })
+      .catch(function () { if (!silencioso) saida.innerHTML = '<div class="msg-erro">Sem conexão. Tente de novo.</div>'; });
+  }
+
+  f.addEventListener("submit", function (e) {
+    e.preventDefault();
+    codigo = f.c.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    history.replaceState(null, "", "?c=" + codigo);
+    ultimoStatus = null;
+    buscar(false);
+  });
+
+  buscar(false);
+  // Atualiza sozinho: quando a secretaria validar o associado ou confirmar o pagamento, a página muda.
+  setInterval(function () { if (!document.hidden) buscar(true); }, 20000);
+})();
+</script>
+</body>
+</html>

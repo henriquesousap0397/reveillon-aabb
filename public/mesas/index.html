@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mesas do Réveillon AABB 50 Anos</title>
+<meta name="description" content="Escolha sua mesa no Réveillon da Nossa História: 40 mesas no salão principal da AABB Balsas, setores Gold, Marrom e Royal. Mesas a partir de R$ 420 para associados.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://reveillon.aabbbalsas.workers.dev/mesas/">
+<meta property="og:title" content="Escolha seu lugar no Réveillon da Nossa História · AABB 50 anos">
+<meta property="og:description" content="40 mesas no salão principal, setores Gold, Marrom e Royal. Associados economizam até R$ 300 por mesa.">
+<meta property="og:image" content="https://reveillon.aabbbalsas.workers.dev/mesas/salao-ilustrativo.webp">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<meta name="theme-color" content="#F6F1E7">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="mesas.css?v=2">
+</head>
+<body>
+
+<div class="aviso-vendas" id="aviso-vendas" hidden><b>Reservas em breve.</b> O mapa já mostra os setores e valores. As reservas abrem assim que a secretaria liberar.</div>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Réveillon AABB 50 anos, voltar ao site da festa">
+      <img src="../assets/logo-aabb-azul.png" width="440" height="174" alt="AABB Balsas">
+      <span>Réveillon 50 anos</span>
+    </a>
+    <nav aria-label="Seções">
+      <a class="so-grande" href="#setores">Setores</a>
+      <a href="#mapa">Mapa</a>
+      <a class="so-grande" href="#como">Como funciona</a>
+      <a href="../">← Site da festa</a>
+    </nav>
+  </div>
+</header>
+
+<div class="minhas" id="minhas" hidden><div class="wrap"></div></div>
+
+<main>
+  <section class="hero" aria-labelledby="t-hero">
+    <div class="wrap">
+      <div class="hero-text">
+        <p class="eyebrow">Mesas no salão principal · 31.12.2026</p>
+        <h1 id="t-hero">Escolha seu lugar no <em class="metal">Réveillon da Nossa História!</em></h1>
+        <p class="lead">Celebre a chegada de 2027 e os 50 anos da AABB Balsas em uma noite de grandes atrações, encontros especiais e momentos inesquecíveis.</p>
+        <p class="lead">Nosso salão principal receberá uma decoração sofisticada, iluminação especial e mesas reservadas para proporcionar ainda mais conforto durante a festa. Escolha entre os setores Gold, Marrom e Royal e garanta seu lugar ao lado de familiares e amigos.</p>
+        <div class="from">
+          <div><b class="metal" id="desde-assoc">R$ 420</b><span>Associados, a partir de</span></div>
+          <div><b class="metal" id="desde-nao">R$ 600</b><span>Não associados, a partir de</span></div>
+        </div>
+        <p class="economia">Associados economizam até <span id="economia">R$ 300</span> por mesa!</p>
+        <div class="actions">
+          <a class="btn solid" href="#mapa">Escolher minha mesa</a>
+          <a class="btn" href="#como">Como funciona</a>
+        </div>
+      </div>
+      <figure>
+        <img src="salao-ilustrativo.webp" width="1176" height="836" alt="Ilustração do salão principal com palco, tecidos brancos no teto e as 40 mesas divididas nos setores Gold, Marrom e Royal.">
+        <figcaption>Imagem meramente ilustrativa, sujeita a ajustes na montagem definitiva.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section style="padding-top:0" aria-label="Números do salão">
+    <div class="wrap">
+      <ul class="numeros">
+        <li><b class="metal">40</b><span>mesas numeradas</span></li>
+        <li><b class="metal">6</b><span>lugares por mesa</span></li>
+        <li><b class="metal">+2</b><span>cadeiras adicionais por mesa, <span id="preco-cadeira">R$ 50</span> cada</span></li>
+        <li><b class="metal">310</b><span>pessoas na capacidade máxima (240 iniciais)</span></li>
+      </ul>
+      <p class="nota" style="text-align:center;margin-top:14px">Apenas 40 mesas disponíveis. Escolha a sua e faça parte dessa celebração histórica!</p>
+    </div>
+  </section>
+
+  <section id="setores" style="background:var(--paper-2)" aria-labelledby="t-set">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Setores</p>
+        <h2 id="t-set">Três setores, <em>uma noite inesquecível</em></h2>
+        <div class="rule"><span>✦</span></div>
+      </div>
+      <div class="setores" id="setores-lista">
+        <article class="setor" style="--cor:var(--s-gold)" data-setor="gold">
+          <h3>Gold <small>Mesas 01 a 15</small></h3>
+          <p>Localização privilegiada, mais próxima do palco, ideal para quem deseja acompanhar as atrações musicais de perto.</p>
+          <ul><li>15 mesas</li><li>Cadeiras Tiffany douradas</li><li>Seis lugares por mesa</li></ul>
+          <div class="precos"><div><span>Associado</span><b data-preco="associado">R$ 500</b></div><div><span>Não associado</span><b data-preco="nao_associado">R$ 800</b></div></div>
+          <p class="restam" data-restam></p>
+        </article>
+        <article class="setor" style="--cor:var(--s-marrom)" data-setor="marrom">
+          <h3>Marrom <small>Mesas 16 a 30</small></h3>
+          <p>Localização intermediária, proporcionando conforto e excelente experiência durante as apresentações.</p>
+          <ul><li>15 mesas</li><li>Cadeiras Tiffany marrons</li><li>Seis lugares por mesa</li></ul>
+          <div class="precos"><div><span>Associado</span><b data-preco="associado">R$ 460</b></div><div><span>Não associado</span><b data-preco="nao_associado">R$ 700</b></div></div>
+          <p class="restam" data-restam></p>
+        </article>
+        <article class="setor" style="--cor:var(--s-royal)" data-setor="royal">
+          <h3>Royal <small>Mesas 31 a 40</small></h3>
+          <p>Localizado na área posterior do salão, oferecendo conforto e condições especiais para celebrar a virada.</p>
+          <ul><li>10 mesas</li><li>Cadeiras Royal douradas</li><li>Seis lugares por mesa</li></ul>
+          <div class="precos"><div><span>Associado</span><b data-preco="associado">R$ 420</b></div><div><span>Não associado</span><b data-preco="nao_associado">R$ 600</b></div></div>
+          <p class="restam" data-restam></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="mapa" class="night mapa-sec" aria-labelledby="t-mapa">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Mapa de mesas</p>
+        <h2 id="t-mapa">Toque na mesa <em>que você quer</em></h2>
+        <div class="rule"><span>✦</span></div>
+        <p class="lead">Veja valores, localização e cadeiras adicionais de cada mesa. O mapa é atualizado em tempo real.</p>
+      </div>
+      <div class="legenda" aria-hidden="true">
+        <span><i class="l-disp"></i>Disponível</span>
+        <span><i class="l-agu"></i>Aguardando pagamento</span>
+        <span><i class="l-vend"></i>Vendida</span>
+      </div>
+      <div class="salao" id="salao"><p class="carregando">Carregando o mapa…</p></div>
+      <p class="mapa-resumo" id="mapa-resumo"></p>
+      <p class="ilustrativa" style="text-align:center;margin-top:8px;color:var(--night-muted)">Representação esquemática. A disposição final pode ter pequenos ajustes na montagem.</p>
+    </div>
+  </section>
+
+  <section id="como" aria-labelledby="t-como">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Como funciona</p>
+        <h2 id="t-como">Reserve em <em>poucos passos</em></h2>
+        <div class="rule"><span>✦</span></div>
+      </div>
+      <ol class="passos">
+        <li><b>Escolha a mesa</b><span>Toque numa mesa disponível no mapa, informe se é associado e quantas cadeiras adicionais quer.</span></li>
+        <li><b>Preencha seus dados</b><span>Nome, CPF e telefone. Associados informam a carteirinha, que a secretaria valida antes do pagamento.</span></li>
+        <li><b>Pague</b><span>Pix pelo próprio site, com o valor já preenchido. Cartão em até 3x e outras condições com a secretaria.</span></li>
+        <li><b>Mesa confirmada</b><span>A reserva vale de forma definitiva depois que a secretaria valida o pagamento.</span></li>
+      </ol>
+      <div class="condicoes">
+        <div class="card">
+          <p class="eyebrow">Condições</p>
+          <h3>Antes de reservar</h3>
+          <ul>
+            <li>A mesa fica separada por <b data-prazo>24 horas</b> aguardando o pagamento. Depois disso, ela volta a ficar disponível.</li>
+            <li>Preço de associado mediante validação da condição associativa pela secretaria. Se não for confirmada, vale o preço de não associado.</li>
+            <li>Todas as mesas têm seis lugares e podem receber até duas cadeiras adicionais (<span data-cadeira>R$ 50</span> cada, igual para associados e não associados), conforme o estoque de cada setor.</li>
+            <li>Pagamento via Pix ou cartão de crédito em até 3x. Demais condições mediante contato com a secretaria da AABB.</li>
+            <li>Dúvidas sobre ingressos, cancelamento e reembolso: fale com a secretaria.</li>
+          </ul>
+        </div>
+        <div class="card" id="privacidade">
+          <p class="eyebrow">Privacidade</p>
+          <h3>Seus dados</h3>
+          <p>Pedimos nome, CPF, telefone e e-mail apenas para identificar a sua reserva, entrar em contato sobre ela e conferir a reserva na entrada. Para associados, também o número da carteirinha, para validar o preço.</p>
+          <p>Os dados ficam guardados em sistema próprio, com acesso restrito à administração da AABB Balsas, não são vendidos nem compartilhados e são usados só para a organização do evento e a prestação de contas. Para pedir correção ou exclusão, fale com a secretaria.</p>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center;margin-top:30px"><a class="btn solid" href="#mapa">Escolher minha mesa</a></div>
+    </div>
+  </section>
+</main>
+
+<footer class="night">
+  <div class="wrap">
+    <img src="../assets/logo-aabb-branca.png" width="440" height="174" alt="AABB Balsas">
+    <div class="rule"><span>✦</span></div>
+    <nav class="links" aria-label="Links">
+      <a href="../">Site da festa</a>
+      <a href="../barracas/">Barracas</a>
+      <a href="reserva/">Acompanhar reserva</a>
+      <a href="https://wa.me/5599988276988" target="_blank" rel="noopener">WhatsApp da secretaria</a>
+    </nav>
+    <small>Réveillon AABB 2027 · O Réveillon da Nossa História · AABB Balsas 1977 — 2027</small>
+  </div>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlg-titulo">
+  <div class="dlg-top">
+    <span class="bola" id="dlg-bola">00</span>
+    <div><small id="dlg-setor">Setor</small><h3 id="dlg-titulo">Mesa 00</h3></div>
+    <button type="button" class="x" id="dlg-fechar" aria-label="Fechar">×</button>
+  </div>
+  <div class="dlg-body" id="dlg-corpo"></div>
+</dialog>
+
+<script src="comum.js?v=2"></script>
+<script>
+(function () {
+  var C = window.MesasComum, $ = function (id) { return document.getElementById(id); };
+  var dados = null;          // resposta de /api/mesas
+  var mesaAtual = null;
+  var dlg = $("dlg");
+
+  // ---------- Mapa ----------
+  function carregar() {
+    return fetch("/api/mesas", { cache: "no-store" }).then(function (r) {
+      if (!r.ok) throw new Error();
+      return r.json();
+    }).then(function (d) { dados = d; desenhar(); return d; }).catch(function () {
+      $("salao").innerHTML = '<p class="carregando">Não foi possível carregar o mapa agora. Recarregue a página em instantes.</p>';
+    });
+  }
+
+  function desenhar() {
+    var d = dados;
+    $("aviso-vendas").hidden = d.vendas_abertas;
+    // Preços nos textos
+    var minA = Infinity, minN = Infinity, eco = 0;
+    Object.keys(d.precos).forEach(function (s) {
+      var p = d.precos[s];
+      minA = Math.min(minA, p.associado); minN = Math.min(minN, p.nao_associado); eco = Math.max(eco, p.nao_associado - p.associado);
+      var card = document.querySelector('.setor[data-setor="' + s + '"]');
+      card.querySelector('[data-preco="associado"]').textContent = C.reaisCurto(p.associado);
+      card.querySelector('[data-preco="nao_associado"]').textContent = C.reaisCurto(p.nao_associado);
+      var livres = d.mesas.filter(function (m) { return m.setor === s && m.status === "disponivel"; }).length;
+      var cad = d.cadeiras[s].restantes;
+      card.querySelector("[data-restam]").innerHTML = "<b>" + livres + "</b> mesa" + (livres === 1 ? "" : "s") + " disponíve" + (livres === 1 ? "l" : "is") +
+        " · <b>" + cad + "</b> cadeira" + (cad === 1 ? "" : "s") + " adicion" + (cad === 1 ? "al" : "ais") + " restante" + (cad === 1 ? "" : "s");
+    });
+    $("desde-assoc").textContent = C.reaisCurto(minA);
+    $("desde-nao").textContent = C.reaisCurto(minN);
+    $("economia").textContent = C.reaisCurto(eco);
+    $("preco-cadeira").textContent = C.reaisCurto(d.preco_cadeira);
+    document.querySelectorAll("[data-cadeira]").forEach(function (el) { el.textContent = C.reaisCurto(d.preco_cadeira); });
+    document.querySelectorAll("[data-prazo]").forEach(function (el) { el.textContent = d.prazo_pagamento_horas + " horas"; });
+
+    // Salão
+    var html = '<div class="palco">Palco</div>';
+    ["gold", "marrom", "royal"].forEach(function (s) {
+      var info = d.setores[s];
+      html += '<div class="faixa" style="--cor:' + C.CORES[s] + '"><b>Setor ' + info.nome + "<small>mesas " + C.dois(info.de) + " a " + C.dois(info.ate) + "</small></b>";
+      for (var ini = info.de; ini <= info.ate; ini += 5) {
+        html += '<div class="fileira">';
+        for (var n = ini; n < ini + 5 && n <= info.ate; n++) {
+          var m = d.mesas[n - 1];
+          var rot = { disponivel: "disponível", aguardando: "aguardando pagamento", vendida: "vendida", indisponivel: "indisponível" }[m.status];
+          html += '<button type="button" class="mesa" style="--cor:' + C.CORES[s] + ";--cad:" + (s === "marrom" ? "#B98A5E" : "#E9CF8A") + '" data-n="' + n + '" data-setor="' + s + '" data-status="' + m.status + '" aria-label="Mesa ' + C.dois(n) + ", setor " + info.nome + ", " + rot + '">' + C.dois(n) + "</button>";
+        }
+        html += "</div>";
+      }
+      html += "</div>";
+    });
+    $("salao").innerHTML = html;
+    var cont = { disponivel: 0, aguardando: 0, vendida: 0 };
+    d.mesas.forEach(function (m) { if (cont[m.status] !== undefined) cont[m.status]++; });
+    $("mapa-resumo").textContent = cont.disponivel + " disponíveis · " + cont.aguardando + " aguardando pagamento · " + cont.vendida + " vendidas";
+  }
+
+  $("salao").addEventListener("click", function (e) {
+    var b = e.target.closest(".mesa");
+    if (b) abrirMesa(Number(b.dataset.n));
+  });
+
+  // ---------- Janela da mesa ----------
+  function topo(n) {
+    var s = dados.mesas[n - 1].setor;
+    $("dlg-bola").textContent = C.dois(n);
+    $("dlg-bola").style.setProperty("--cor", C.CORES[s]);
+    $("dlg-bola").className = "bola" + (s === "gold" ? " gold" : "");
+    $("dlg-setor").textContent = "Setor " + dados.setores[s].nome + " · " + dados.setores[s].local;
+    $("dlg-titulo").textContent = "Mesa " + C.dois(n);
+  }
+
+  function abrirMesa(n) {
+    mesaAtual = n;
+    var m = dados.mesas[n - 1], s = m.setor, info = dados.setores[s], p = dados.precos[s];
+    var restantes = dados.cadeiras[s].restantes;
+    topo(n);
+    var rot = { disponivel: "Disponível", aguardando: "Aguardando pagamento", vendida: "Vendida", indisponivel: "Indisponível" }[m.status];
+    var acao;
+    if (m.status !== "disponivel") acao = '<p class="nota">Esta mesa não está disponível. Escolha outra mesa no mapa.</p><button type="button" class="btn" data-fechar>Ver outras mesas</button>';
+    else if (!dados.vendas_abertas) acao = '<div class="msg-erro">As reservas ainda não foram abertas. Volte em breve!</div>';
+    else acao = '<button type="button" class="btn solid" id="ir-reservar">Reservar esta mesa</button>';
+    $("dlg-corpo").innerHTML =
+      '<span class="status ' + m.status + '">' + rot + "</span>" +
+      '<dl class="info">' +
+        "<dt>Localização</dt><dd>" + C.esc(info.local) + "</dd>" +
+        "<dt>Lugares</dt><dd>6 lugares · " + C.esc(info.cadeiras) + "</dd>" +
+        "<dt>Associado</dt><dd>" + C.reais(p.associado) + "</dd>" +
+        "<dt>Não associado</dt><dd>" + C.reais(p.nao_associado) + "</dd>" +
+        "<dt>Cadeiras adicionais</dt><dd>" + C.reais(dados.preco_cadeira) + " cada, até " + dados.max_cadeiras_mesa + " por mesa · " + restantes + " restante" + (restantes === 1 ? "" : "s") + " no setor</dd>" +
+      "</dl>" + acao;
+    dlg.scrollTop = 0;
+    var ir = $("ir-reservar");
+    if (ir) ir.addEventListener("click", function () { formulario(n); });
+    if (!dlg.open) dlg.showModal();
+  }
+
+  function formulario(n) {
+    var s = dados.mesas[n - 1].setor, p = dados.precos[s];
+    var maxCad = Math.min(dados.max_cadeiras_mesa, dados.cadeiras[s].restantes);
+    var estado = { tipo: null, cadeiras: 0 };
+    $("dlg-corpo").innerHTML =
+      '<form id="form" novalidate>' +
+      '<div style="display:grid;gap:20px">' +
+        '<fieldset><legend>1. Você é associado da AABB?</legend><div class="opcoes">' +
+          '<label class="opcao"><input type="radio" name="tipo" value="associado"><b>Sou associado</b><span>' + C.reais(p.associado) + "</span><small>Validado pela secretaria</small></label>" +
+          '<label class="opcao"><input type="radio" name="tipo" value="nao_associado"><b>Não sou associado</b><span>' + C.reais(p.nao_associado) + "</span><small>Pagamento liberado na hora</small></label>" +
+        "</div>" +
+        '<label class="campo" id="campo-matricula" hidden>Número da carteirinha ou matrícula de associado<input type="text" name="matricula" autocomplete="off" maxlength="30"><small>A secretaria confere e libera o Pix no seu acompanhamento de reserva. Se a condição de associado não for confirmada, vale o valor de não associado.</small></label>' +
+        "</fieldset>" +
+        '<fieldset><legend>2. Cadeiras adicionais</legend>' +
+          '<div class="contador"><button type="button" id="menos" aria-label="Menos uma cadeira">−</button><output id="qtd">0</output><button type="button" id="mais" aria-label="Mais uma cadeira">+</button>' +
+          '<span class="nota">' + C.reais(dados.preco_cadeira) + " cada · " + (6) + ' lugares + <span id="qtd2">0</span></span></div>' +
+          '<p class="nota">' + (maxCad > 0 ? "Até " + maxCad + " nesta mesa (estoque do setor: " + dados.cadeiras[s].restantes + ")." : "As cadeiras adicionais deste setor esgotaram.") + "</p>" +
+        "</fieldset>" +
+        '<div class="total" aria-live="polite"><div class="linha"><span>Mesa ' + C.dois(n) + ' · Setor ' + dados.setores[s].nome + '</span><span id="t-mesa">—</span></div>' +
+          '<div class="linha"><span>Cadeiras adicionais</span><span id="t-cad">R$ 0,00</span></div>' +
+          '<div class="soma"><span>Total</span><b id="t-total">—</b></div></div>' +
+        '<fieldset><legend>3. Seus dados</legend>' +
+          '<label class="campo">Nome completo<input type="text" name="nome" autocomplete="name" maxlength="100" required></label>' +
+          '<div class="duas"><label class="campo">CPF<input type="text" name="cpf" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00" required></label>' +
+          '<label class="campo">Telefone / WhatsApp<input type="tel" name="telefone" autocomplete="tel" maxlength="16" placeholder="(99) 99999-9999" required></label></div>' +
+          '<label class="campo">E-mail <small>(opcional)</small><input type="email" name="email" autocomplete="email" maxlength="120"></label>' +
+        "</fieldset>" +
+        '<fieldset><legend>4. Forma de pagamento</legend><div class="opcoes">' +
+          '<label class="opcao"><input type="radio" name="forma" value="pix" checked><b>Pix</b><small>Código Pix gerado aqui no site, com o valor preenchido</small></label>' +
+          '<label class="opcao"><input type="radio" name="forma" value="secretaria"><b>Cartão em até 3x ou outras condições</b><small>Combinado com a secretaria da AABB</small></label>' +
+        "</div></fieldset>" +
+        '<label class="aceite"><input type="checkbox" name="aceite"><span>Li e aceito as <a href="#como" data-fechar>condições da reserva</a> e o <a href="#privacidade" data-fechar>aviso de privacidade</a>. Sei que a reserva só é confirmada depois da validação do pagamento.</span></label>' +
+        '<div id="form-erro" class="msg-erro" hidden role="alert"></div>' +
+        '<div style="display:flex;gap:10px;flex-wrap:wrap"><button type="submit" class="btn solid" id="enviar">Finalizar reserva</button><button type="button" class="btn" id="voltar">Voltar</button></div>' +
+      "</div></form>";
+
+    var f = $("form");
+    dlg.scrollTop = 0;
+    f.addEventListener("input", function (e) {
+      $("form-erro").hidden = true;
+      var c = e.target.closest(".campo"); if (c) c.classList.remove("invalido");
+    });
+    f.addEventListener("change", function () { $("form-erro").hidden = true; });
+    function atualizar() {
+      $("qtd").textContent = estado.cadeiras; $("qtd2").textContent = estado.cadeiras;
+      $("menos").disabled = estado.cadeiras <= 0; $("mais").disabled = estado.cadeiras >= maxCad;
+      var vm = estado.tipo ? p[estado.tipo] : null, vc = estado.cadeiras * dados.preco_cadeira;
+      $("t-mesa").textContent = vm === null ? "escolha acima" : C.reais(vm);
+      $("t-cad").textContent = C.reais(vc);
+      $("t-total").textContent = vm === null ? "—" : C.reais(vm + vc);
+      $("campo-matricula").hidden = estado.tipo !== "associado";
+    }
+    f.addEventListener("change", function (e) {
+      if (e.target.name === "tipo") { estado.tipo = e.target.value; atualizar(); }
+    });
+    $("menos").addEventListener("click", function () { if (estado.cadeiras > 0) { estado.cadeiras--; atualizar(); } });
+    $("mais").addEventListener("click", function () { if (estado.cadeiras < maxCad) { estado.cadeiras++; atualizar(); } });
+    $("voltar").addEventListener("click", function () { abrirMesa(n); });
+    // Máscaras simples
+    f.cpf.addEventListener("input", function () {
+      var v = f.cpf.value.replace(/\D/g, "").slice(0, 11);
+      f.cpf.value = v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3").replace(/\.(\d{3})(\d{1,2})$/, ".$1-$2");
+    });
+    f.telefone.addEventListener("input", function () {
+      var v = f.telefone.value.replace(/\D/g, "").slice(0, 11);
+      f.telefone.value = v.length > 10 ? v.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3") : v.replace(/(\d{2})(\d{0,4})(\d{0,4})/, function (_, a, b, c) { return "(" + a + ") " + b + (c ? "-" + c : ""); });
+    });
+    atualizar();
+
+    function mostrarErro(msg, campo) {
+      var el = $("form-erro"); el.textContent = msg; el.hidden = false;
+      f.querySelectorAll(".invalido").forEach(function (x) { x.classList.remove("invalido"); });
+      if (campo && f[campo] && f[campo].closest) { var c = f[campo].closest(".campo"); if (c) c.classList.add("invalido"); try { f[campo].focus(); } catch (e) {} }
+      else el.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+
+    f.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!estado.tipo) return mostrarErro("Escolha se você é associado ou não associado.");
+      var corpo = {
+        mesa: n, tipo: estado.tipo, matricula: f.matricula.value, cadeiras: estado.cadeiras,
+        nome: f.nome.value, cpf: f.cpf.value, telefone: f.telefone.value, email: f.email.value,
+        forma: f.forma.value, aceite: f.aceite.checked,
+      };
+      var bt = $("enviar"); bt.disabled = true; bt.textContent = "Reservando…";
+      fetch("/api/reservas", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(corpo) })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
+        .then(function (res) {
+          if (res.ok) { C.guardarCodigo(res.j.codigo, n); resultado(res.j); carregar(); minhas(); return; }
+          bt.disabled = false; bt.textContent = "Finalizar reserva";
+          mostrarErro(res.j.erro || "Não foi possível reservar agora.", res.j.campo);
+          if (res.status === 409) carregar();
+        })
+        .catch(function () { bt.disabled = false; bt.textContent = "Finalizar reserva"; mostrarErro("Sem conexão. Confira sua internet e tente de novo."); });
+    });
+  }
+
+  function resultado(r) {
+    var assoc = r.status === "validacao";
+    var link = location.origin + "/mesas/reserva/?c=" + r.codigo;
+    var zap = C.whatsapp(r.whatsapp, "Olá! Fiz a reserva da mesa " + C.dois(r.mesa) + " do Réveillon AABB 50 anos. Código: " + r.codigo + "." +
+      (r.forma === "secretaria" ? " Quero combinar o pagamento no cartão ou outra condição." : assoc ? " Sou associado e aguardo a validação." : " Segue o comprovante do Pix."));
+    $("dlg-corpo").innerHTML =
+      '<div class="msg-ok"><b>Mesa ' + C.dois(r.mesa) + " reservada para você, " + C.esc(r.primeiro_nome) + "!</b> Guarde o código abaixo.</div>" +
+      '<div style="display:grid;gap:4px;justify-items:center;text-align:center"><span class="eyebrow">Código da reserva</span><span class="codigo-res">' + r.codigo + "</span></div>" +
+      '<dl class="info"><dt>Situação</dt><dd>' + C.STATUS[r.status] + "</dd>" +
+        "<dt>Lugares</dt><dd>" + r.lugares + " (6 + " + r.cadeiras + " adiciona" + (r.cadeiras === 1 ? "l" : "is") + ")</dd>" +
+        "<dt>Total</dt><dd>" + C.reais(r.total) + "</dd>" +
+        (r.expira_em ? '<dt>Prazo</dt><dd class="prazo">até ' + C.quando(r.expira_em) + "</dd>" : "") + "</dl>" +
+      (assoc ? '<p class="nota">A secretaria vai validar sua condição de associado. Assim que for validada, o Pix aparece na página de acompanhamento da reserva. Se a mesa não for paga no prazo, ela volta a ficar disponível.</p>' : "") +
+      (r.forma === "secretaria" && !assoc ? '<p class="nota">Fale com a secretaria pelo WhatsApp para combinar o pagamento no cartão (até 3x) ou outra condição, dentro do prazo.</p>' : "") +
+      '<div id="pix-alvo"></div>' +
+      (r.pix ? '<p class="nota">Depois de pagar, envie o comprovante pelo WhatsApp da secretaria. A reserva é confirmada quando a secretaria validar o pagamento.</p>' : "") +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn wa" href="' + zap + '" target="_blank" rel="noopener">WhatsApp da secretaria</a>' +
+      '<a class="btn" href="' + link + '">Acompanhar reserva</a></div>';
+    if (r.pix) C.mostrarPix($("pix-alvo"), r.pix, r.codigo);
+    dlg.scrollTop = 0;
+  }
+
+  // Reservas feitas neste aparelho
+  function minhas() {
+    var l = C.codigosGuardados();
+    if (!l.length) return;
+    var box = $("minhas");
+    box.querySelector(".wrap").innerHTML = "<span>Suas reservas neste aparelho:</span>" + l.map(function (x) {
+      return '<a href="reserva/?c=' + x.c + '">Mesa ' + C.dois(x.m) + " · " + x.c + "</a>";
+    }).join("");
+    box.hidden = false;
+  }
+
+  dlg.addEventListener("click", function (e) {
+    if (e.target === dlg || e.target.closest("[data-fechar]") || e.target.id === "dlg-fechar") dlg.close();
+  });
+
+  carregar();
+  minhas();
+  // Mantém o mapa atualizado enquanto a página está aberta (sem atrapalhar quem está preenchendo).
+  setInterval(function () { if (!dlg.open && !document.hidden) carregar(); }, 30000);
+})();
+</script>
+</body>
+</html>

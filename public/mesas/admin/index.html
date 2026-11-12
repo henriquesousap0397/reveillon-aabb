@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel de mesas · Réveillon AABB 50 Anos</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="../../assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../mesas.css?v=2">
+<style>
+  body { font-size: 15px; background: #F3EEE3; }
+  .wrap { max-width: 1280px; }
+  section { padding-block: 22px; }
+  h2 { font-size: 1.9rem; }
+  .barra { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+  .acoes-topo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .chave { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; cursor: pointer; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: #fff; }
+  .chave input { width: 40px; height: 22px; accent-color: var(--ok); }
+  .chave.aberta { background: #E7F0E6; border-color: var(--ok); color: var(--ok); }
+  .chave.fechada { background: #F9E6E1; border-color: var(--err); color: var(--err); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .kpi { background: #fff; border: 1px solid var(--line); padding: 14px 16px; display: grid; gap: 2px; }
+  .kpi span { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .kpi b { font-family: var(--font-display); font-size: 2rem; font-weight: 600; line-height: 1.1; }
+  .kpi small { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #E7DFCF; vertical-align: top; }
+  th { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); background: #FBF8F1; position: sticky; top: 0; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tabela { overflow-x: auto; border: 1px solid var(--line); max-height: 70vh; }
+  .grade { display: grid; grid-template-columns: 1fr 1.6fr; gap: 18px; align-items: start; }
+  @media (max-width: 1000px) { .grade { grid-template-columns: 1fr; } }
+  .mini { background: var(--night); padding: 14px; border-radius: 6px; display: grid; gap: 8px; }
+  .mini .palco { padding: 8px; font-size: .62rem; }
+  .mini .fileira { gap: 4px; padding-block: 3px; }
+  .mini .mesa { --tam: 42px; font-size: .8rem; }
+  .mini .mesa::before { display: none; }
+  .mini .faixa { padding: 22px 6px 6px; }
+  .mini .faixa > b { font-size: .58rem; top: 5px; }
+  .filtros { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+  .filtros button { border: 1px solid var(--line); background: #fff; padding: 7px 12px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: .82rem; }
+  .filtros button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .filtros input { max-width: 260px; padding: 8px 10px; }
+  .st { display: inline-block; font-size: .7rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+  .st.validacao { background: #FFF1D6; color: #8A5A00; }
+  .st.pagamento { background: #FDE8C8; color: #8A4B00; }
+  .st.pago { background: #DDEEDB; color: #2F5A35; }
+  .st.cancelada, .st.expirada { background: #EEE; color: #666; }
+  .bts { display: flex; flex-wrap: wrap; gap: 4px; }
+  .bts button, .bts a { font: 600 .72rem var(--font-body); padding: 6px 9px; border: 1px solid var(--line); background: #fff; border-radius: 3px; cursor: pointer; text-decoration: none; color: var(--ink); white-space: nowrap; }
+  .bts .bom { background: var(--ok); color: #fff; border-color: var(--ok); }
+  .bts .ruim { color: var(--err); border-color: #E3B5AA; }
+  .bts .zap { color: #17834A; border-color: #9FD2B4; }
+  .pequeno { font-size: .78rem; color: var(--muted); }
+  .painel-card { background: #fff; border: 1px solid var(--line); padding: 18px; display: grid; gap: 12px; }
+  .form-grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  details.painel-card summary { cursor: pointer; font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; }
+  .login { max-width: 380px; margin: 12vh auto; }
+  .hist { margin: 0; padding-left: 16px; font-size: .78rem; color: var(--muted); }
+  #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--night); color: #fff; padding: 12px 18px; border-radius: 6px; z-index: 50; box-shadow: 0 10px 30px rgba(0,0,0,.3); max-width: 90vw; }
+  #toast.erro { background: var(--err); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Mapa público de mesas">
+      <img src="../../assets/logo-aabb-azul.png" width="440" height="174" alt="AABB Balsas">
+      <span>Painel de mesas</span>
+    </a>
+    <nav aria-label="Links"><a href="../" target="_blank" rel="noopener">Ver página pública ↗</a></nav>
+  </div>
+</header>
+
+<main id="app">
+  <div class="login card" id="tela-login">
+    <p class="eyebrow">Acesso restrito</p>
+    <h2>Painel de mesas</h2>
+    <form id="form-login" style="display:grid;gap:12px">
+      <label class="campo">Senha<input type="password" name="senha" autocomplete="current-password" required></label>
+      <div id="login-erro" class="msg-erro" hidden></div>
+      <button class="btn solid">Entrar</button>
+    </form>
+    <p class="pequeno">A senha é o Secret <b>ADMIN_SENHA</b> configurado no projeto <b>reveillon</b> do Cloudflare.</p>
+  </div>
+
+  <div id="painel" hidden>
+    <section>
+      <div class="wrap barra">
+        <div><p class="eyebrow">Réveillon AABB 50 anos</p><h2>Reservas de mesas</h2></div>
+        <div class="acoes-topo">
+          <label class="chave" id="chave-vendas"><input type="checkbox" id="vendas"><span id="vendas-txt">Vendas</span></label>
+          <a class="btn small" href="/api/admin/exportar.csv" id="exportar">Exportar planilha (CSV)</a>
+          <button class="btn small" id="sair" type="button">Sair</button>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding-top:0">
+      <div class="wrap" style="display:grid;gap:14px">
+        <div class="kpis" id="kpis"></div>
+        <div class="tabela" style="max-height:none"><table id="tab-setores"></table></div>
+      </div>
+    </section>
+
+    <section style="padding-top:0">
+      <div class="wrap grade">
+        <div style="display:grid;gap:12px">
+          <div class="mini" id="mini"></div>
+          <p class="pequeno">Toque numa mesa para ver a reserva dela ou registrar uma venda pela secretaria.</p>
+          <div class="painel-card" id="venda-card">
+            <h3 style="font-size:1.5rem">Registrar venda na secretaria</h3>
+            <form id="form-venda" style="display:grid;gap:10px">
+              <div class="form-grade">
+                <label class="campo">Mesa<input type="number" name="mesa" min="1" max="40" required></label>
+                <label class="campo">Tipo<select name="tipo"><option value="associado">Associado</option><option value="nao_associado">Não associado</option></select></label>
+                <label class="campo">Cadeiras adicionais<select name="cadeiras"><option>0</option><option>1</option><option>2</option></select></label>
+              </div>
+              <label class="campo">Nome do comprador<input type="text" name="nome" required maxlength="100"></label>
+              <div class="form-grade">
+                <label class="campo">CPF <small>(opcional)</small><input type="text" name="cpf" maxlength="14"></label>
+                <label class="campo">Telefone<input type="text" name="telefone" maxlength="16"></label>
+                <label class="campo">Matrícula <small>(associado)</small><input type="text" name="matricula" maxlength="30"></label>
+              </div>
+              <label class="campo">Observação<input type="text" name="obs" maxlength="500" placeholder="Ex.: pago no cartão em 3x"></label>
+              <label class="aceite"><input type="checkbox" name="pago" checked><span>Pagamento já recebido (mesa vendida). Desmarque para deixar aguardando pagamento.</span></label>
+              <button class="btn solid small">Registrar</button>
+            </form>
+          </div>
+        </div>
+        <div>
+          <div class="filtros" id="filtros">
+            <button type="button" data-f="validacao">Aguardando validação</button>
+            <button type="button" data-f="pagamento">Aguardando pagamento</button>
+            <button type="button" data-f="pago">Vendidas</button>
+            <button type="button" data-f="inativas">Canceladas/expiradas</button>
+            <button type="button" data-f="ativas" aria-pressed="true">Todas ativas</button>
+            <button type="button" data-f="todas">Todas</button>
+            <input type="search" id="busca" placeholder="Buscar nome, CPF, código ou mesa">
+          </div>
+          <div class="tabela"><table id="tab-reservas"></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding-top:0">
+      <div class="wrap">
+        <details class="painel-card" id="config-card">
+          <summary>Configurações: preços, estoques, prazos e Pix</summary>
+          <form id="form-config" style="display:grid;gap:16px">
+            <div>
+              <p class="eyebrow">Preços das mesas</p>
+              <div class="form-grade" id="cfg-precos"></div>
+            </div>
+            <div>
+              <p class="eyebrow">Cadeiras adicionais</p>
+              <div class="form-grade">
+                <label class="campo">Preço por cadeira (R$)<input type="number" step="0.01" min="0" name="preco_cadeira"></label>
+                <label class="campo">Estoque Gold<input type="number" min="0" name="est_gold"></label>
+                <label class="campo">Estoque Marrom<input type="number" min="0" name="est_marrom"></label>
+                <label class="campo">Estoque Royal<input type="number" min="0" name="est_royal"></label>
+              </div>
+            </div>
+            <div>
+              <p class="eyebrow">Prazos e limites</p>
+              <div class="form-grade">
+                <label class="campo">Prazo para pagar (horas)<input type="number" min="1" max="240" name="prazo_pagamento_horas"></label>
+                <label class="campo">Prazo para validar associado (horas)<input type="number" min="1" max="240" name="prazo_validacao_horas"></label>
+                <label class="campo">Reservas ativas por CPF<input type="number" min="1" max="40" name="limite_por_cpf"></label>
+                <label class="campo">Mesas bloqueadas <small>(números separados por vírgula)</small><input type="text" name="mesas_bloqueadas" placeholder="Ex.: 39, 40"></label>
+              </div>
+            </div>
+            <div>
+              <p class="eyebrow">Pix e contato</p>
+              <div class="form-grade">
+                <label class="campo">Chave Pix<input type="text" name="pix_chave" maxlength="77"></label>
+                <label class="campo">Nome do recebedor <small>(até 25)</small><input type="text" name="pix_nome" maxlength="25"></label>
+                <label class="campo">Cidade <small>(até 15)</small><input type="text" name="pix_cidade" maxlength="15"></label>
+                <label class="campo">WhatsApp da secretaria<input type="text" name="whatsapp" maxlength="13"></label>
+              </div>
+            </div>
+            <button class="btn solid small" style="justify-self:start">Salvar configurações</button>
+          </form>
+        </details>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div id="toast" hidden></div>
+
+<script src="../comum.js?v=2"></script>
+<script>
+(function () {
+  var C = window.MesasComum, $ = function (id) { return document.getElementById(id); };
+  var E = null, filtro = "ativas", termo = "";
+
+  function toast(msg, erro) {
+    var t = $("toast"); t.textContent = msg; t.className = erro ? "erro" : ""; t.hidden = false;
+    clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 3500);
+  }
+
+  function api(caminho, corpo) {
+    var op = corpo === undefined ? { cache: "no-store" } : { method: "POST", headers: { "content-type": "application/json", "x-aabb": "1" }, body: JSON.stringify(corpo) };
+    return fetch(caminho, op).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (r.status === 401 && caminho !== "/api/admin/login") { mostrarLogin(); throw new Error(j.erro || "Faça login novamente."); }
+        if (!r.ok) throw new Error(j.erro || "Erro " + r.status);
+        return j;
+      });
+    });
+  }
+
+  function mostrarLogin() { $("tela-login").hidden = false; $("painel").hidden = true; }
+  function mostrarPainel() { $("tela-login").hidden = true; $("painel").hidden = false; }
+
+  $("form-login").addEventListener("submit", function (e) {
+    e.preventDefault();
+    api("/api/admin/login", { senha: e.target.senha.value }).then(function () {
+      e.target.reset(); $("login-erro").hidden = true; carregar();
+    }).catch(function (err) { $("login-erro").textContent = err.message; $("login-erro").hidden = false; });
+  });
+  $("sair").addEventListener("click", function () { api("/api/admin/sair", {}).finally(mostrarLogin); });
+
+  function carregar() {
+    return api("/api/admin/estado").then(function (d) { E = d; mostrarPainel(); desenhar(); }).catch(function (err) {
+      if ($("painel").hidden) { mostrarLogin(); if (!/login/i.test(err.message)) { $("login-erro").textContent = err.message; $("login-erro").hidden = false; } }
+      else toast(err.message, true);
+    });
+  }
+
+  function acao(codigo, nome, extra) {
+    var corpo = Object.assign({ codigo: codigo, acao: nome }, extra || {});
+    return api("/api/admin/acao", corpo).then(function (d) { E = d; desenhar(); toast("Feito."); }).catch(function (err) { toast(err.message, true); });
+  }
+
+  // ---------- Desenho ----------
+  function desenhar() {
+    var c = E.config, r = E.resumo;
+    $("vendas").checked = c.vendas_abertas;
+    $("chave-vendas").className = "chave " + (c.vendas_abertas ? "aberta" : "fechada");
+    $("vendas-txt").textContent = c.vendas_abertas ? "Vendas abertas no site" : "Vendas fechadas no site";
+
+    var vendidas = 0, aguard = 0, livres = 0;
+    Object.values(r.setores).forEach(function (s) { vendidas += s.vendidas; aguard += s.aguardando; livres += s.livres; });
+    $("kpis").innerHTML = [
+      ["Arrecadado (confirmado)", C.reais(r.arrecadado), "pagamentos validados"],
+      ["A receber (pendente)", C.reais(r.pendente), "reservas aguardando"],
+      ["Mesas vendidas", vendidas + " / 40", aguard + " aguardando · " + livres + " livres"],
+      ["Pessoas confirmadas", r.pessoas_confirmadas, r.pessoas_reservadas + " com as pendentes · máx. " + r.capacidade_maxima],
+      ["Validações pendentes", E.reservas.filter(function (x) { return x.status === "validacao"; }).length, "associados para conferir"],
+    ].map(function (k) { return '<div class="kpi"><span>' + k[0] + "</span><b>" + k[1] + "</b><small>" + k[2] + "</small></div>"; }).join("");
+
+    $("tab-setores").innerHTML = "<thead><tr><th>Setor</th><th class=num>Vendidas</th><th class=num>Aguardando</th><th class=num>Livres</th><th class=num>Bloqueadas</th><th class=num>Cadeiras vendidas</th><th class=num>Cadeiras reservadas / estoque</th><th class=num>Arrecadado</th><th class=num>Pendente</th></tr></thead><tbody>" +
+      Object.keys(r.setores).map(function (k) {
+        var s = r.setores[k];
+        return "<tr><td><b>" + C.NOMES[k] + "</b></td><td class=num>" + s.vendidas + "</td><td class=num>" + s.aguardando + "</td><td class=num>" + s.livres + "</td><td class=num>" + s.bloqueadas +
+          "</td><td class=num>" + s.cadeiras_vendidas + "</td><td class=num>" + s.cadeiras_reservadas + " / " + s.cadeiras_estoque + "</td><td class=num>" + C.reais(s.arrecadado) + "</td><td class=num>" + C.reais(s.pendente) + "</td></tr>";
+      }).join("") + "</tbody>";
+
+    // Mini mapa
+    var html = '<div class="palco">Palco</div>';
+    ["gold", "marrom", "royal"].forEach(function (s) {
+      var info = E.setores[s];
+      html += '<div class="faixa" style="--cor:' + C.CORES[s] + '"><b>' + info.nome + "</b>";
+      for (var ini = info.de; ini <= info.ate; ini += 5) {
+        html += '<div class="fileira">';
+        for (var n = ini; n < ini + 5; n++) {
+          var m = E.mesas[n - 1];
+          html += '<button type="button" class="mesa" style="--cor:' + C.CORES[s] + '" data-setor="' + s + '" data-status="' + m.status + '" data-n="' + n + '" title="Mesa ' + C.dois(n) + '">' + C.dois(n) + "</button>";
+        }
+        html += "</div>";
+      }
+      html += "</div>";
+    });
+    $("mini").innerHTML = html;
+
+    desenharReservas();
+    preencherConfig();
+  }
+
+  function zapPara(x) {
+    var nome = x.nome.split(/\s+/)[0];
+    var link = location.origin + "/mesas/reserva/?c=" + x.codigo;
+    var msgs = {
+      validacao: "Olá, " + nome + "! Recebemos sua reserva da mesa " + C.dois(x.mesa) + " do Réveillon AABB 50 anos (código " + x.codigo + "). Estamos validando sua condição de associado.",
+      pagamento: "Olá, " + nome + "! Sua reserva da mesa " + C.dois(x.mesa) + " do Réveillon AABB 50 anos (código " + x.codigo + ") está liberada para pagamento: " + C.reais(x.total) + ". " +
+        (x.forma === "pix" ? "O Pix está aqui: " + link : "Vamos combinar o pagamento no cartão?") + (x.expira_em ? " Prazo: até " + C.quando(x.expira_em) + "." : ""),
+      pago: "Olá, " + nome + "! Pagamento confirmado: a mesa " + C.dois(x.mesa) + " do Réveillon AABB 50 anos está garantida (" + (6 + x.cadeiras) + " lugares). Código " + x.codigo + ". Nos vemos na virada!",
+      cancelada: "Olá, " + nome + ". A reserva da mesa " + C.dois(x.mesa) + " do Réveillon AABB 50 anos (código " + x.codigo + ") foi cancelada. Qualquer dúvida, estamos à disposição.",
+      expirada: "Olá, " + nome + ". O prazo de pagamento da reserva da mesa " + C.dois(x.mesa) + " (código " + x.codigo + ") venceu e a mesa foi liberada. Se ainda quiser, confira as mesas disponíveis: " + location.origin + "/mesas/",
+    };
+    var tel = String(x.telefone || "").replace(/\D/g, "");
+    if (!tel) return "";
+    if (tel.length <= 11) tel = "55" + tel;
+    return C.whatsapp(tel, msgs[x.status] || "");
+  }
+
+  function desenharReservas() {
+    document.querySelectorAll("#filtros button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.f === filtro)); });
+    var t = termo.toLowerCase().replace(/[.\-\s]/g, "");
+    var lista = E.reservas.filter(function (x) {
+      if (filtro === "ativas" && !["validacao", "pagamento", "pago"].includes(x.status)) return false;
+      if (filtro === "inativas" && !["cancelada", "expirada"].includes(x.status)) return false;
+      if (["validacao", "pagamento", "pago"].includes(filtro) && x.status !== filtro) return false;
+      if (!t) return true;
+      return [x.nome.toLowerCase().replace(/\s/g, ""), x.cpf, x.codigo.toLowerCase(), C.dois(x.mesa), String(x.mesa), (x.matricula || "").toLowerCase()].some(function (v) { return v && v.indexOf(t) > -1; });
+    }).sort(function (a, b) { return a.mesa - b.mesa || b.criado_em - a.criado_em; });
+
+    var ST = { validacao: "Validar associado", pagamento: "Aguardando pagamento", pago: "Vendida", cancelada: "Cancelada", expirada: "Expirada" };
+    $("tab-reservas").innerHTML = "<thead><tr><th>Mesa</th><th>Comprador</th><th>Tipo</th><th class=num>Total</th><th>Situação</th><th>Ações</th></tr></thead><tbody>" +
+      (lista.length ? lista.map(function (x) {
+        var ativa = ["validacao", "pagamento", "pago"].includes(x.status), pend = ["validacao", "pagamento"].includes(x.status);
+        var bts = [];
+        if (x.status === "validacao") bts.push('<button class="bom" data-a="validar">Validar associado</button>', '<button data-a="como_nao_associado">Cobrar como não associado</button>');
+        if (pend) bts.push('<button class="bom" data-a="confirmar">Confirmar pagamento</button>', '<button data-a="estender">+24 h</button>');
+        if (ativa) bts.push('<button data-a="cadeiras">Cadeiras</button>', '<button class="ruim" data-a="cancelar">Cancelar</button>');
+        if (!ativa) bts.push('<button data-a="reativar">Reativar</button>');
+        bts.push('<button data-a="obs">Obs.</button>');
+        var zap = zapPara(x);
+        if (zap) bts.push('<a class="zap" href="' + zap + '" target="_blank" rel="noopener">WhatsApp</a>');
+        return '<tr data-c="' + x.codigo + '"><td><b>' + C.dois(x.mesa) + "</b><br><span class=pequeno>" + C.NOMES[x.setor] + "</span></td>" +
+          "<td><b>" + C.esc(x.nome) + "</b><br><span class=pequeno>CPF " + C.esc(x.cpf || "—") + " · " + C.esc(x.telefone || "—") + (x.email ? " · " + C.esc(x.email) : "") + "<br>Código " + x.codigo + " · " + (x.origem === "painel" ? "secretaria" : "site") + " · " + C.quando(x.criado_em) + "</span>" +
+            (x.obs ? '<br><span class=pequeno>Obs.: ' + C.esc(x.obs) + "</span>" : "") +
+            '<details><summary class="pequeno">Histórico</summary><ul class="hist">' + x.historico.map(function (h) { return "<li>" + C.quando(h.em) + " · " + C.esc(h.acao) + "</li>"; }).join("") + "</ul></details></td>" +
+          "<td>" + (x.tipo === "associado" ? "Associado" + (x.matricula ? "<br><span class=pequeno>Matr. " + C.esc(x.matricula) + "</span>" : "") + (x.validado ? "<br><span class=pequeno>✓ validado</span>" : "") : "Não associado") +
+            "<br><span class=pequeno>" + (6 + x.cadeiras) + " lugares (" + x.cadeiras + " adic.) · " + (x.forma === "pix" ? "Pix" : "Secretaria") + "</span></td>" +
+          "<td class=num><b>" + C.reais(x.total) + "</b></td>" +
+          '<td><span class="st ' + x.status + '">' + ST[x.status] + "</span>" + (pend && x.expira_em ? '<br><span class=pequeno>até ' + C.quando(x.expira_em) + "</span>" : "") + (x.pago_em ? "<br><span class=pequeno>pago " + C.quando(x.pago_em) + "</span>" : "") + "</td>" +
+          '<td><div class="bts">' + bts.join("") + "</div></td></tr>";
+      }).join("") : '<tr><td colspan="6" class="pequeno" style="padding:20px">Nenhuma reserva neste filtro.</td></tr>') + "</tbody>";
+  }
+
+  $("tab-reservas").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-a]");
+    if (!b) return;
+    var cod = b.closest("tr").dataset.c, x = E.reservas.find(function (r) { return r.codigo === cod; }), a = b.dataset.a;
+    var rot = "mesa " + C.dois(x.mesa) + " (" + x.nome + ")";
+    if (a === "validar") { if (confirm("Confirmar que " + x.nome + " é associado (matrícula " + (x.matricula || "—") + ")? O Pix será liberado para pagamento.")) acao(cod, a); }
+    else if (a === "como_nao_associado") { if (confirm("Não validar como associado e cobrar o valor de não associado na " + rot + "?")) acao(cod, a); }
+    else if (a === "confirmar") { var forma = prompt("Confirmar o pagamento de " + C.reais(x.total) + " da " + rot + ".\nForma de pagamento (opcional, ex.: Pix, cartão 3x):", x.forma === "pix" ? "Pix" : ""); if (forma !== null) acao(cod, a, { forma_pagamento: forma }); }
+    else if (a === "estender") acao(cod, a, { horas: 24 });
+    else if (a === "cadeiras") { var n = prompt("Cadeiras adicionais da " + rot + " (0 a " + E.config.max_cadeiras_mesa + "):", x.cadeiras); if (n !== null && n !== "") acao(cod, a, { cadeiras: Number(n) }); }
+    else if (a === "cancelar") { var mot = prompt("Cancelar a reserva da " + rot + "? A mesa volta a ficar disponível.\nMotivo (opcional):", ""); if (mot !== null) acao(cod, a, { motivo: mot }); }
+    else if (a === "reativar") { if (confirm("Reativar a reserva da " + rot + " como aguardando pagamento?")) acao(cod, a); }
+    else if (a === "obs") { var o = prompt("Observação da " + rot + ":", x.obs || ""); if (o !== null) acao(cod, a, { obs: o }); }
+  });
+
+  $("filtros").addEventListener("click", function (e) { var b = e.target.closest("button[data-f]"); if (b) { filtro = b.dataset.f; desenharReservas(); } });
+  $("busca").addEventListener("input", function (e) { termo = e.target.value; desenharReservas(); });
+
+  $("mini").addEventListener("click", function (e) {
+    var b = e.target.closest(".mesa"); if (!b) return;
+    var n = Number(b.dataset.n);
+    var ativa = E.reservas.find(function (x) { return x.mesa === n && ["validacao", "pagamento", "pago"].includes(x.status); });
+    if (ativa) { filtro = "todas"; termo = ativa.codigo; $("busca").value = ativa.codigo; desenharReservas(); $("tab-reservas").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    else { $("form-venda").mesa.value = n; $("form-venda").nome.focus(); $("venda-card").scrollIntoView({ behavior: "smooth", block: "center" }); }
+  });
+
+  $("form-venda").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var f = e.target;
+    api("/api/admin/venda", {
+      mesa: Number(f.mesa.value), tipo: f.tipo.value, cadeiras: Number(f.cadeiras.value), nome: f.nome.value, cpf: f.cpf.value,
+      telefone: f.telefone.value, matricula: f.matricula.value, obs: f.obs.value, pago: f.pago.checked,
+    }).then(function (d) { E = d; desenhar(); f.reset(); f.pago.checked = true; toast("Venda registrada."); }).catch(function (err) { toast(err.message, true); });
+  });
+
+  $("vendas").addEventListener("change", function (e) {
+    var abrir = e.target.checked;
+    if (!confirm(abrir ? "Abrir as reservas de mesas no site? O público poderá reservar a partir de agora." : "Fechar as reservas no site? Ninguém mais consegue reservar pelo site até você abrir de novo.")) { e.target.checked = !abrir; return; }
+    api("/api/admin/config", { vendas_abertas: abrir }).then(function (d) { E = d; desenhar(); toast(abrir ? "Vendas abertas." : "Vendas fechadas."); }).catch(function (err) { e.target.checked = !abrir; toast(err.message, true); });
+  });
+
+  // ---------- Configurações ----------
+  var editandoConfig = false;
+  $("form-config").addEventListener("input", function () { editandoConfig = true; });
+  function preencherConfig() {
+    if (editandoConfig) return;
+    var c = E.config, f = $("form-config");
+    $("cfg-precos").innerHTML = ["gold", "marrom", "royal"].map(function (s) {
+      return '<label class="campo">' + C.NOMES[s] + ' · associado (R$)<input type="number" step="0.01" min="0" name="p_' + s + '_associado" value="' + c.precos[s].associado + '"></label>' +
+             '<label class="campo">' + C.NOMES[s] + ' · não associado (R$)<input type="number" step="0.01" min="0" name="p_' + s + '_nao_associado" value="' + c.precos[s].nao_associado + '"></label>';
+    }).join("");
+    f.preco_cadeira.value = c.preco_cadeira;
+    f.est_gold.value = c.estoque_cadeiras.gold; f.est_marrom.value = c.estoque_cadeiras.marrom; f.est_royal.value = c.estoque_cadeiras.royal;
+    f.prazo_pagamento_horas.value = c.prazo_pagamento_horas; f.prazo_validacao_horas.value = c.prazo_validacao_horas; f.limite_por_cpf.value = c.limite_por_cpf;
+    f.mesas_bloqueadas.value = c.mesas_bloqueadas.join(", ");
+    f.pix_chave.value = c.pix.chave; f.pix_nome.value = c.pix.nome; f.pix_cidade.value = c.pix.cidade; f.whatsapp.value = c.whatsapp;
+  }
+  $("form-config").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var f = e.target, precos = {};
+    ["gold", "marrom", "royal"].forEach(function (s) { precos[s] = { associado: Number(f["p_" + s + "_associado"].value), nao_associado: Number(f["p_" + s + "_nao_associado"].value) }; });
+    if (!confirm("Salvar as configurações? Novos preços valem só para as próximas reservas.")) return;
+    api("/api/admin/config", {
+      precos: precos, preco_cadeira: Number(f.preco_cadeira.value),
+      estoque_cadeiras: { gold: Number(f.est_gold.value), marrom: Number(f.est_marrom.value), royal: Number(f.est_royal.value) },
+      prazo_pagamento_horas: Number(f.prazo_pagamento_horas.value), prazo_validacao_horas: Number(f.prazo_validacao_horas.value), limite_por_cpf: Number(f.limite_por_cpf.value),
+      mesas_bloqueadas: f.mesas_bloqueadas.value.split(/[,;\s]+/).filter(Boolean).map(Number),
+      pix: { chave: f.pix_chave.value, nome: f.pix_nome.value, cidade: f.pix_cidade.value }, whatsapp: f.whatsapp.value,
+    }).then(function (d) { editandoConfig = false; E = d; desenhar(); toast("Configurações salvas."); }).catch(function (err) { toast(err.message, true); });
+  });
+
+  carregar();
+  setInterval(function () { if (!$("painel").hidden && !document.hidden && !document.querySelector("#config-card[open]")) carregar(); }, 30000);
+})();
+</script>
+</body>
+</html>
