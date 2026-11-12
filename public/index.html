@@ -223,6 +223,9 @@ section { padding-block: clamp(72px, 11vw, 128px); }
 .pass .val span { font-size: clamp(4.4rem, 11vw, 5.6rem); font-weight: 500; }
 .pass .note { font-size: .82rem; color: var(--muted); letter-spacing: .06em; margin-bottom: 8px; }
 .pass .btn { position: relative; z-index: 1; width: 100%; }
+.kidsfree { max-width: 640px; margin: 36px auto 0; text-align: center; display: grid; gap: 8px; justify-items: center; padding: 22px 20px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.kidsfree .kf-t { font-family: var(--font-display); font-size: clamp(1.8rem, 4.4vw, 2.4rem); line-height: 1.1; color: var(--ink); }
+.kidsfree p { color: var(--muted); max-width: 54ch; }
 .pass-foot { text-align: center; color: var(--muted); font-size: .92rem; margin-top: 26px; }
 .pass-foot a { color: var(--gold-lo); }
 @media (max-width: 640px) { .passes { grid-template-columns: 1fr; } }
@@ -342,7 +345,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
       </div>
       <div>
         <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 10h24v4a3 3 0 0 0 0 6v4H4v-4a3 3 0 0 0 0-6z"/><path d="M12 10v14" stroke-dasharray="2 2"/></svg>
-        <b>A partir de R$ 50</b><span>Ingresso antecipado até 15/12</span>
+        <b>A partir de R$ 50</b><span>Antecipado até 15/12 · até 14 anos grátis</span>
       </div>
       <div>
         <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3v6M16 23v6M3 16h6M23 16h6M7 7l4 4M21 21l4 4M25 7l-4 4M11 21l-4 4"/></svg>
@@ -504,6 +507,11 @@ footer small { font-size: .78rem; color: var(--night-muted); }
           <a class="btn solid buy" href="https://www.instagram.com/aabb.balsas" target="_blank" rel="noopener" data-tipo="Não associado" data-valor="R$ 70">Comprar ingresso</a>
         </article>
       </div>
+      <div class="kidsfree">
+        <p class="eyebrow">Gratuidade</p>
+        <p class="kf-t"><b class="metal">Até 14 anos</b> não paga</p>
+        <p>Crianças e adolescentes de até 14 anos, inclusive, têm acesso gratuito ao Réveillon AABB 2027, desde que acompanhados dos pais ou responsáveis. Celebre a chegada de 2027 com toda a família!</p>
+      </div>
       <div class="bands-wrap" style="margin-top:56px">
         <div class="head" style="margin-bottom:28px">
           <p class="eyebrow">Sua pulseira</p>
@@ -563,10 +571,11 @@ footer small { font-size: .78rem; color: var(--night-muted); }
       </div>
       <div class="faq" id="duvidas">
         <h2>Dúvidas</h2>
-        <details open><summary>Quanto custa o ingresso?</summary><p>No lote antecipado, até 15 de dezembro: R$ 50 para associados e R$ 70 para não associados. A compra é feita com a secretaria da AABB.</p></details>
+        <details open><summary>Quanto custa o ingresso?</summary><p>No lote antecipado, até 15 de dezembro: R$ 50 para associados e R$ 70 para não associados. A compra é feita com a secretaria da AABB. Crianças e adolescentes de até 14 anos, inclusive, não pagam, desde que acompanhados dos pais ou responsáveis.</p></details>
         <details><summary>Como funciona a entrada?</summary><p>O acesso é feito por pulseira. A clara dá acesso à área de shows. A escura é de quem reservou barraca e dá acesso à área das barracas e também à área de shows.</p></details>
         <details><summary>Como reservo uma mesa?</summary><p>Escolha a mesa no <a href="mesas/">mapa do salão</a>, informe se é associado, as cadeiras adicionais e seus dados. A mesa fica separada aguardando o pagamento e é confirmada depois que a administração valida o comprovante.</p></details>
         <details><summary>Como reservo uma barraca?</summary><p>Escolha na página de barracas. Cada uma custa R$ 800, inclui 20 passes e é paga por Pix ou cartão em até 3x. A reserva vale depois que a administração valida o comprovante.</p></details>
+        <details><summary>Criança paga?</summary><p>Não. Crianças e adolescentes de até 14 anos, inclusive, têm acesso gratuito, desde que acompanhados dos pais ou responsáveis.</p></details>
         <details><summary>Tem programação para crianças?</summary><p>Tem! Às 20h, na quadra de esportes, teatro infantil com música, brincadeiras e personagens vivos.</p></details>
         <details><summary>A bebida está inclusa?</summary><p>Não. As bebidas são vendidas no bar do clube durante a festa.</p></details>
       </div>
