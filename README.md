@@ -37,6 +37,7 @@ Visitas medidas pelo **Cloudflare Web Analytics** (gratuito, sem cookies e sem d
   - `CF_API_TOKEN`: chave de API só de leitura, com a permissão **Account → Account Analytics → Read**
   - `ACCOUNT_ID`: ID da conta do Cloudflare
 - Os números ficam guardados por 5 minutos para não sobrecarregar a API.
+- Filtro de período no painel (Hoje, Ontem, 7 dias, 30 dias, desde o lançamento ou datas personalizadas): `/api/estatisticas?de=AAAA-MM-DD&ate=AAAA-MM-DD` devolve `periodo` com visitas, origens e aparelhos só daqueles dias.
 
 ## Barracas
 

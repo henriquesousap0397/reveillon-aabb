@@ -40,13 +40,24 @@ async function estatisticas(request, env, ctx) {
     return json({ erro: "configuracao", mensagem: "Faltam os Secrets CF_API_TOKEN e ACCOUNT_ID no projeto do Cloudflare." }, 503);
   }
 
+  // Período opcional: ?de=AAAA-MM-DD&ate=AAAA-MM-DD (datas de Balsas)
+  const q = new URL(request.url).searchParams;
+  const hojeLocal = dataLocal(new Date());
+  const dataOk = (v) => /^\d{4}-\d{2}-\d{2}$/.test(v || "");
+  let de = dataOk(q.get("de")) ? q.get("de") : null, ate = dataOk(q.get("ate")) ? q.get("ate") : null;
+  if (de || ate) {
+    de = de && de > INICIO ? de : INICIO;
+    ate = ate && ate < hojeLocal ? ate : hojeLocal;
+    if (de > ate) return json({ erro: "periodo", mensagem: "A data inicial é depois da data final." }, 400);
+  }
+
   const cache = caches.default;
-  const chave = new Request(new URL("/api/estatisticas?cache=v1", request.url).toString());
+  const chave = new Request(new URL("/api/estatisticas?cache=v2&de=" + (de || "") + "&ate=" + (ate || ""), request.url).toString());
   const guardado = await cache.match(chave);
   if (guardado) return guardado;
 
   try {
-    const resumo = await montarResumo(env);
+    const resumo = await montarResumo(env, de, ate);
     const resposta = json(resumo, 200, true);
     ctx.waitUntil(cache.put(chave, resposta.clone()));
     return resposta;
@@ -122,7 +133,31 @@ function nomeOrigem(host) {
 
 const APARELHOS = { mobile: "Celular", desktop: "Computador", tablet: "Tablet" };
 
-async function montarResumo(env) {
+async function blocosDe(env, ini, fim) {
+  const blocos = [];
+  for (let i = ini; i < fim; i = new Date(i.getTime() + JANELA_DIAS * 86400000)) {
+    blocos.push([i, new Date(Math.min(i.getTime() + JANELA_DIAS * 86400000, fim.getTime()))]);
+  }
+  return Promise.all(blocos.map(([a, b]) => consultar(env, a, b)));
+}
+
+function somarOrigensAparelhos(resultados) {
+  const origens = new Map(), aparelhos = new Map();
+  for (const conta of resultados) {
+    for (const g of conta.origem || []) {
+      const nome = nomeOrigem(g.dimensions.refererHost);
+      if (!nome) continue;
+      origens.set(nome, (origens.get(nome) || 0) + g.sum.visits);
+    }
+    for (const g of conta.aparelho || []) {
+      const nome = APARELHOS[g.dimensions.deviceType] || "Outros";
+      aparelhos.set(nome, (aparelhos.get(nome) || 0) + g.sum.visits);
+    }
+  }
+  return { origens, aparelhos };
+}
+
+async function montarResumo(env, de, ate) {
   const agora = new Date();
   const hoje = dataLocal(agora);
   const porDia = new Map();   // data local -> { visitas, visualizacoes }
@@ -162,6 +197,19 @@ async function montarResumo(env) {
   }
 
   const dias = [...porDia.entries()].sort().map(([data, v]) => ({ data, ...v }));
+
+  // Período escolhido no painel: origens e aparelhos só desses dias.
+  let periodo = null;
+  if (de && ate) {
+    const fimP = new Date(Math.min(meiaNoiteLocal(ate).getTime() + 86400000, agora.getTime()));
+    const res = await blocosDe(env, meiaNoiteLocal(de), fimP);
+    const oa = somarOrigensAparelhos(res);
+    let pv = 0, pz = 0;
+    for (const conta of res) for (const g of conta.hora || []) { pv += g.sum.visits; pz += g.count; }
+    periodo = { de, ate, visitas: pv, visualizacoes: pz,
+      origens: [...oa.origens.entries()].map(([nome, visitas]) => ({ nome, visitas })).filter((o) => o.visitas > 0).sort((a, b) => b.visitas - a.visitas),
+      aparelhos: [...oa.aparelhos.entries()].map(([nome, visitas]) => ({ nome, visitas })).filter((o) => o.visitas > 0).sort((a, b) => b.visitas - a.visitas) };
+  }
   const seteDiasAtras = dataLocal(new Date(meiaNoiteLocal(hoje).getTime() - 6 * 86400000));
   const soma = (lista, campo) => lista.reduce((t, d) => t + d[campo], 0);
   const ordenar = (m) => [...m.entries()].map(([nome, visitas]) => ({ nome, visitas })).filter((o) => o.visitas > 0).sort((a, b) => b.visitas - a.visitas);
@@ -179,5 +227,6 @@ async function montarResumo(env) {
     dias,
     origens: ordenar(origens),
     aparelhos: ordenar(aparelhos),
+    periodo,
   };
 }
