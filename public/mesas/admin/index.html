@@ -252,7 +252,9 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
   <section class="card adm-only" id="c-cfg">
     <h2>Configurações</h2>
     <form id="f-cfg" class="cfg"></form>
-    <div class="adm-only"><button class="pri" type="submit" form="f-cfg">Salvar configurações</button></div>
+    <div class="adm-only filters"><button class="pri" type="submit" form="f-cfg">Salvar configurações</button>
+      <button type="button" id="b-email">Testar e-mail de aviso</button>
+      <span class="sub">A cada nova reserva, um e-mail é enviado para aabbbalsas@gmail.com e aabbdiretoria@gmail.com.</span></div>
   </section>
 </div>
 <dialog id="dp" aria-labelledby="dp-t">
@@ -674,6 +676,11 @@ dialog#dv::backdrop { background: rgba(15,19,34,.6); }
   $("b-csvbar").addEventListener("click", function () {
     fetch("/api/admin/barracas.csv", { headers: { "x-admin-token": TOKEN }, cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error("Falha ao exportar"); return r.blob(); })
       .then(function (b) { var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "reservas-barracas-reveillon-aabb.csv"; document.body.appendChild(a); a.click(); a.remove(); })
+      .catch(function (e) { toast(e.message); });
+  });
+
+  $("b-email").addEventListener("click", function () {
+    api("/api/admin/mesas", { acao: "testar_email" }).then(function () { toast("E-mail de teste enviado. Confira a caixa de entrada (e o spam)."); })
       .catch(function (e) { toast(e.message); });
   });
 

@@ -96,7 +96,7 @@ const BARRACA = Object.fromEntries(BARRACAS.map((b) => [b.id, b]));
 // Barracas já vendidas antes do sistema (registradas uma vez, na primeira execução).
 const BARRACAS_JA_VENDIDAS = ["aabb-01", "aabb-02", "aabb-03", "aabb-04", "aabb-06", "aabb-07", "aabb-08"];
 
-const SO_ADMIN = new Set(["prazo", "barraca_prazo", "barraca_apagar", "barraca_bloquear", "barraca_desbloquear", "apagar", "bloquear", "desbloquear", "config", "usuario_criar", "usuario_senha", "usuario_papel", "usuario_ativo", "usuario_remover"]);
+const SO_ADMIN = new Set(["testar_email", "prazo", "barraca_prazo", "barraca_apagar", "barraca_bloquear", "barraca_desbloquear", "apagar", "bloquear", "desbloquear", "config", "usuario_criar", "usuario_senha", "usuario_papel", "usuario_ativo", "usuario_remover"]);
 const SESSAO_MS = 12 * 3600000;
 
 function hex(buf) { return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join(""); }
@@ -123,6 +123,34 @@ function cpfValido(c) {
     if (dv !== Number(c[t])) return false;
   }
   return true;
+}
+// ----- Aviso por e-mail (Brevo) a cada nova reserva -----
+// Secret BREVO_API_KEY no Cloudflare. Remetente precisa estar verificado no Brevo.
+const EMAIL_DESTINOS = ["aabbbalsas@gmail.com", "aabbdiretoria@gmail.com"];
+const EMAIL_REMETENTE = "aabbdiretoria@gmail.com";
+const PAINEL_URL = "https://reveillon.aabbbalsas.workers.dev/mesas/admin/";
+function escHtml(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function brl(v) { return "R$ " + Number(v).toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+function whatsFmt(w) { w = String(w || ""); return w.length === 11 ? "(" + w.slice(0, 2) + ") " + w.slice(2, 7) + "-" + w.slice(7) : w.length === 10 ? "(" + w.slice(0, 2) + ") " + w.slice(2, 6) + "-" + w.slice(6) : w; }
+async function enviarEmail(env, assunto, linhas) {
+  if (!env || !env.BREVO_API_KEY) return { ok: false, motivo: "sem chave" };
+  const destinos = (env.EMAIL_DESTINOS ? String(env.EMAIL_DESTINOS).split(",") : EMAIL_DESTINOS).map((x) => x.trim()).filter(Boolean);
+  const remetente = (env.EMAIL_REMETENTE || EMAIL_REMETENTE).trim();
+  const html = '<div style="font-family:Arial,sans-serif;font-size:15px;color:#2B2418;max-width:560px">' +
+    '<p style="font-size:12px;letter-spacing:2px;color:#A8822F;text-transform:uppercase;margin:0 0 6px">Réveillon AABB 50 anos</p>' +
+    '<h2 style="margin:0 0 14px;font-size:20px">' + escHtml(assunto) + '</h2><table style="border-collapse:collapse;width:100%">' +
+    linhas.map(([k, v]) => '<tr><td style="padding:6px 10px 6px 0;color:#6F624E;white-space:nowrap;vertical-align:top">' + escHtml(k) + '</td><td style="padding:6px 0;font-weight:bold">' + escHtml(v) + "</td></tr>").join("") +
+    '</table><p style="margin:20px 0 0"><a href="' + PAINEL_URL + '" style="background:#A8822F;color:#fff;padding:10px 18px;text-decoration:none;border-radius:4px">Abrir o painel</a></p>' +
+    '<p style="font-size:12px;color:#6F624E;margin-top:18px">Aviso automático do site do Réveillon. Dados completos (como o CPF) ficam só no painel.</p></div>';
+  const texto = assunto + "\n\n" + linhas.map(([k, v]) => k + ": " + v).join("\n") + "\n\nPainel: " + PAINEL_URL;
+  try {
+    const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: { "api-key": env.BREVO_API_KEY, "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ sender: { name: "Réveillon AABB 50 anos", email: remetente }, to: destinos.map((email) => ({ email })), subject: assunto, htmlContent: html, textContent: texto }),
+    });
+    return { ok: r.ok, status: r.status, corpo: r.ok ? "" : (await r.text()).slice(0, 300) };
+  } catch (x) { return { ok: false, motivo: String(x && x.message || x) }; }
 }
 function cpfFmt(c) { c = String(c || ""); return c.length === 11 ? c.slice(0, 3) + "." + c.slice(3, 6) + "." + c.slice(6, 9) + "-" + c.slice(9) : c; }
 const FIM_PRAZO = Date.parse("2026-12-31T23:59:00-03:00"); // nenhum prazo passa da noite da festa
@@ -362,6 +390,7 @@ export class Mesas extends DurableObject {
     e.historico.push({ t: agora, acao: "reserva", codigo: r.codigo, mesa });
     await this.salvar(e);
     this.tentativasReserva.get(req.ip).push(agora);
+    this.avisarMesa(e, r);
     return json({
       ok: true, codigo: r.codigo, mesa, setor: SETORES[setor].nome, tipo: TIPOS[tipo], extras,
       lugares: e.config.lugares_por_mesa + extras, valor: r.valor, pagamento: PAGAMENTOS[pagamento],
@@ -401,6 +430,11 @@ export class Mesas extends DurableObject {
 
     if (d.acao && d.acao.startsWith("usuario_") || d.acao === "minha_senha") return this.usuarios(e, d, agora, eu, reg);
     if (d.acao === "vender") return this.vender(e, d, agora, eu, reg);
+    if (d.acao === "testar_email") {
+      if (!this.env.BREVO_API_KEY) return erro("Falta o Secret BREVO_API_KEY no Cloudflare.", 503);
+      const res = await enviarEmail(this.env, "Teste de aviso de reservas", [["Enviado por", eu.nome], ["Quando", horaLocal(agora)], ["Destinos", (this.env.EMAIL_DESTINOS || EMAIL_DESTINOS.join(", "))]]);
+      return res.ok ? json({ ok: true }) : erro("O Brevo recusou o envio (" + (res.status || res.motivo) + "): " + (res.corpo || ""), 502);
+    }
     if (d.acao && d.acao.startsWith("barraca_")) return this.acaoBarraca(e, d, agora, eu, reg);
     const r = d.codigo ? acha() : null;
     if (d.codigo && !r) return erro("Reserva não encontrada.", 404);
@@ -507,6 +541,7 @@ export class Mesas extends DurableObject {
     e.reservas.push(r);
     reg(pago ? "vender_pago" : "vender", { codigo: r.codigo, mesa });
     await this.salvar(e);
+    this.avisarMesa(e, r);
     return json({ ok: true, codigo: r.codigo, mesa, valor: r.valor, status: r.status });
   }
 
@@ -572,6 +607,34 @@ export class Mesas extends DurableObject {
     }
     await this.salvar(e);
     return json({ ok: true });
+  }
+
+  // ===== Avisos por e-mail =====
+  avisar(promessa) {
+    const p = promessa.then((res) => { this.ultimoEmail = { t: Date.now(), ...res }; }).catch(() => {});
+    try { this.ctx.waitUntil(p); } catch (x) { /* ambiente sem waitUntil */ }
+    return p;
+  }
+  avisarMesa(e, r) {
+    const s = SETORES[r.setor];
+    const linhas = [
+      ["Código", r.codigo], ["Mesa", String(r.mesa).padStart(2, "0") + " · Setor " + s.nome], ["Tipo", TIPOS[r.tipo] + (r.tipo === "associado" ? " (CPF a validar no painel)" : "")],
+      ["Cliente", r.nome], ["WhatsApp", whatsFmt(r.whatsapp) || "não informado"], ["Cadeiras adicionais", String(r.extras)], ["Lugares", String(e.config.lugares_por_mesa + r.extras)],
+      ["Valor", brl(r.valor)], ["Pagamento", PAGAMENTOS[r.pagamento]],
+      ["Situação", r.status === "vendida" ? "Vendida (já paga)" : "Aguardando pagamento até " + horaLocal(r.expira).slice(8, 10) + "/" + horaLocal(r.expira).slice(5, 7) + " às " + horaLocal(r.expira).slice(11)],
+      ["Origem", r.origem === "painel" ? "Painel (" + r.vendido_por + ")" : "Site"],
+    ];
+    return this.avisar(enviarEmail(this.env, "Nova reserva: Mesa " + String(r.mesa).padStart(2, "0") + " (" + s.nome + ") · " + brl(r.valor), linhas));
+  }
+  avisarBarraca(e, r) {
+    const nome = (BARRACA[r.barraca] || {}).nome || r.barraca;
+    const linhas = [
+      ["Código", r.codigo], ["Barraca", nome], ["Cliente", r.nome], ["WhatsApp", whatsFmt(r.whatsapp) || "não informado"],
+      ["Valor", brl(r.valor) + " · " + e.config.passes_barraca + " passes"], ["Pagamento", PAGAMENTOS[r.pagamento]],
+      ["Situação", r.status === "vendida" ? "Vendida (já paga)" : "Aguardando pagamento até " + horaLocal(r.expira).slice(8, 10) + "/" + horaLocal(r.expira).slice(5, 7) + " às " + horaLocal(r.expira).slice(11)],
+      ["Origem", r.origem === "painel" ? "Painel (" + r.vendido_por + ")" : "Site"],
+    ];
+    return this.avisar(enviarEmail(this.env, "Nova reserva: " + nome + " · " + brl(r.valor), linhas));
   }
 
   // ===== Cliques nos patrocinadores =====
@@ -680,6 +743,7 @@ export class Mesas extends DurableObject {
     e.historico.push({ t: agora, acao: "reserva_barraca", codigo: r.codigo, alvo: BARRACA[id].nome });
     await this.salvar(e);
     this.tentativasReserva.get(req.ip).push(agora);
+    this.avisarBarraca(e, r);
     return json({ ok: true, codigo: r.codigo, barraca: BARRACA[id].nome, valor: r.valor, passes: e.config.passes_barraca, pagamento: PAGAMENTOS[r.pagamento], expira: new Date(r.expira).toISOString() });
   }
   async acaoBarraca(e, d, agora, eu, reg) {
@@ -697,6 +761,7 @@ export class Mesas extends DurableObject {
         ultimo: { acao: pago ? "vender_pago" : "vender", quem: eu.nome, quando: horaLocal(agora) } });
       reg(pago ? "barraca_vender_pago" : "barraca_vender", { codigo: r.codigo, alvo: nomeB(id) });
       await this.salvar(e);
+      this.avisarBarraca(e, r);
       return json({ ok: true, codigo: r.codigo, barraca: nomeB(id), valor: r.valor, status: r.status });
     }
     if (d.acao === "barraca_bloquear" || d.acao === "barraca_desbloquear") {

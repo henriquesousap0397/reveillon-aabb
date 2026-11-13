@@ -69,3 +69,10 @@ Visitas medidas pelo **Cloudflare Web Analytics** (gratuito, sem cookies e sem d
 - Painel: https://reveillon.aabbbalsas.workers.dev/painel/anuncios/ (prévia: `?demo=1`)
 - O logo aponta para `/ir/<chave>`; o Durable Object conta o clique por dia, patrocinador e aparelho (sem cookies, ignora robôs e prévias de link) e redireciona.
 - Para incluir um patrocinador: adicione em `PATROCINADORES` no `src/mesas.js` e use `href="/ir/<chave>"` no logo.
+
+## Aviso por e-mail de novas reservas
+
+- A cada nova reserva (mesa ou barraca, pelo site ou pelo painel) o sistema envia um e-mail pelo **Brevo** para `aabbbalsas@gmail.com` e `aabbdiretoria@gmail.com` (lista em `EMAIL_DESTINOS` no `src/mesas.js`, ou variável `EMAIL_DESTINOS` separada por vírgula).
+- Precisa do Secret **`BREVO_API_KEY`** no projeto `reveillon`. Remetente: `aabbdiretoria@gmail.com` (precisa estar verificado no Brevo; pode mudar com a variável `EMAIL_REMETENTE`).
+- O e-mail não traz o CPF. Sem a chave, as reservas funcionam normalmente e só não há aviso.
+- Botão "Testar e-mail de aviso" nas Configurações do painel (administradores).
