@@ -138,6 +138,7 @@ section { padding-block: clamp(72px, 11vw, 128px); }
 .count i { font-family: var(--font-display); font-size: 2.4rem; color: var(--gold); font-style: normal; line-height: 1.1; }
 .count-done { font-family: var(--font-display); font-size: 2rem; font-style: italic; }
 .hero .actions { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 10px; }
+@media (max-width: 560px) { .hero .actions { flex-direction: column; align-items: center; } .hero .actions .btn { width: min(100%, 320px); } }
 
 /* Informações rápidas com ícones */
 .info { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -338,6 +339,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
       <p class="lead">A virada que abre os 50 anos do clube, com shows, teatro infantil e queima de fogos às margens do Rio Balsas.</p>
       <div class="actions">
         <a class="btn solid" href="#ingressos">Comprar ingresso</a>
+        <a class="btn" href="mesas/">Reservar mesa</a>
         <a class="btn" href="barracas/">Reservar barraca</a>
       </div>
     </div>
