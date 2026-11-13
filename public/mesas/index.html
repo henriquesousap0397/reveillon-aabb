@@ -309,7 +309,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
       <div class="head">
         <p class="eyebrow">Mapa interativo</p>
         <h2 id="t-mapa">Toque na <em class="metal">sua mesa</em></h2>
-        <p class="lead">O palco fica no alto. Mesas tracejadas estão aguardando pagamento e podem voltar a ficar livres.</p>
+        <p class="lead">O palco fica no alto. Toque numa mesa disponível para reservar.</p>
       </div>
       <div class="mapbox">
         <p class="closed" id="closed" hidden>As vendas de mesas estão encerradas no momento.</p>
@@ -317,8 +317,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
         <div id="zones"><p class="counts">Carregando o mapa…</p></div>
         <div class="legend">
           <span><i class="l-ok"></i>Disponível</span>
-          <span><i class="l-wait"></i>Aguardando pagamento</span>
-          <span><i class="l-sold"></i>Vendida</span>
+          <span><i class="l-sold"></i>Reservada</span>
         </div>
         <p class="counts" id="counts" aria-live="polite"></p>
       </div>
@@ -552,7 +551,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
           var b = document.createElement("button"); b.type = "button";
           b.className = "tb " + k + " " + m.status + (mesa === m.n ? " sel" : "");
           b.textContent = String(m.n).padStart(2, "0");
-          var st = { disponivel: "disponível", aguardando: "aguardando pagamento", vendida: "vendida", indisponivel: "indisponível" }[m.status];
+          var st = { disponivel: "disponível", aguardando: "reservada", vendida: "reservada", indisponivel: "indisponível" }[m.status];
           b.setAttribute("aria-label", "Mesa " + m.n + ", setor " + s.nome + ", " + st);
           b.disabled = m.status !== "disponivel" || !D.vendas_abertas;
           b.addEventListener("click", function () { escolher(m.n); });
@@ -564,7 +563,7 @@ footer small { font-size: .78rem; color: var(--night-muted); }
     });
     var c = { disponivel: 0, aguardando: 0, vendida: 0 };
     D.mesas.forEach(function (m) { if (c[m.status] != null) c[m.status]++; });
-    $("counts").textContent = c.disponivel + " disponíveis · " + c.aguardando + " aguardando pagamento · " + c.vendida + " vendidas";
+    $("counts").textContent = c.disponivel + " disponíveis · " + (c.aguardando + c.vendida) + " reservadas";
   }
 
   function escolher(n) {

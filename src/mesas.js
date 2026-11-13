@@ -229,14 +229,15 @@ export class Mesas extends DurableObject {
   }
   valor(e, setor, tipo, extras) { return e.config.precos[setor][tipo] + extras * e.config.preco_cadeira; }
 
-  publico(e, agora) {
+  // interno=true só no painel; no site, "aguardando pagamento" aparece como reservada.
+  publico(e, agora, interno) {
     const mesas = [];
     for (let n = 1; n <= 40; n++) {
       const r = this.reservaDaMesa(e, n, agora);
       const setor = setorDaMesa(n);
       mesas.push({
         n, setor, fileira: fileira(n), fileira_setor: fileiraNoSetor(n),
-        status: e.bloqueadas.includes(n) ? "indisponivel" : r ? (r.status === "vendida" ? "vendida" : "aguardando") : "disponivel",
+        status: e.bloqueadas.includes(n) ? "indisponivel" : r ? (r.status === "vendida" || !interno ? "vendida" : "aguardando") : "disponivel",
       });
     }
     const setores = {};
@@ -418,7 +419,7 @@ export class Mesas extends DurableObject {
     const historico = e.historico.slice(-200).reverse().map((h) => ({ ...h, quando: horaLocal(h.t) }));
     const usuarios = eu.papel === "admin" ? e.usuarios.map((u) => ({ login: u.login, nome: u.nome, papel: u.papel, papel_nome: PAPEIS[u.papel], ativo: u.ativo, criado: horaLocal(u.criado), pendente: !!u.trocar_senha, provisoria_expira: u.provisoria_expira ? horaLocal(u.provisoria_expira) : "" })) : [];
     const bar = this.barracasAdmin(e, agora);
-    return { ...this.publico(e, agora), barracas: bar, config: e.config, reservas, relatorio: rel, bloqueadas: e.bloqueadas, eu: { ...eu, papel_nome: PAPEIS[eu.papel] }, historico, usuarios };
+    return { ...this.publico(e, agora, true), barracas: bar, config: e.config, reservas, relatorio: rel, bloqueadas: e.bloqueadas, eu: { ...eu, papel_nome: PAPEIS[eu.papel] }, historico, usuarios };
   }
 
   async acao(e, req, agora, eu) {
@@ -680,19 +681,19 @@ export class Mesas extends DurableObject {
   // ===== Barracas =====
   async salvarSeNovo(e) { if (this.precisaSalvar) { this.precisaSalvar = false; await this.salvar(e); } }
   barracaDe(e, id, agora) { return e.barracas.find((r) => r.barraca === id && this.ativa(r, agora)); }
-  barracasPublico(e, agora) {
+  barracasPublico(e, agora, interno) {
     return {
       atualizado: new Date(agora).toISOString(),
       preco: e.config.preco_barraca, passes: e.config.passes_barraca,
       prazo_pagamento_horas: e.config.prazo_pagamento_horas, vendas_abertas: e.config.vendas_abertas,
       barracas: BARRACAS.map((b) => {
         const r = this.barracaDe(e, b.id, agora);
-        return { ...b, status: e.barracas_bloq.includes(b.id) ? "indisponivel" : r ? (r.status === "vendida" ? "vendida" : "aguardando") : "disponivel" };
+        return { ...b, status: e.barracas_bloq.includes(b.id) ? "indisponivel" : r ? (r.status === "vendida" || !interno ? "vendida" : "aguardando") : "disponivel" };
       }),
     };
   }
   barracasAdmin(e, agora) {
-    const pub = this.barracasPublico(e, agora);
+    const pub = this.barracasPublico(e, agora, true);
     const reservas = e.barracas.map((r) => Object.assign({}, r, {
       status_efetivo: this.statusEfetivo(r, agora), nome_barraca: (BARRACA[r.barraca] || {}).nome || r.barraca,
       pagamento_nome: PAGAMENTOS[r.pagamento], criado_local: horaLocal(r.criado), expira_local: horaLocal(r.expira),
