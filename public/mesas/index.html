@@ -483,11 +483,15 @@ footer small { font-size: .78rem; color: var(--night-muted); }
 (function () {
   var WHATSAPP = "5599988276988"; // secretaria da AABB
   var PIX = "aabbdiretoria@gmail.com";
-  // Links de pagamento da Cielo (um por setor e tipo). Cobram só a mesa; cadeiras extras são pagas à parte.
-  var CIELO = {
-    gold:   { associado: "https://cielolink.com.br/4BXCRo3", nao_associado: "https://cielolink.com.br/4BWEoL0" },
-    marrom: { associado: "https://cielolink.com.br/4sYquUD", nao_associado: "https://cielolink.com.br/4zNGr2E" },
-    royal:  { associado: "https://cielolink.com.br/4zCZf4w", nao_associado: "https://cielolink.com.br/48LYlXE" }
+  // Links de pagamento (Stone), um por setor, tipo e quantidade de cadeiras adicionais (0, 1 ou 2).
+  // Valores conferidos em 14/11: cada link cobra exatamente a mesa + as cadeiras.
+  var LINKS = {
+    gold:   { associado:     ["https://payment-link-v3.stone.com.br/pl_XeVDr2AqlBEWmQAt0HGXm51MRPngyzw3", "https://payment-link-v3.stone.com.br/pl_bPzLapD1glYGDO8TL7t4N97BwX5Rv0rK", "https://payment-link-v3.stone.com.br/pl_Lq4mZbE1a9j800vFNHEW8Xd7gWpVOonR"],
+              nao_associado: ["https://payment-link-v3.stone.com.br/pl_kljdvAGXxDZLJoBSJpfp3E01eO4z5mWp", "https://payment-link-v3.stone.com.br/pl_7QbMOVDR1GY2aamijasNv2N0BlrZmXEz", "https://payment-link-v3.stone.com.br/pl_p78Q5Db1G9agrXqTKcM1B63WdzokR0Py"] },
+    marrom: { associado:     ["https://payment-link-v3.stone.com.br/pl_kve4BD21VJ8MGpGIP2hQmKRd5qLpbaAy", "https://payment-link-v3.stone.com.br/pl_58G6qoL9JAB0DrxC0yTbYmMNy2RzQe1V", "https://payment-link-v3.stone.com.br/pl_Xv2853QgAz4lqKU0PHXKGmNpqxZjdLPD"],
+              nao_associado: ["https://payment-link-v3.stone.com.br/pl_aYzGJbVrL6q9r7KfGzI5PZB8oy72nveX", "https://payment-link-v3.stone.com.br/pl_qD6ro0pkMBWEPxrDCpI5JQY3wNnbjdlg", "https://payment-link-v3.stone.com.br/pl_veqBVG3gmj8dRAHmouAe94bWMoNyQAYR"] },
+    royal:  { associado:     ["https://payment-link-v3.stone.com.br/pl_K1Y5ZOb3B0Nq78ac8fJ3P7dk6QMLgj9z", "https://payment-link-v3.stone.com.br/pl_YqK47oBAvjbZa9QswIoaJQ2VNXwEO1Wx", "https://payment-link-v3.stone.com.br/pl_xV74WQqd6GwbOphXJFdd0RmekNyAP8Lj"],
+              nao_associado: ["https://payment-link-v3.stone.com.br/pl_PnzAEylLoZOQ3AnC6qfxMrNpxbW18kvX", "https://payment-link-v3.stone.com.br/pl_3A51V2dlZ4qPz1qH3eTzAK09EaQXbnGY", "https://payment-link-v3.stone.com.br/pl_x4Y3lvOJoq0kvyQImHNeManWbNrj5691"] }
   };
   var $ = function (id) { return document.getElementById(id); };
   var brl = function (v) { return "R$ " + Number(v).toLocaleString("pt-BR", { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
@@ -653,17 +657,15 @@ footer small { font-size: .78rem; color: var(--night-muted); }
     $("d-warn").textContent = "Sua mesa fica separada até " + fim + ". Faça o pagamento e envie o comprovante para a secretaria. A reserva é confirmada depois que a administração valida o pagamento" + (r.tipo === "Associado" ? " e a sua associação (nome e CPF)." : ".");
     $("d-pix").hidden = r.pagamento !== "Pix";
     var mm = D.mesas[r.mesa - 1], tk = r.tipo === "Associado" ? "associado" : "nao_associado";
-    var link = mm && CIELO[mm.setor] && CIELO[mm.setor][tk];
+    var link = mm && LINKS[mm.setor] && LINKS[mm.setor][tk] && LINKS[mm.setor][tk][r.extras];
     $("d-cielo").hidden = !(r.pagamento.indexOf("Cartão") === 0 && link);
     if (link) {
       $("d-cielo-a").href = link;
-      var base = D.setores[mm.setor].precos[tk];
-      $("d-cielo-n").textContent = "O link cobra a mesa " + r.setor + " (" + r.tipo.toLowerCase() + "): " + brl(base) + ", em até 3x." +
-        (r.extras > 0 ? " As " + r.extras + " cadeira(s) adicional(is) (" + brl(r.extras * D.preco_cadeira) + ") são pagas à parte: combine com a secretaria ao enviar o comprovante." : "") +
-        " Depois de pagar, envie o comprovante no botão abaixo.";
+      $("d-cielo-n").textContent = "O link cobra " + brl(r.valor) + ": mesa " + r.setor + " (" + r.tipo.toLowerCase() + ")" +
+        (r.extras > 0 ? " + " + r.extras + (r.extras === 1 ? " cadeira adicional" : " cadeiras adicionais") : "") + ". Depois de pagar, envie o comprovante no botão abaixo.";
     }
     var msg = "Olá! Fiz a reserva " + r.codigo + " no site do Réveillon AABB 50 anos.\nMesa " + String(r.mesa).padStart(2, "0") + " · Setor " + r.setor + "\nTipo: " + r.tipo +
-      "\nCadeiras adicionais: " + r.extras + "\nTotal: " + brl(r.valor) + "\nPagamento: " + r.pagamento + "\n" + (r.pagamento === "Pix" ? "Segue o comprovante do Pix." : r.pagamento.indexOf("Cartão") === 0 ? "Segue o comprovante do cartão." + (r.extras > 0 ? " Como pago as cadeiras adicionais?" : "") : "Quero combinar o pagamento.");
+      "\nCadeiras adicionais: " + r.extras + "\nTotal: " + brl(r.valor) + "\nPagamento: " + r.pagamento + "\n" + (r.pagamento === "Pix" ? "Segue o comprovante do Pix." : r.pagamento.indexOf("Cartão") === 0 ? "Segue o comprovante do cartão." : "Quero combinar o pagamento.");
     $("d-whats").href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(msg);
     d.focus(); d.scrollIntoView();
   }
